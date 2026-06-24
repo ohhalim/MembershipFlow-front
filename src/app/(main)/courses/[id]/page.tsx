@@ -108,7 +108,7 @@ export default function CourseDetailPage() {
                   width={52}
                 />
                 <Tooltip
-                  formatter={(value: number) => [formatPrice(value), '시세']}
+                  formatter={(value) => [formatPrice(Number(value)), '시세']}
                   labelFormatter={(label) => label}
                   contentStyle={{ fontSize: 12, borderRadius: 8 }}
                 />
