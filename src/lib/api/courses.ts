@@ -16,24 +16,44 @@ export interface CourseListParams {
 }
 
 export const coursesApi = {
-  getList(params: CourseListParams = {}): Promise<Course[]> {
+  async getList(params: CourseListParams = {}): Promise<Course[]> {
     const query = new URLSearchParams()
     if (params.keyword) query.set('keyword', params.keyword)
     if (params.category && params.category !== '전체') query.set('category', params.category)
     if (params.sort) query.set('sort', params.sort)
     const qs = query.toString()
-    return apiClient.get<Course[]>(`/api/v1/courses${qs ? `?${qs}` : ''}`)
+    const res = await apiClient.get<{ content: Course[] } | Course[]>(`/api/v1/courses${qs ? `?${qs}` : ''}`)
+    return Array.isArray(res) ? res : res.content
   },
 
   getDetail(id: number): Promise<CourseDetail> {
     return apiClient.get<CourseDetail>(`/api/v1/courses/${id}`)
   },
 
-  getPriceHistory(id: number, period: ChartPeriod): Promise<PricePoint[]> {
-    return apiClient.get<PricePoint[]>(`/api/v1/courses/${id}/price-history?period=${period}`)
+  async getPriceHistory(id: number, period: ChartPeriod): Promise<PricePoint[]> {
+    const days: Record<ChartPeriod, number> = { '1d': 1, '1w': 7, '1m': 30, '3m': 90, '1y': 365 }
+    const to = new Date()
+    const from = new Date(to)
+    from.setDate(from.getDate() - days[period])
+    const fmt = (d: Date) => d.toISOString().slice(0, 10)
+    const res = await apiClient.get<{ points: { date: string; avgPrice: number }[] }>(
+      `/api/v1/courses/${id}/prices?from=${fmt(from)}&to=${fmt(to)}&interval=DAY`,
+    )
+    return res.points.map((p) => ({ date: p.date, price: p.avgPrice }))
   },
 
-  getRanking(type: RankingType, period: RankingPeriod): Promise<RankingItem[]> {
-    return apiClient.get<RankingItem[]>(`/api/v1/courses/ranking?type=${type}&period=${period}`)
+  async getRanking(type: RankingType, period: RankingPeriod): Promise<RankingItem[]> {
+    const sort = type === 'rise' ? 'GAIN' : 'LOSS'
+    const res = await apiClient.get<{ rank: number; courseId: number; name: string; region: string; currentPrice: number; changeRate: number }[]>(
+      `/api/v1/courses/ranking?period=${period}d&sort=${sort}&size=20`,
+    )
+    return res.map((item) => ({
+      rank: item.rank,
+      courseId: item.courseId,
+      courseName: item.name,
+      region: item.region,
+      latestPrice: item.currentPrice,
+      changeRate: item.changeRate,
+    }))
   },
 }
