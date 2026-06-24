@@ -1,0 +1,42 @@
+import { render, screen } from '@testing-library/react'
+import { CourseCard } from '../CourseCard'
+import type { Course } from '@/lib/types'
+
+const mockCourse: Course = {
+  id: 1,
+  name: '레이크사이드CC',
+  region: '경기',
+  category: 'GOLF',
+  membershipType: '주말회원',
+  latestPrice: 250_000_000,
+  changeRate: 2.5,
+  updatedAt: '2026-06-24T10:00:00',
+}
+
+describe('CourseCard', () => {
+  it('종목명과 지역을 렌더링한다', () => {
+    render(<CourseCard course={mockCourse} />)
+    expect(screen.getByText('레이크사이드CC')).toBeInTheDocument()
+    expect(screen.getByText('경기 · 주말회원')).toBeInTheDocument()
+  })
+
+  it('가격을 간략 형식으로 렌더링한다', () => {
+    render(<CourseCard course={mockCourse} />)
+    expect(screen.getByText('2.5억')).toBeInTheDocument()
+  })
+
+  it('상승률을 ▲ 기호와 함께 렌더링한다', () => {
+    render(<CourseCard course={mockCourse} />)
+    expect(screen.getByText('▲ 2.5%')).toBeInTheDocument()
+  })
+
+  it('가격 정보가 없으면 - 를 표시한다', () => {
+    render(<CourseCard course={{ ...mockCourse, latestPrice: null, changeRate: null }} />)
+    expect(screen.getByText('-')).toBeInTheDocument()
+  })
+
+  it('종목 상세 페이지로 이동하는 링크를 가진다', () => {
+    render(<CourseCard course={mockCourse} />)
+    expect(screen.getByRole('link')).toHaveAttribute('href', '/courses/1')
+  })
+})
