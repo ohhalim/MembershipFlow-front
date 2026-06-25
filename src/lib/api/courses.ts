@@ -31,12 +31,13 @@ export const coursesApi = {
 
   async getPriceHistory(id: number, period: ChartPeriod): Promise<PricePoint[]> {
     const days: Record<ChartPeriod, number> = { '1d': 1, '1w': 7, '1m': 30, '3m': 90, '1y': 365 }
+    const interval: Record<ChartPeriod, string> = { '1d': 'DAY', '1w': 'DAY', '1m': 'DAY', '3m': 'WEEK', '1y': 'MONTH' }
     const to = new Date()
     const from = new Date(to)
     from.setDate(from.getDate() - days[period])
     const fmt = (d: Date) => d.toISOString().slice(0, 10)
     const res = await apiClient.get<{ points: { date: string; avgPrice: number }[] }>(
-      `/api/v1/courses/${id}/prices?from=${fmt(from)}&to=${fmt(to)}&interval=DAY`,
+      `/api/v1/courses/${id}/prices?from=${fmt(from)}&to=${fmt(to)}&interval=${interval[period]}`,
     )
     return res.points.map((p) => ({ date: p.date, price: p.avgPrice }))
   },
