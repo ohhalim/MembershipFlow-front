@@ -15,14 +15,23 @@ export interface CourseListParams {
   sort?: 'latest' | 'price_asc' | 'price_desc'
 }
 
+export interface CourseListPage {
+  content: Course[]
+  last: boolean
+  totalElements: number
+}
+
 export const coursesApi = {
-  async getList(params: CourseListParams = {}): Promise<Course[]> {
+  async getList(params: CourseListParams = {}, page = 0): Promise<CourseListPage> {
     const query = new URLSearchParams()
     if (params.keyword) query.set('q', params.keyword)
     if (params.category && params.category !== '전체') query.set('courseType', params.category)
-    const qs = query.toString()
-    const res = await apiClient.get<{ content: Course[] } | Course[]>(`/api/v1/courses${qs ? `?${qs}` : ''}`)
-    return Array.isArray(res) ? res : res.content
+    query.set('page', String(page))
+    query.set('size', '20')
+    const res = await apiClient.get<{ content: Course[]; last: boolean; totalElements: number }>(
+      `/api/v1/courses?${query.toString()}`,
+    )
+    return { content: res.content, last: res.last, totalElements: res.totalElements }
   },
 
   getDetail(id: number): Promise<CourseDetail> {
