@@ -49,7 +49,7 @@ function SubscriptionPageContent() {
 
       await payment.requestBillingAuth({
         method: 'CARD',
-        successUrl: `${process.env.NEXT_PUBLIC_API_URL}/api/v1/subscriptions/callback`,
+        successUrl: `${window.location.origin}/api/v1/subscriptions/callback`,
         failUrl: `${window.location.origin}/my/subscription?error=1`,
       })
     } catch (e) {
