@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Check, ChevronLeft, AlertCircle } from 'lucide-react'
+import { useState, useEffect, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Check, ChevronLeft, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 import { Button } from '@/components/ui/Button'
 import { Skeleton } from '@/components/ui/Skeleton'
@@ -12,15 +12,29 @@ import { subscriptionApi } from '@/lib/api/subscription'
 import { formatPrice } from '@/lib/utils'
 import type { SubscriptionPlan } from '@/lib/types'
 
-export default function SubscriptionPage() {
+function SubscriptionPageContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { data: plans, isLoading: plansLoading } = useSubscriptionPlans()
   const { data: mySubscription, isLoading: subLoading, mutate } = useMySubscription()
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
 
   const isActive = mySubscription?.status === 'ACTIVE'
+
+  useEffect(() => {
+    if (searchParams.get('success') === '1') {
+      setSuccess(true)
+      mutate()
+      router.replace('/my/subscription')
+    }
+    if (searchParams.get('error') === '1') {
+      setError('카드 등록에 실패했어요. 다시 시도해주세요.')
+      router.replace('/my/subscription')
+    }
+  }, [searchParams, mutate, router])
 
   async function handleSubscribe() {
     if (!selectedPlan) return
@@ -36,7 +50,7 @@ export default function SubscriptionPage() {
 
       await payment.requestBillingAuth({
         method: 'CARD',
-        successUrl: `${window.location.origin}/api/v1/subscriptions/callback`,
+        successUrl: `${process.env.NEXT_PUBLIC_API_URL}/api/v1/subscriptions/callback`,
         failUrl: `${window.location.origin}/my/subscription?error=1`,
       })
     } catch (e) {
@@ -70,6 +84,14 @@ export default function SubscriptionPage() {
       />
 
       <div className="px-4 pt-2 pb-10">
+        {/* 성공 배너 */}
+        {success && (
+          <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-xl px-3 py-2.5 mb-4">
+            <CheckCircle2 size={14} className="text-green-500 flex-shrink-0" />
+            <p className="text-xs text-green-700 font-medium">구독이 완료되었어요!</p>
+          </div>
+        )}
+
         {/* 현재 구독 상태 */}
         {!subLoading && mySubscription && (
           <div className="rounded-2xl bg-blue-50 border border-blue-100 p-4 mb-6">
@@ -165,5 +187,13 @@ export default function SubscriptionPage() {
         )}
       </div>
     </>
+  )
+}
+
+export default function SubscriptionPage() {
+  return (
+    <Suspense>
+      <SubscriptionPageContent />
+    </Suspense>
   )
 }
