@@ -52,3 +52,30 @@ export function changeRateColor(rate: number): string {
 export function priceGap(targetPrice: number, currentPrice: number): number {
   return Math.round(((targetPrice - currentPrice) / currentPrice) * 100)
 }
+
+const CATEGORY_LABEL: Record<string, string> = {
+  GOLF: '골프',
+  CONDO: '콘도',
+  FITNESS: '피트니스',
+}
+
+const MEMBERSHIP_LABEL: Record<string, string> = {
+  REGULAR: '일반',
+  WEEKDAY: '주중',
+  WEEKEND: '주말',
+  FAMILY: '가족',
+  INDIVIDUAL: '개인',
+  CORPORATE: '법인',
+  SHAREHOLDER: '주주',
+  PREFERRED: '우선주',
+  MALE: '남성',
+  FEMALE: '여성',
+}
+
+export function formatCategory(value: string | null | undefined): string {
+  return value ? (CATEGORY_LABEL[value] ?? value) : ''
+}
+
+export function formatMembershipType(value: string | null | undefined): string {
+  return value ? (MEMBERSHIP_LABEL[value] ?? value) : ''
+}

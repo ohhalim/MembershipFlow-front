@@ -1,21 +1,24 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { BottomTabBar } from '@/components/layout/BottomTabBar'
 import { auth } from '@/lib/auth'
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
-  const isAuthenticated = auth.isAuthenticated()
+  const [checked, setChecked] = useState(false)
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!auth.isAuthenticated()) {
       router.replace('/login')
+    } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setChecked(true)
     }
-  }, [isAuthenticated, router])
+  }, [router])
 
-  if (!isAuthenticated) return null
+  if (!checked) return null
 
   return (
     <div className="min-h-screen bg-gray-50">

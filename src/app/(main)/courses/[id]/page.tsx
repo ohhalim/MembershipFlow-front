@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/Badge'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { useCourseDetail, usePriceHistory } from '@/lib/hooks/useCourses'
 import { useWatchlist } from '@/lib/hooks/useWatchlist'
-import { formatPrice, formatPriceCompact, formatChangeRate, changeRateColor } from '@/lib/utils'
+import { formatPrice, formatPriceCompact, formatChangeRate, changeRateColor, formatCategory, formatMembershipType } from '@/lib/utils'
 import { cn } from '@/lib/cn'
 import type { ChartPeriod } from '@/lib/types'
 
@@ -81,7 +81,10 @@ export default function CourseDetailPage() {
           </div>
         ) : course ? (
           <div className="mb-6">
-            <p className="text-xs text-gray-400 mb-1">{course.region} · {course.membershipType}</p>
+            <p className="text-xs text-gray-400 mb-1">
+              {[course.region, formatCategory(course.category), formatMembershipType(course.membershipType)]
+                .filter(Boolean).join(' · ')}
+            </p>
             <p className="text-2xl font-extrabold text-gray-900">
               {course.latestPrice != null ? formatPrice(course.latestPrice) : '-'}
             </p>
