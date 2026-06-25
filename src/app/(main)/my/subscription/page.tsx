@@ -19,19 +19,18 @@ function SubscriptionPageContent() {
   const { data: mySubscription, isLoading: subLoading, mutate } = useMySubscription()
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
+  const [error, setError] = useState<string | null>(
+    () => searchParams.get('error') === '1' ? '카드 등록에 실패했어요. 다시 시도해주세요.' : null
+  )
+  const [success, setSuccess] = useState(() => searchParams.get('success') === '1')
 
   const isActive = mySubscription?.status === 'ACTIVE'
 
   useEffect(() => {
     if (searchParams.get('success') === '1') {
-      setSuccess(true)
       mutate()
       router.replace('/my/subscription')
-    }
-    if (searchParams.get('error') === '1') {
-      setError('카드 등록에 실패했어요. 다시 시도해주세요.')
+    } else if (searchParams.get('error') === '1') {
       router.replace('/my/subscription')
     }
   }, [searchParams, mutate, router])
