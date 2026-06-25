@@ -18,9 +18,8 @@ export interface CourseListParams {
 export const coursesApi = {
   async getList(params: CourseListParams = {}): Promise<Course[]> {
     const query = new URLSearchParams()
-    if (params.keyword) query.set('keyword', params.keyword)
-    if (params.category && params.category !== '전체') query.set('category', params.category)
-    if (params.sort) query.set('sort', params.sort)
+    if (params.keyword) query.set('q', params.keyword)
+    if (params.category && params.category !== '전체') query.set('courseType', params.category)
     const qs = query.toString()
     const res = await apiClient.get<{ content: Course[] } | Course[]>(`/api/v1/courses${qs ? `?${qs}` : ''}`)
     return Array.isArray(res) ? res : res.content

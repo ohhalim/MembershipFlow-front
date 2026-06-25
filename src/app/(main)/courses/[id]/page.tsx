@@ -11,6 +11,7 @@ import { Header } from '@/components/layout/Header'
 import { Badge } from '@/components/ui/Badge'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { useCourseDetail, usePriceHistory } from '@/lib/hooks/useCourses'
+import { useWatchlist } from '@/lib/hooks/useWatchlist'
 import { formatPrice, formatPriceCompact, formatChangeRate, changeRateColor } from '@/lib/utils'
 import { cn } from '@/lib/cn'
 import type { ChartPeriod } from '@/lib/types'
@@ -28,9 +29,28 @@ export default function CourseDetailPage() {
   const router = useRouter()
   const id = Number(params.id)
   const [period, setPeriod] = useState<ChartPeriod>('1m')
+  const [heartLoading, setHeartLoading] = useState(false)
 
   const { data: course, isLoading: courseLoading } = useCourseDetail(id)
   const { data: history, isLoading: historyLoading } = usePriceHistory(id, period)
+  const { data: watchlist, add: addWatch, remove: removeWatch } = useWatchlist()
+
+  const watchlistItem = watchlist?.find((w) => w.courseId === id)
+  const isWatched = !!watchlistItem
+
+  async function handleToggleWatchlist() {
+    if (heartLoading) return
+    setHeartLoading(true)
+    try {
+      if (isWatched) {
+        await removeWatch(watchlistItem.id)
+      } else {
+        await addWatch({ courseId: id, targetPrice: null, alertYn: false })
+      }
+    } finally {
+      setHeartLoading(false)
+    }
+  }
 
   return (
     <>
@@ -42,8 +62,11 @@ export default function CourseDetailPage() {
           </button>
         }
         right={
-          <button className="p-1">
-            <Heart size={20} className="text-gray-400" />
+          <button onClick={handleToggleWatchlist} disabled={heartLoading} className="p-1">
+            <Heart
+              size={20}
+              className={cn(isWatched ? 'fill-red-400 text-red-400' : 'text-gray-400')}
+            />
           </button>
         }
       />
