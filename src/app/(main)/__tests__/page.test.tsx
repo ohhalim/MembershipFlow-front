@@ -13,9 +13,26 @@ jest.mock('@/lib/hooks/useCourses', () => ({
   useCourseList: (...args: unknown[]) => mockUseCourseList(...args),
 }))
 
+const defaultReturn = {
+  courses: mockCourses,
+  isLoading: false,
+  isLoadingMore: false,
+  hasMore: false,
+  loadMore: jest.fn(),
+  total: 2,
+}
+
+beforeAll(() => {
+  global.IntersectionObserver = class {
+    observe() {}
+    disconnect() {}
+    unobserve() {}
+  } as unknown as typeof IntersectionObserver
+})
+
 describe('HomePage', () => {
   beforeEach(() => {
-    mockUseCourseList.mockReturnValue({ data: mockCourses, isLoading: false })
+    mockUseCourseList.mockReturnValue(defaultReturn)
   })
 
   it('종목 목록을 렌더링한다', () => {
@@ -44,13 +61,13 @@ describe('HomePage', () => {
   })
 
   it('데이터 없을 때 "검색 결과가 없어요" 메시지를 표시한다', () => {
-    mockUseCourseList.mockReturnValue({ data: [], isLoading: false })
+    mockUseCourseList.mockReturnValue({ ...defaultReturn, courses: [] })
     render(<HomePage />)
     expect(screen.getByText('검색 결과가 없어요')).toBeInTheDocument()
   })
 
   it('로딩 중 스켈레톤을 표시한다', () => {
-    mockUseCourseList.mockReturnValue({ data: undefined, isLoading: true })
+    mockUseCourseList.mockReturnValue({ ...defaultReturn, courses: [], isLoading: true })
     const { container } = render(<HomePage />)
     expect(container.querySelectorAll('.animate-pulse').length).toBeGreaterThan(0)
   })
