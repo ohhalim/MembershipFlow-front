@@ -1,8 +1,9 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import SubscriptionPage from '../page'
 
 jest.mock('next/navigation', () => ({
-  useRouter: () => ({ back: jest.fn() }),
+  useRouter: () => ({ back: jest.fn(), replace: jest.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }))
 jest.mock('@tosspayments/tosspayments-sdk', () => ({
   loadTossPayments: jest.fn(),
