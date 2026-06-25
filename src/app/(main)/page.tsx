@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Search } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 import { CourseCard } from '@/components/course/CourseCard'
@@ -26,8 +26,24 @@ export default function HomePage() {
   const [keyword, setKeyword] = useState('')
   const [category, setCategory] = useState<'' | CourseCategory>('')
   const [sort, setSort] = useState<'latest' | 'price_asc' | 'price_desc'>('latest')
+  const sentinelRef = useRef<HTMLDivElement>(null)
 
-  const { data: courses, isLoading } = useCourseList({ keyword, category, sort })
+  const { courses, isLoading, isLoadingMore, hasMore, loadMore } = useCourseList({ keyword, category, sort })
+
+  useEffect(() => {
+    const el = sentinelRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isLoadingMore) {
+          loadMore()
+        }
+      },
+      { threshold: 0.1 },
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [hasMore, isLoadingMore, loadMore])
 
   return (
     <>
@@ -90,13 +106,28 @@ export default function HomePage() {
                 </div>
               </div>
             ))
-          : courses?.map((course) => (
+          : courses.map((course) => (
               <CourseCard key={course.id} course={course} />
             ))}
 
-        {!isLoading && courses?.length === 0 && (
+        {!isLoading && courses.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20 text-gray-400">
             <p className="text-sm">검색 결과가 없어요</p>
+          </div>
+        )}
+      </div>
+
+      {/* 무한 스크롤 센티넬 */}
+      <div ref={sentinelRef} className="h-12 flex items-center justify-center">
+        {isLoadingMore && (
+          <div className="flex gap-1">
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className="w-1.5 h-1.5 rounded-full bg-gray-300 animate-bounce"
+                style={{ animationDelay: `${i * 0.15}s` }}
+              />
+            ))}
           </div>
         )}
       </div>
