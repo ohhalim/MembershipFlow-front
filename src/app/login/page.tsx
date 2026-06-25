@@ -6,7 +6,7 @@ import { BarChart2, Bell, TrendingUp } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { auth } from '@/lib/auth'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? ''
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080'
 
 const FEATURES = [
   { Icon: BarChart2, title: '시세 차트', desc: '동부·동아\n통합 조회' },
