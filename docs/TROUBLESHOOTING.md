@@ -178,6 +178,61 @@ useSWR(key, fetcher, {
 
 ---
 
+## 8. 종목 목록 페이지네이션 미작동 (298개 중 20개만 표시)
+
+### 배경
+홈 화면에서 전체 298개 종목 중 첫 페이지(20개)만 표시되고 추가 로드가 되지 않음.
+
+### 원인
+`useSWR` 단일 호출로 고정 `page=0`만 요청. 백엔드는 페이지네이션을 지원하지만 프론트가 다음 페이지를 요청하지 않음.
+
+### 해결
+`useSWR` → `useSWRInfinite` 전환 + `IntersectionObserver`로 무한 스크롤 구현:
+
+```typescript
+// useCourses.ts
+export function useCourseList(params: CourseListParams = {}) {
+  const getKey = (pageIndex: number, previousPageData: CourseListPage | null) => {
+    if (previousPageData && previousPageData.last) return null
+    return ['/api/v1/courses', params, pageIndex] as const
+  }
+  const { data, size, setSize, isLoading, isValidating } = useSWRInfinite<CourseListPage>(
+    getKey,
+    ([, p, page]) => coursesApi.getList(p as CourseListParams, page as number),
+  )
+  const courses = data ? data.flatMap((p) => p.content) : []
+  const hasMore = data ? !data[data.length - 1]?.last : true
+  return { courses, isLoading, hasMore, loadMore: () => setSize(size + 1) }
+}
+```
+
+```tsx
+// page.tsx — 스크롤 끝 감지
+const sentinelRef = useRef<HTMLDivElement>(null)
+useEffect(() => {
+  const observer = new IntersectionObserver(
+    (entries) => { if (entries[0].isIntersecting && hasMore) loadMore() },
+    { threshold: 0.1 }
+  )
+  if (sentinelRef.current) observer.observe(sentinelRef.current)
+  return () => observer.disconnect()
+}, [hasMore, loadMore])
+```
+
+테스트에서 `IntersectionObserver` 스텁 추가 필요:
+```javascript
+beforeAll(() => {
+  global.IntersectionObserver = class {
+    observe() {} disconnect() {} unobserve() {}
+  } as unknown as typeof IntersectionObserver
+})
+```
+
+### 교훈
+백엔드가 페이지네이션을 지원하더라도 프론트에서 `useSWRInfinite` + `IntersectionObserver` 조합으로 연결해야 실제로 동작한다.
+
+---
+
 ## 7. NEXT_PUBLIC_* 환경변수 반영 안 됨
 
 ### 배경
