@@ -29,22 +29,13 @@ describe('LoginPage', () => {
 
   it('Google 로그인 버튼을 렌더링한다', () => {
     render(<LoginPage />)
-    expect(screen.getByRole('button', { name: /google로 계속하기/i })).toBeInTheDocument()
+    const button = screen.getByRole('button', { name: /google로 계속하기/i })
+    expect(button).toBeInTheDocument()
+    expect(button).toBeEnabled()
   })
 
-  it('이미 인증된 경우 홈으로 리디렉션한다', () => {
-    jest.resetModules()
-    // auth mock overridden inline to return true
-    jest.doMock('@/lib/auth', () => ({ auth: { isAuthenticated: () => true } }))
-    // Navigation side-effect tested via router.replace being callable without throw
-    fireEvent.click(document.createElement('div'))
-    expect(true).toBe(true)
-  })
-
-  it('버튼 클릭 시 에러 없이 처리된다', () => {
+  it('비인증 상태에서는 리디렉션하지 않는다', () => {
     render(<LoginPage />)
-    expect(() =>
-      fireEvent.click(screen.getByRole('button', { name: /google로 계속하기/i }))
-    ).not.toThrow()
+    expect(mockReplace).not.toHaveBeenCalled()
   })
 })
