@@ -6,14 +6,24 @@ import { coursesApi, type CourseListParams, type CourseListPage, type RankingPag
 import type { Course, CourseDetail, PricePoint, ChartPeriod, RankingItem, RankingType, RankingPeriod } from '@/lib/types'
 
 export function useCourseList(params: CourseListParams = {}) {
+  const { keyword = '', category = '', sort = 'latest' } = params
+
   const getKey = (pageIndex: number, previousPageData: CourseListPage | null) => {
     if (previousPageData && previousPageData.last) return null
-    return ['/api/v1/courses', params, pageIndex] as const
+    return ['/api/v1/courses', keyword, category, sort, pageIndex] as const
   }
 
   const { data, size, setSize, isLoading, isValidating } = useSWRInfinite<CourseListPage>(
     getKey,
-    ([, p, page]) => coursesApi.getList(p as CourseListParams, page as number),
+    ([, kw, cat, s, page]) => coursesApi.getList(
+      { keyword: kw as string, category: cat as string, sort: s as CourseListParams['sort'] },
+      page as number,
+    ),
+    { onErrorRetry: (err, _key, _cfg, revalidate, { retryCount }) => {
+        if (retryCount >= 2) return
+        setTimeout(() => revalidate({ retryCount }), 3000)
+      },
+    },
   )
 
   const courses = data ? data.flatMap((p) => p.content) : []
