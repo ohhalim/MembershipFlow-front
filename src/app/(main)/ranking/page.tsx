@@ -6,7 +6,7 @@ import { TrendingUp, TrendingDown } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { cn } from '@/lib/cn'
-import { useRanking } from '@/lib/hooks/useCourses'
+import { useRankingInfinite } from '@/lib/hooks/useCourses'
 import { formatPriceCompact, formatChangeRate, changeRateColor } from '@/lib/utils'
 import type { RankingType, RankingPeriod } from '@/lib/types'
 
@@ -26,7 +26,7 @@ export default function RankingPage() {
   const [type, setType] = useState<RankingType>('rise')
   const [period, setPeriod] = useState<RankingPeriod>(1)
 
-  const { data: ranking, isLoading } = useRanking(type, period)
+  const { items: ranking, isLoading, isLoadingMore, hasMore, loadMore } = useRankingInfinite(type, period)
 
   return (
     <>
@@ -127,6 +127,16 @@ export default function RankingPage() {
           <div className="flex items-center justify-center py-20 text-sm text-gray-400">
             랭킹 데이터가 없어요
           </div>
+        )}
+
+        {!isLoading && hasMore && (
+          <button
+            onClick={loadMore}
+            disabled={isLoadingMore}
+            className="w-full py-4 text-sm text-gray-400 hover:text-gray-600 disabled:opacity-50 transition-colors"
+          >
+            {isLoadingMore ? '불러오는 중...' : '더 보기'}
+          </button>
         )}
       </div>
     </>
