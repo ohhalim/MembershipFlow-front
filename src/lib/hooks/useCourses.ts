@@ -19,7 +19,10 @@ export function useCourseList(params: CourseListParams = {}) {
       { keyword: kw as string, category: cat as string, sort: s as CourseListParams['sort'] },
       page as number,
     ),
-    { onErrorRetry: (err, _key, _cfg, revalidate, { retryCount }) => {
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      onErrorRetry: (err, _key, _cfg, revalidate, { retryCount }) => {
         if (retryCount >= 2) return
         setTimeout(() => revalidate({ retryCount }), 3000)
       },
@@ -58,6 +61,14 @@ export function useRankingInfinite(type: RankingType, period: RankingPeriod) {
   const { data, size, setSize, isLoading, isValidating } = useSWRInfinite<RankingPage>(
     getKey,
     ([, t, p, page]) => coursesApi.getRankingPage(t as RankingType, p as RankingPeriod, page as number),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      onErrorRetry: (_err, _key, _cfg, revalidate, { retryCount }) => {
+        if (retryCount >= 2) return
+        setTimeout(() => revalidate({ retryCount }), 3000)
+      },
+    },
   )
 
   const items = data ? data.flatMap((p) => p.content) : []
