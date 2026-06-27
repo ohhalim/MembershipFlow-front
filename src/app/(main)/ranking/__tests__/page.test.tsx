@@ -9,14 +9,21 @@ const mockRanking = [
   { rank: 3, courseId: 3, courseName: '부산 CC', region: '부산', latestPrice: 120000000, changeRate: 3.4 },
 ]
 
-const mockUseRanking = jest.fn()
+const mockUseRankingInfinite = jest.fn()
 jest.mock('@/lib/hooks/useCourses', () => ({
-  useRanking: (...args: unknown[]) => mockUseRanking(...args),
+  useRankingInfinite: (...args: unknown[]) => mockUseRankingInfinite(...args),
 }))
 
 describe('RankingPage', () => {
   beforeEach(() => {
-    mockUseRanking.mockReturnValue({ data: mockRanking, isLoading: false })
+    mockUseRankingInfinite.mockReturnValue({
+      items: mockRanking,
+      isLoading: false,
+      isLoadingMore: false,
+      hasMore: false,
+      loadMore: jest.fn(),
+      total: mockRanking.length,
+    })
   })
 
   it('랭킹 목록을 렌더링한다', () => {
@@ -52,7 +59,14 @@ describe('RankingPage', () => {
   })
 
   it('로딩 중 스켈레톤을 표시한다', () => {
-    mockUseRanking.mockReturnValue({ data: undefined, isLoading: true })
+    mockUseRankingInfinite.mockReturnValue({
+      items: [],
+      isLoading: true,
+      isLoadingMore: false,
+      hasMore: false,
+      loadMore: jest.fn(),
+      total: 0,
+    })
     const { container } = render(<RankingPage />)
     expect(container.querySelectorAll('.animate-pulse').length).toBeGreaterThan(0)
   })

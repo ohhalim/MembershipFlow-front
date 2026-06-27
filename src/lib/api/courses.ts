@@ -21,6 +21,12 @@ export interface CourseListPage {
   totalElements: number
 }
 
+export interface RankingPage {
+  content: RankingItem[]
+  hasNext: boolean
+  totalElements: number
+}
+
 export const coursesApi = {
   async getList(params: CourseListParams = {}, page = 0): Promise<CourseListPage> {
     const query = new URLSearchParams()
@@ -51,18 +57,26 @@ export const coursesApi = {
     return res.points.map((p) => ({ date: p.date, price: p.avgPrice }))
   },
 
-  async getRanking(type: RankingType, period: RankingPeriod): Promise<RankingItem[]> {
+  async getRankingPage(type: RankingType, period: RankingPeriod, page: number): Promise<RankingPage> {
     const sort = type === 'rise' ? 'GAIN' : 'LOSS'
-    const res = await apiClient.get<{ rank: number; courseId: number; name: string; region: string; currentPrice: number; changeRate: number }[]>(
-      `/api/v1/courses/ranking?period=${period}d&sort=${sort}&size=20`,
-    )
-    return res.map((item) => ({
-      rank: item.rank,
-      courseId: item.courseId,
-      courseName: item.name,
-      region: item.region,
-      latestPrice: item.currentPrice,
-      changeRate: item.changeRate,
-    }))
+    const res = await apiClient.get<{
+      content: { rank: number; courseId: number; name: string; region: string; currentPrice: number; changeRate: number }[]
+      page: number
+      size: number
+      totalElements: number
+      hasNext: boolean
+    }>(`/api/v1/courses/ranking?period=${period}d&sort=${sort}&page=${page}&size=20`)
+    return {
+      content: res.content.map((item) => ({
+        rank: item.rank,
+        courseId: item.courseId,
+        courseName: item.name,
+        region: item.region,
+        latestPrice: item.currentPrice,
+        changeRate: item.changeRate,
+      })),
+      hasNext: res.hasNext,
+      totalElements: res.totalElements,
+    }
   },
 }
