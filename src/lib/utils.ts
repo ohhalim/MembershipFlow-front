@@ -67,7 +67,7 @@ const MEMBERSHIP_LABEL: Record<string, string> = {
   INDIVIDUAL: '개인',
   CORPORATE: '법인',
   SHAREHOLDER: '주주',
-  PREFERRED: '우선주',
+  PREFERRED: '우대',
   MALE: '남성',
   FEMALE: '여성',
 }

@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import type { Course } from '@/lib/types'
-import { formatPriceCompact, formatChangeRate, changeRateColor } from '@/lib/utils'
+import { formatPriceCompact, formatChangeRate, changeRateColor, formatMembershipType } from '@/lib/utils'
 import { cn } from '@/lib/cn'
 
 interface CourseCardProps {
@@ -17,7 +17,7 @@ export function CourseCard({ course }: CourseCardProps) {
     >
       <div>
         <p className="text-sm font-semibold text-gray-900">{name}</p>
-        <p className="text-xs text-gray-400 mt-0.5">{region} · {membershipType}</p>
+        <p className="text-xs text-gray-400 mt-0.5">{region} · {formatMembershipType(membershipType)}</p>
       </div>
 
       <div className="text-right">
