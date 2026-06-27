@@ -32,6 +32,7 @@ export const coursesApi = {
     const query = new URLSearchParams()
     if (params.keyword) query.set('q', params.keyword)
     if (params.category && params.category !== '전체') query.set('courseType', params.category)
+    if (params.sort) query.set('sort', params.sort)
     query.set('page', String(page))
     query.set('size', '20')
     const res = await apiClient.get<{ content: Course[]; last: boolean; totalElements: number }>(
