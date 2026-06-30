@@ -16,7 +16,7 @@ export function BottomTabBar() {
   const pathname = usePathname()
 
   return (
-    <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-gray-100">
+    <nav className="lg:hidden fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-gray-100">
       <ul className="flex">
         {TABS.map(({ href, label, Icon }) => {
           const active = pathname === href
