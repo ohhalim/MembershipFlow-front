@@ -13,7 +13,7 @@ function CallbackHandler() {
     const token = searchParams.get('token')
     if (token) {
       auth.setToken(token)
-      router.replace('/')
+      router.replace('/home')
     } else {
       router.replace('/login')
     }

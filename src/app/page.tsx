@@ -9,12 +9,24 @@ import { auth } from '@/lib/auth'
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? ''
 
 const FEATURES = [
-  { Icon: BarChart2, title: '시세 차트', desc: '동부·동아\n통합 조회' },
-  { Icon: Bell,      title: '목표가 알림', desc: '원하는 가격에\n바로 알림' },
-  { Icon: TrendingUp, title: '실시간 랭킹', desc: '상승·하락\n순위 확인' },
+  {
+    Icon: BarChart2,
+    title: '시세 차트',
+    desc: '동부·동아\n통합 조회',
+  },
+  {
+    Icon: Bell,
+    title: '목표가 알림',
+    desc: '원하는 가격에\n바로 알림',
+  },
+  {
+    Icon: TrendingUp,
+    title: '실시간 랭킹',
+    desc: '상승·하락\n순위 확인',
+  },
 ] as const
 
-export default function LoginPage() {
+export default function LandingPage() {
   const router = useRouter()
 
   useEffect(() => {
