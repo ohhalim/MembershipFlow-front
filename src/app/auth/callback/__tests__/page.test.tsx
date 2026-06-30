@@ -29,7 +29,7 @@ describe('AuthCallbackPage', () => {
   it('token이 있으면 저장 후 홈으로 이동한다', () => {
     render(<AuthCallbackPage />)
     expect(mockSetToken).toHaveBeenCalledWith('test-jwt-token')
-    expect(mockReplace).toHaveBeenCalledWith('/')
+    expect(mockReplace).toHaveBeenCalledWith('/home')
   })
 
   it('token이 없으면 로그인 페이지로 이동한다', () => {

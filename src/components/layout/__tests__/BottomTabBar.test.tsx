@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react'
 import { BottomTabBar } from '../BottomTabBar'
 
 jest.mock('next/navigation', () => ({
-  usePathname: () => '/',
+  usePathname: () => '/home',
 }))
 
 describe('BottomTabBar', () => {
@@ -14,7 +14,7 @@ describe('BottomTabBar', () => {
     expect(screen.getByText('MY')).toBeInTheDocument()
   })
 
-  it('현재 경로(/)에서 홈 탭이 활성 색상을 가진다', () => {
+  it('현재 경로(/home)에서 홈 탭이 활성 색상을 가진다', () => {
     render(<BottomTabBar />)
     const homeLink = screen.getByText('홈').closest('a')
     expect(homeLink).toHaveClass('text-blue-500')
