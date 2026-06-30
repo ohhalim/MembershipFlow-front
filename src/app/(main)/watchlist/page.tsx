@@ -32,7 +32,7 @@ export default function WatchlistPage() {
       <Header
         title="관심 종목"
         right={
-          <Link href="/" className="p-1">
+          <Link href="/home" className="p-1">
             <Plus size={22} className="text-gray-700" />
           </Link>
         }
@@ -59,7 +59,7 @@ export default function WatchlistPage() {
           <div className="flex flex-col items-center justify-center py-24 gap-3 text-gray-400">
             <Bell size={36} className="text-gray-200" />
             <p className="text-sm">관심 종목을 추가해보세요</p>
-            <Link href="/" className="text-sm text-blue-500 font-medium">
+            <Link href="/home" className="text-sm text-blue-500 font-medium">
               종목 둘러보기 →
             </Link>
           </div>

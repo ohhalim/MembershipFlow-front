@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react'
-import HomePage from '../page'
+import HomePage from '../home/page'
 
 jest.mock('next/navigation', () => ({ useRouter: () => ({ push: jest.fn() }) }))
 

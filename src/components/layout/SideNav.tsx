@@ -6,7 +6,7 @@ import { Home, BarChart2, Heart, User } from 'lucide-react'
 import { cn } from '@/lib/cn'
 
 const TABS = [
-  { href: '/',          label: '홈',   Icon: Home },
+  { href: '/home',      label: '홈',   Icon: Home },
   { href: '/ranking',   label: '랭킹', Icon: BarChart2 },
   { href: '/watchlist', label: '관심', Icon: Heart },
   { href: '/my',        label: 'MY',   Icon: User },
