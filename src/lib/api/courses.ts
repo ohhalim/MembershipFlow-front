@@ -7,6 +7,7 @@ import type {
   RankingItem,
   RankingType,
   RankingPeriod,
+  SourceComparisonItem,
 } from '@/lib/types'
 
 export interface CourseListParams {
@@ -56,6 +57,12 @@ export const coursesApi = {
       `/api/v1/courses/${id}/prices?from=${fmt(from)}&to=${fmt(to)}&interval=${interval[period]}`,
     )
     return res.points.map((p) => ({ date: p.date, price: p.avgPrice }))
+  },
+
+  getSourceComparison(limit = 10): Promise<SourceComparisonItem[]> {
+    return apiClient.get<SourceComparisonItem[]>(
+      `/api/v1/courses/source-comparison?limit=${limit}`,
+    )
   },
 
   async getRankingPage(type: RankingType, period: RankingPeriod, page: number): Promise<RankingPage> {

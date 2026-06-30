@@ -45,6 +45,19 @@ export interface RankingItem {
   changeRate: number
 }
 
+// ─── Source Comparison ───────────────────────────────────────────────────────
+
+export interface SourceComparisonItem {
+  courseId: number
+  name: string
+  region: string
+  courseType: string | null
+  dongaPrice: number
+  dongbuPrice: number
+  diffAmount: number
+  diffRate: number
+}
+
 // ─── Watchlist ───────────────────────────────────────────────────────────────
 
 export interface WatchlistItem {
