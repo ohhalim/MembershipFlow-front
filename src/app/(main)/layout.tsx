@@ -13,7 +13,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
 
   useEffect(() => {
     if (!auth.isAuthenticated()) {
-      router.replace('/login')
+      router.replace('/')
     } else {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setChecked(true)
