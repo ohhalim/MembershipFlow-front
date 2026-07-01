@@ -4,7 +4,7 @@ import MyPage from '../page'
 const mockReplace = jest.fn()
 jest.mock('next/navigation', () => ({ useRouter: () => ({ replace: mockReplace }) }))
 jest.mock('@/lib/auth', () => ({
-  auth: { clearToken: jest.fn() },
+  auth: { clearToken: jest.fn(), isAuthenticated: () => true },
 }))
 
 const mockUseMySubscription = jest.fn()
@@ -48,9 +48,9 @@ describe('MyPage', () => {
     expect(screen.getByText('신한 **** 1234')).toBeInTheDocument()
   })
 
-  it('로그아웃 클릭 시 토큰 삭제 후 로그인 페이지로 이동한다', () => {
+  it('로그아웃 클릭 시 토큰 삭제 후 랜딩 페이지로 이동한다', () => {
     render(<MyPage />)
     fireEvent.click(screen.getByText('로그아웃'))
-    expect(mockReplace).toHaveBeenCalledWith('/login')
+    expect(mockReplace).toHaveBeenCalledWith('/')
   })
 })

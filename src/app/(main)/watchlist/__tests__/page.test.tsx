@@ -1,7 +1,8 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import WatchlistPage from '../page'
 
-jest.mock('next/navigation', () => ({ useRouter: () => ({ push: jest.fn() }) }))
+jest.mock('next/navigation', () => ({ useRouter: () => ({ push: jest.fn(), replace: jest.fn() }) }))
+jest.mock('@/lib/auth', () => ({ auth: { isAuthenticated: () => true } }))
 
 const mockUpdate = jest.fn()
 const mockRemove = jest.fn()

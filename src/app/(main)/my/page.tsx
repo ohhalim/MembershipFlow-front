@@ -9,6 +9,7 @@ import { useMySubscription } from '@/lib/hooks/useSubscription'
 import { formatPrice } from '@/lib/utils'
 import { auth } from '@/lib/auth'
 import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 
 const STATUS_LABEL: Record<string, { label: string; variant: 'green' | 'gray' | 'red' | 'blue' }> = {
   ACTIVE:          { label: '구독 중', variant: 'green' },
@@ -21,9 +22,15 @@ export default function MyPage() {
   const { data: subscription, isLoading } = useMySubscription()
   const router = useRouter()
 
+  useEffect(() => {
+    if (!auth.isAuthenticated()) router.replace('/')
+  }, [router])
+
+  if (!auth.isAuthenticated()) return null
+
   function handleLogout() {
     auth.clearToken()
-    router.replace('/login')
+    router.replace('/')
   }
 
   return (

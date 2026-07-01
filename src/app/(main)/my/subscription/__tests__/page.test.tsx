@@ -5,6 +5,9 @@ jest.mock('next/navigation', () => ({
   useRouter: () => ({ back: jest.fn(), replace: jest.fn() }),
   useSearchParams: () => new URLSearchParams(),
 }))
+jest.mock('@/lib/auth', () => ({
+  auth: { isAuthenticated: () => true },
+}))
 jest.mock('@tosspayments/tosspayments-sdk', () => ({
   loadTossPayments: jest.fn(),
 }))

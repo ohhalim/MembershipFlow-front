@@ -1,9 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Plus, Trash2, Bell } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
+import { auth } from '@/lib/auth'
 import { Toggle } from '@/components/ui/Toggle'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { cn } from '@/lib/cn'
@@ -11,8 +13,15 @@ import { useWatchlist } from '@/lib/hooks/useWatchlist'
 import { formatPrice, formatPriceCompact, priceGap, changeRateColor } from '@/lib/utils'
 
 export default function WatchlistPage() {
+  const router = useRouter()
   const { data: items, isLoading, update, remove } = useWatchlist()
   const [deletingId, setDeletingId] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (!auth.isAuthenticated()) router.replace('/')
+  }, [router])
+
+  if (!auth.isAuthenticated()) return null
 
   async function handleToggleAlert(id: number, current: boolean, targetPrice: number | null) {
     await update(id, { alertYn: !current, targetPrice })
