@@ -50,7 +50,8 @@ describe('HomePage', () => {
     render(<HomePage />)
     expect(screen.getByText('전체')).toBeInTheDocument()
     expect(screen.getByText('골프')).toBeInTheDocument()
-    expect(screen.getByText('콘도')).toBeInTheDocument()
+    expect(screen.queryByText('콘도')).not.toBeInTheDocument()
+    expect(screen.queryByText('피트니스')).not.toBeInTheDocument()
   })
 
   it('카테고리 버튼 클릭 시 활성화된다', () => {
