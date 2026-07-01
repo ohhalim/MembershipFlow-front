@@ -26,6 +26,9 @@ function useTopMovers(type: 'rise' | 'fall') {
 
 function MoverList({ items, type }: { items: RankingItem[]; type: 'rise' | 'fall' }) {
   const isRise = type === 'rise'
+  if (items.length === 0) {
+    return <p className="text-[11px] text-gray-400 px-2 py-3">변동 데이터 없음</p>
+  }
   return (
     <ul className="space-y-1">
       {items.slice(0, 5).map((item) => (
