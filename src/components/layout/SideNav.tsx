@@ -19,7 +19,7 @@ export function SideNav() {
     <div className="flex flex-col h-full px-3 py-6">
       <div className="px-3 mb-8">
         <p className="text-base font-bold text-gray-900">MembershipFlow</p>
-        <p className="text-xs text-gray-400 mt-0.5">회원권 시세 추적</p>
+        <p className="text-xs text-gray-400 mt-0.5">골프 회원권 시세 추적</p>
       </div>
 
       <nav className="flex flex-col gap-0.5">

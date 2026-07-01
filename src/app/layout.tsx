@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'MembershipFlow — 회원권 시세 한눈에',
-  description: '여러 거래소 회원권 시세를 한번에. 목표가 도달 시 즉시 알림.',
+  title: 'MembershipFlow — 골프 회원권 시세 한눈에',
+  description: '여러 골프거래소 시세를 한눈에. 목표가 도달 시 즉시 알림.',
 };
 
 export default function RootLayout({
