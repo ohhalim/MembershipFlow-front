@@ -29,11 +29,11 @@ export default function LoginPage() {
     <div className="min-h-screen bg-white flex flex-col max-w-md mx-auto">
       {/* Hero */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 pt-20 pb-10 text-center">
-        <p className="text-sm text-gray-500 mb-1">여러 거래소 시세를 한 번에</p>
+        <p className="text-sm text-gray-500 mb-1">여러 골프거래소 시세를 한눈에</p>
         <p className="text-xs text-gray-400 mb-10">목표가 도달 시 즉시 알림</p>
 
         <h1 className="text-3xl font-extrabold text-gray-900 mb-2">MembershipFlow</h1>
-        <p className="text-sm text-gray-500 mb-12">회원권 시세를 한눈에, 목표가 알림까지</p>
+        <p className="text-sm text-gray-500 mb-12">골프 회원권 시세를 한눈에, 목표가 알림까지</p>
 
         {/* Feature icons */}
         <div className="flex justify-center gap-10 mb-14">

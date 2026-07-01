@@ -1,23 +1,16 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Search, BarChart2, Bell, TrendingUp } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 import { CourseCard } from '@/components/course/CourseCard'
 import { Skeleton } from '@/components/ui/Skeleton'
-import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/cn'
 import { useCourseList } from '@/lib/hooks/useCourses'
 import { auth } from '@/lib/auth'
 import type { CourseCategory } from '@/lib/types'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? ''
-
-const FEATURES = [
-  { Icon: BarChart2, label: '시세 차트' },
-  { Icon: Bell,      label: '목표가 알림' },
-  { Icon: TrendingUp, label: '실시간 랭킹' },
-] as const
 
 function LoginBanner() {
   const [visible, setVisible] = useState(false)
@@ -30,26 +23,16 @@ function LoginBanner() {
   if (!visible) return null
 
   return (
-    <div className="mx-4 mt-3 mb-1 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 px-4 py-4">
-      <p className="text-xs text-blue-500 font-semibold mb-0.5">여러 거래소 시세를 한 번에</p>
-      <p className="text-sm font-bold text-gray-900 mb-3">목표가 도달 시 즉시 알림</p>
-
-      <div className="flex gap-4 mb-4">
-        {FEATURES.map(({ Icon, label }) => (
-          <div key={label} className="flex items-center gap-1.5">
-            <Icon size={13} className="text-blue-400 flex-shrink-0" />
-            <span className="text-[11px] text-gray-600">{label}</span>
-          </div>
-        ))}
+    <div className="flex items-center justify-between px-4 py-2.5 bg-gray-50 border-b border-gray-100">
+      <div>
+        <p className="text-xs font-semibold text-gray-800">여러 골프거래소 시세를 한눈에</p>
+        <p className="text-[11px] text-gray-400 mt-0.5">목표가 도달 시 즉시 알림</p>
       </div>
-
-      <Button
-        size="sm"
-        fullWidth
+      <button
         onClick={() => { window.location.href = `${API_URL}/oauth2/authorization/google` }}
-        className="gap-2"
+        className="flex items-center gap-1.5 bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors flex-shrink-0"
       >
-        <svg viewBox="0 0 24 24" width="14" height="14" xmlns="http://www.w3.org/2000/svg">
+        <svg viewBox="0 0 24 24" width="12" height="12" xmlns="http://www.w3.org/2000/svg">
           <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">
             <path fill="#4285F4" d="M -3.264 51.509 C -3.264 50.719 -3.334 49.969 -3.454 49.239 L -14.754 49.239 L -14.754 53.749 L -8.284 53.749 C -8.574 55.229 -9.424 56.479 -10.684 57.329 L -10.684 60.329 L -6.824 60.329 C -4.564 58.239 -3.264 55.159 -3.264 51.509 Z"/>
             <path fill="#34A853" d="M -14.754 63.239 C -11.514 63.239 -8.804 62.159 -6.824 60.329 L -10.684 57.329 C -11.764 58.049 -13.134 58.489 -14.754 58.489 C -17.884 58.489 -20.534 56.379 -21.484 53.529 L -25.464 53.529 L -25.464 56.619 C -23.494 60.539 -19.444 63.239 -14.754 63.239 Z"/>
@@ -58,7 +41,7 @@ function LoginBanner() {
           </g>
         </svg>
         Google로 계속하기
-      </Button>
+      </button>
     </div>
   )
 }
@@ -66,8 +49,6 @@ function LoginBanner() {
 const CATEGORIES: { label: string; value: '' | CourseCategory }[] = [
   { label: '전체', value: '' },
   { label: '골프', value: 'GOLF' },
-  { label: '콘도', value: 'CONDO' },
-  { label: '피트니스', value: 'FITNESS' },
 ]
 
 const SORTS = [
@@ -101,7 +82,7 @@ export default function HomePage() {
 
   return (
     <>
-      <Header title="회원권 시세" />
+      <Header title="골프 회원권 시세" />
 
       <LoginBanner />
 
@@ -111,7 +92,7 @@ export default function HomePage() {
           <Search size={16} className="text-gray-400 flex-shrink-0" />
           <input
             type="text"
-            placeholder="골프장, 콘도 이름 검색"
+            placeholder="골프장 이름 검색"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
             className="flex-1 bg-transparent text-sm text-gray-900 placeholder-gray-400 outline-none"
