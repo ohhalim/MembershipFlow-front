@@ -16,12 +16,6 @@ import type { SubscriptionPlan } from '@/lib/types'
 function SubscriptionPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-
-  useEffect(() => {
-    if (!auth.isAuthenticated()) router.replace('/')
-  }, [router])
-
-  if (!auth.isAuthenticated()) return null
   const { data: plans, isLoading: plansLoading } = useSubscriptionPlans()
   const { data: mySubscription, isLoading: subLoading, mutate } = useMySubscription()
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null)
@@ -34,6 +28,10 @@ function SubscriptionPageContent() {
   const isActive = mySubscription?.status === 'ACTIVE'
 
   useEffect(() => {
+    if (!auth.isAuthenticated()) router.replace('/')
+  }, [router])
+
+  useEffect(() => {
     if (searchParams.get('success') === '1') {
       mutate()
       router.replace('/my/subscription')
@@ -41,6 +39,8 @@ function SubscriptionPageContent() {
       router.replace('/my/subscription')
     }
   }, [searchParams, mutate, router])
+
+  if (!auth.isAuthenticated()) return null
 
   async function handleSubscribe() {
     if (!selectedPlan) return
