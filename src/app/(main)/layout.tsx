@@ -1,27 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { BottomTabBar } from '@/components/layout/BottomTabBar'
 import { SideNav } from '@/components/layout/SideNav'
 import { MarketSidebar } from '@/components/layout/MarketSidebar'
-import { auth } from '@/lib/auth'
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
-  const router = useRouter()
-  const [checked, setChecked] = useState(false)
-
-  useEffect(() => {
-    if (!auth.isAuthenticated()) {
-      router.replace('/')
-    } else {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setChecked(true)
-    }
-  }, [router])
-
-  if (!checked) return null
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* 데스크톱 좌측 사이드 네비 */}

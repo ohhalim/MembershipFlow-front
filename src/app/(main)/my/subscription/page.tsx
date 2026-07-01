@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { auth } from '@/lib/auth'
 import { Check, ChevronLeft, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 import { Button } from '@/components/ui/Button'
@@ -15,6 +16,12 @@ import type { SubscriptionPlan } from '@/lib/types'
 function SubscriptionPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
+
+  useEffect(() => {
+    if (!auth.isAuthenticated()) router.replace('/')
+  }, [router])
+
+  if (!auth.isAuthenticated()) return null
   const { data: plans, isLoading: plansLoading } = useSubscriptionPlans()
   const { data: mySubscription, isLoading: subLoading, mutate } = useMySubscription()
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null)
