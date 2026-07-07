@@ -13,6 +13,12 @@ jest.mock('@/lib/hooks/useCourses', () => ({
   useCourseList: (...args: unknown[]) => mockUseCourseList(...args),
 }))
 
+jest.mock('@/lib/api/courses', () => ({
+  coursesApi: {
+    getSummary: jest.fn().mockResolvedValue({ updatedToday: 132, risers: 3, fallers: 5 }),
+  },
+}))
+
 const defaultReturn = {
   courses: mockCourses,
   isLoading: false,
@@ -71,5 +77,12 @@ describe('HomePage', () => {
     mockUseCourseList.mockReturnValue({ ...defaultReturn, courses: [], isLoading: true })
     const { container } = render(<HomePage />)
     expect(container.querySelectorAll('.animate-pulse').length).toBeGreaterThan(0)
+  })
+
+  it('시장 요약 스트립을 표시한다', async () => {
+    render(<HomePage />)
+    expect(await screen.findByText('132')).toBeInTheDocument()
+    expect(screen.getByText('3')).toBeInTheDocument()
+    expect(screen.getByText('5')).toBeInTheDocument()
   })
 })

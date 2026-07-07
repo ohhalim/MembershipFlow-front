@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Search, BarChart2, Bell, TrendingUp } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 import { CourseCard } from '@/components/course/CourseCard'
+import { MarketSummaryStrip } from '@/components/course/MarketSummaryStrip'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { cn } from '@/lib/cn'
 import { useCourseList } from '@/lib/hooks/useCourses'
@@ -141,6 +142,9 @@ export default function HomePage() {
           ))}
         </select>
       </div>
+
+      {/* 시장 요약 스트립 */}
+      <MarketSummaryStrip />
 
       {/* 목록 */}
       <div className="divide-y divide-dashed divide-gray-200">
