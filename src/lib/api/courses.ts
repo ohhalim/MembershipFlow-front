@@ -8,6 +8,7 @@ import type {
   RankingType,
   RankingPeriod,
   SourceComparisonItem,
+  MarketSummary,
 } from '@/lib/types'
 
 export interface CourseListParams {
@@ -63,6 +64,10 @@ export const coursesApi = {
     return apiClient.get<SourceComparisonItem[]>(
       `/api/v1/courses/source-comparison?limit=${limit}`,
     )
+  },
+
+  getSummary(): Promise<MarketSummary> {
+    return apiClient.get<MarketSummary>('/api/v1/courses/summary')
   },
 
   async getRankingPage(type: RankingType, period: RankingPeriod, page: number): Promise<RankingPage> {
