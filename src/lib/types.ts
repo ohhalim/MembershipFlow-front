@@ -11,6 +11,18 @@ export interface Course {
   latestPrice: number | null
   changeRate: number | null  // percentage (+ 상승 / - 하락)
   updatedAt: string
+  sourcePrices?: CourseSourcePrice[]  // 거래소별 최신가
+}
+
+export interface CourseSourcePrice {
+  source: string
+  price: number
+}
+
+export interface MarketSummary {
+  updatedToday: number
+  risers: number
+  fallers: number
 }
 
 export interface CourseDetail extends Course {

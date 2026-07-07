@@ -39,4 +39,28 @@ describe('CourseCard', () => {
     render(<CourseCard course={mockCourse} />)
     expect(screen.getByRole('link')).toHaveAttribute('href', '/courses/1')
   })
+
+  it('거래소가 2곳 이상이면 거래소별 가격을 표시한다', () => {
+    render(
+      <CourseCard
+        course={{
+          ...mockCourse,
+          sourcePrices: [
+            { source: '동아골프', price: 250_000_000 },
+            { source: '동부회원권', price: 240_000_000 },
+          ],
+        }}
+      />,
+    )
+    expect(screen.getByText('동아 2.5억 · 동부 2.4억')).toBeInTheDocument()
+  })
+
+  it('거래소가 1곳이면 거래소별 가격을 표시하지 않는다', () => {
+    render(
+      <CourseCard
+        course={{ ...mockCourse, sourcePrices: [{ source: '동아골프', price: 250_000_000 }] }}
+      />,
+    )
+    expect(screen.queryByText(/동아 2\.5억/)).not.toBeInTheDocument()
+  })
 })
