@@ -42,6 +42,11 @@ export function SideNav() {
           )
         })}
       </nav>
+
+      <div className="mt-auto px-3 flex gap-3 text-[11px] text-gray-400">
+        <Link href="/terms" className="hover:text-gray-600">이용약관</Link>
+        <Link href="/privacy" className="hover:text-gray-600">개인정보처리방침</Link>
+      </div>
     </div>
   )
 }

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { BarChart2, Bell, TrendingUp } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
@@ -63,7 +64,11 @@ export default function LoginPage() {
           Google로 계속하기
         </Button>
         <p className="text-[10px] text-center text-gray-400">
-          로그인 시 이용약관 및 개인정보처리방침에 동의합니다.
+          로그인 시{' '}
+          <Link href="/terms" className="underline hover:text-gray-600">이용약관</Link>
+          {' '}및{' '}
+          <Link href="/privacy" className="underline hover:text-gray-600">개인정보처리방침</Link>
+          에 동의합니다.
         </p>
       </div>
     </div>
