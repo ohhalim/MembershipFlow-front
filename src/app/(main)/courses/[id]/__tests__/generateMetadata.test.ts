@@ -25,6 +25,33 @@ describe('CourseDetailPage generateMetadata', () => {
     expect(metadata.description).toContain('1.5억')
   })
 
+  it('info.address가 있으면 description 앞에 지역을 붙인다', async () => {
+    mockServerFetch.mockResolvedValue({
+      id: 2, name: '가야', region: '경남', category: 'GOLF',
+      membershipType: 'PREFERRED', latestPrice: 147_000_000, changeRate: null,
+      updatedAt: '2026-07-08', sources: [],
+      info: { address: '경기도 용인시 기흥구 석성로521번길 169' },
+    })
+    const { generateMetadata } = await import('../page')
+
+    const metadata = await generateMetadata({ params: Promise.resolve({ id: '2' }) })
+
+    expect(metadata.description).toMatch(/^경기도 용인시 · 가야/)
+  })
+
+  it('info가 없으면 description에 지역 접두어를 붙이지 않는다', async () => {
+    mockServerFetch.mockResolvedValue({
+      id: 2, name: '가야', region: '경남', category: 'GOLF',
+      membershipType: 'PREFERRED', latestPrice: 147_000_000, changeRate: null,
+      updatedAt: '2026-07-08', sources: [], info: null,
+    })
+    const { generateMetadata } = await import('../page')
+
+    const metadata = await generateMetadata({ params: Promise.resolve({ id: '2' }) })
+
+    expect(metadata.description).toMatch(/^가야/)
+  })
+
   it('백엔드 조회 실패 시 폴백 메타데이터를 반환한다', async () => {
     mockServerFetch.mockRejectedValue(new Error('not found'))
     const { generateMetadata } = await import('../page')
