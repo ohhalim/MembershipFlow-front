@@ -14,6 +14,7 @@ import type {
 export interface CourseListParams {
   keyword?: string
   category?: string
+  membershipType?: string
   sort?: 'latest' | 'price_asc' | 'price_desc'
 }
 
@@ -34,6 +35,7 @@ export const coursesApi = {
     const query = new URLSearchParams()
     if (params.keyword) query.set('q', params.keyword)
     if (params.category && params.category !== '전체') query.set('courseType', params.category)
+    if (params.membershipType) query.set('membershipType', params.membershipType)
     if (params.sort) query.set('sort', params.sort)
     query.set('page', String(page))
     query.set('size', '20')

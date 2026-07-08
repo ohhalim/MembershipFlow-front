@@ -66,6 +66,16 @@ const CATEGORIES: { label: string; value: '' | CourseCategory }[] = [
   { label: '골프', value: 'GOLF' },
 ]
 
+const MEMBERSHIP_TYPES: { label: string; value: string }[] = [
+  { label: '전체', value: '' },
+  { label: '일반', value: 'REGULAR' },
+  { label: '우대', value: 'PREFERRED' },
+  { label: '남자', value: 'MALE' },
+  { label: '여자', value: 'FEMALE' },
+  { label: '주주', value: 'SHAREHOLDER' },
+  { label: '주중', value: 'WEEKDAY' },
+]
+
 const SORTS = [
   { label: '최신순', value: 'latest' },
   { label: '가격 낮은순', value: 'price_asc' },
@@ -75,10 +85,11 @@ const SORTS = [
 export default function HomePage() {
   const [keyword, setKeyword] = useState('')
   const [category, setCategory] = useState<'' | CourseCategory>('')
+  const [membershipType, setMembershipType] = useState('')
   const [sort, setSort] = useState<'latest' | 'price_asc' | 'price_desc'>('latest')
   const sentinelRef = useRef<HTMLDivElement>(null)
 
-  const { courses, isLoading, isLoadingMore, hasMore, loadMore } = useCourseList({ keyword, category, sort })
+  const { courses, isLoading, isLoadingMore, hasMore, loadMore } = useCourseList({ keyword, category, membershipType, sort })
 
   useEffect(() => {
     const el = sentinelRef.current
@@ -141,6 +152,24 @@ export default function HomePage() {
             <option key={value} value={value}>{label}</option>
           ))}
         </select>
+      </div>
+
+      {/* 구분 필터 칩 */}
+      <div className="flex gap-2 px-4 pb-2 overflow-x-auto scrollbar-hide">
+        {MEMBERSHIP_TYPES.map(({ label, value }) => (
+          <button
+            key={value}
+            onClick={() => setMembershipType(value)}
+            className={cn(
+              'flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium border transition-colors',
+              membershipType === value
+                ? 'bg-blue-500 text-white border-blue-500'
+                : 'bg-white text-gray-500 border-gray-200',
+            )}
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
       {/* 시장 요약 스트립 */}
