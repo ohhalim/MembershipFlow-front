@@ -12,9 +12,31 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://membershipflow.site';
+const SITE_TITLE = 'MembershipFlow — 골프 회원권 시세 한눈에';
+const SITE_DESCRIPTION = '여러 골프거래소 시세를 한눈에. 목표가 도달 시 즉시 알림.';
+
 export const metadata: Metadata = {
-  title: 'MembershipFlow — 골프 회원권 시세 한눈에',
-  description: '여러 골프거래소 시세를 한눈에. 목표가 도달 시 즉시 알림.',
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: SITE_TITLE,
+    template: '%s | MembershipFlow',
+  },
+  description: SITE_DESCRIPTION,
+  keywords: ['골프 회원권', '회원권 시세', '골프 회원권 시세', '골프 회원권 거래소'],
+  openGraph: {
+    type: 'website',
+    locale: 'ko_KR',
+    siteName: 'MembershipFlow',
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+  },
+  twitter: {
+    card: 'summary',
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+  },
 };
 
 export default function RootLayout({
