@@ -3,6 +3,11 @@ import { serverFetch } from '@/lib/api/server'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://membershipflow.site'
 
+// 도커 빌드 시점엔 backend 컨테이너가 없어 코스 목록 fetch가 실패한다.
+// 기본 캐싱(빌드 시점 스냅샷 고정)을 쓰면 그 실패 상태가 그대로 굳어버리므로
+// 매 요청마다 새로 생성하도록 강제한다 (요청량이 크롤러뿐이라 부담 적음)
+export const dynamic = 'force-dynamic'
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: SITE_URL, changeFrequency: 'daily', priority: 1 },
