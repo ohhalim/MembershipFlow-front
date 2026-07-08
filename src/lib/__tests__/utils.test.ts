@@ -1,4 +1,4 @@
-import { formatPrice, formatPriceCompact, formatChangeRate, changeRateColor, priceGap } from '../utils'
+import { formatPrice, formatPriceCompact, formatChangeRate, changeRateColor, priceGap, formatMembershipType } from '../utils'
 
 describe('formatPrice', () => {
   it('억 + 만원 형식으로 반환한다', () => {
@@ -45,6 +45,32 @@ describe('changeRateColor', () => {
   })
   it('0은 회색', () => {
     expect(changeRateColor(0)).toBe('text-gray-400')
+  })
+})
+
+describe('formatMembershipType', () => {
+  it.each([
+    ['REGULAR', '일반'],
+    ['WEEKDAY', '주중'],
+    ['WEEKEND', '주말'],
+    ['FAMILY', '가족'],
+    ['INDIVIDUAL', '개인'],
+    ['CORPORATE', '법인'],
+    ['SHAREHOLDER', '주주'],
+    ['PREFERRED', '우대'],
+    ['MALE', '남자'],
+    ['FEMALE', '여자'],
+  ])('%s → %s', (value, expected) => {
+    expect(formatMembershipType(value)).toBe(expected)
+  })
+
+  it('미지의 값은 그대로 반환한다', () => {
+    expect(formatMembershipType('UNKNOWN_TYPE')).toBe('UNKNOWN_TYPE')
+  })
+
+  it('null/undefined는 빈 문자열을 반환한다', () => {
+    expect(formatMembershipType(null)).toBe('')
+    expect(formatMembershipType(undefined)).toBe('')
   })
 })
 

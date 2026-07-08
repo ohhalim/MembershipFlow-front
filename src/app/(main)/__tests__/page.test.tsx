@@ -54,7 +54,8 @@ describe('HomePage', () => {
 
   it('카테고리 탭을 렌더링한다', () => {
     render(<HomePage />)
-    expect(screen.getByText('전체')).toBeInTheDocument()
+    // '전체'는 카테고리 탭과 구분 필터 칩에 각각 존재
+    expect(screen.getAllByText('전체')).toHaveLength(2)
     expect(screen.getByText('골프')).toBeInTheDocument()
     expect(screen.queryByText('콘도')).not.toBeInTheDocument()
     expect(screen.queryByText('피트니스')).not.toBeInTheDocument()
@@ -65,6 +66,42 @@ describe('HomePage', () => {
     const golfBtn = screen.getByRole('button', { name: '골프' })
     fireEvent.click(golfBtn)
     expect(golfBtn).toHaveClass('bg-blue-500')
+  })
+
+  it('구분 필터 칩을 렌더링한다', () => {
+    render(<HomePage />)
+    for (const label of ['일반', '우대', '남자', '여자', '주주', '주중']) {
+      expect(screen.getByRole('button', { name: label })).toBeInTheDocument()
+    }
+  })
+
+  it('구분 칩 클릭 시 활성화되고 membershipType이 전달된다', () => {
+    render(<HomePage />)
+    expect(mockUseCourseList).toHaveBeenLastCalledWith(
+      expect.objectContaining({ membershipType: '' }),
+    )
+
+    const chip = screen.getByRole('button', { name: '우대' })
+    fireEvent.click(chip)
+
+    expect(chip).toHaveClass('bg-blue-500')
+    expect(mockUseCourseList).toHaveBeenLastCalledWith(
+      expect.objectContaining({ membershipType: 'PREFERRED' }),
+    )
+  })
+
+  it('구분 칩에서 전체 선택 시 membershipType이 비워진다', () => {
+    render(<HomePage />)
+    fireEvent.click(screen.getByRole('button', { name: '주주' }))
+    expect(mockUseCourseList).toHaveBeenLastCalledWith(
+      expect.objectContaining({ membershipType: 'SHAREHOLDER' }),
+    )
+
+    const allChips = screen.getAllByRole('button', { name: '전체' })
+    fireEvent.click(allChips[allChips.length - 1])
+    expect(mockUseCourseList).toHaveBeenLastCalledWith(
+      expect.objectContaining({ membershipType: '' }),
+    )
   })
 
   it('데이터 없을 때 "검색 결과가 없어요" 메시지를 표시한다', () => {

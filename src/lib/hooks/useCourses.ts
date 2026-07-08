@@ -6,17 +6,17 @@ import { coursesApi, type CourseListParams, type CourseListPage, type RankingPag
 import type { Course, CourseDetail, PricePoint, ChartPeriod, RankingItem, RankingType, RankingPeriod } from '@/lib/types'
 
 export function useCourseList(params: CourseListParams = {}) {
-  const { keyword = '', category = '', sort = 'latest' } = params
+  const { keyword = '', category = '', membershipType = '', sort = 'latest' } = params
 
   const getKey = (pageIndex: number, previousPageData: CourseListPage | null) => {
     if (previousPageData && previousPageData.last) return null
-    return ['/api/v1/courses', keyword, category, sort, pageIndex] as const
+    return ['/api/v1/courses', keyword, category, membershipType, sort, pageIndex] as const
   }
 
   const { data, size, setSize, isLoading, isValidating } = useSWRInfinite<CourseListPage>(
     getKey,
-    ([, kw, cat, s, page]) => coursesApi.getList(
-      { keyword: kw as string, category: cat as string, sort: s as CourseListParams['sort'] },
+    ([, kw, cat, mt, s, page]) => coursesApi.getList(
+      { keyword: kw as string, category: cat as string, membershipType: mt as string, sort: s as CourseListParams['sort'] },
       page as number,
     ),
     {

@@ -68,8 +68,8 @@ const MEMBERSHIP_LABEL: Record<string, string> = {
   CORPORATE: '법인',
   SHAREHOLDER: '주주',
   PREFERRED: '우대',
-  MALE: '남성',
-  FEMALE: '여성',
+  MALE: '남자',
+  FEMALE: '여자',
 }
 
 export function formatCategory(value: string | null | undefined): string {
