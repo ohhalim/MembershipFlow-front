@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Search, BarChart2, Bell, TrendingUp } from 'lucide-react'
+import { Search, BarChart2, Bell, TrendingUp, ArrowRight } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 import { CourseCard } from '@/components/course/CourseCard'
 import { MarketSummaryStrip } from '@/components/course/MarketSummaryStrip'
@@ -12,6 +12,9 @@ import { auth } from '@/lib/auth'
 import type { CourseCategory } from '@/lib/types'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? ''
+
+// 시세를 비교하는 거래소 목록 — 홈 헤더/배너 카피에서 공용으로 사용
+const EXCHANGE_NAMES = ['동아골프', '동부회원권', '시세닷컴', '에이스회원권'] as const
 
 const FEATURES = [
   { Icon: BarChart2, label: '시세 차트' },
@@ -31,8 +34,14 @@ function LoginBanner() {
 
   return (
     <div className="mx-4 mt-3 mb-1 rounded-2xl bg-blue-50 border border-blue-100 px-4 py-4">
-      <p className="text-xs text-blue-500 font-semibold mb-0.5">여러 골프거래소 시세를 한눈에</p>
-      <p className="text-sm font-bold text-gray-900 mb-3">목표가 도달 시 즉시 알림</p>
+      <p className="text-xs text-blue-500 font-semibold mb-0.5">거래소별 시세를 한 곳에서 비교</p>
+      <p className="text-sm font-bold text-gray-900 mb-2">최저가 거래소를 바로 찾아드려요</p>
+
+      <div className="flex items-center gap-1.5 mb-3 text-[11px] text-gray-500">
+        <span className="truncate">{EXCHANGE_NAMES.join(' · ')}</span>
+        <ArrowRight size={12} className="text-blue-400 flex-shrink-0" />
+        <span className="font-semibold text-blue-600 flex-shrink-0">최저가</span>
+      </div>
 
       <div className="flex gap-4 mb-4">
         {FEATURES.map(({ Icon, label }) => (
@@ -108,7 +117,10 @@ export default function HomePage() {
 
   return (
     <>
-      <Header title="골프 회원권 시세" />
+      <Header title="골프 회원권 시세 비교" />
+      <p className="px-4 -mt-2 mb-2 text-sm font-bold text-blue-600">
+        {EXCHANGE_NAMES.length}개 거래소 최저가 비교
+      </p>
 
       <LoginBanner />
 

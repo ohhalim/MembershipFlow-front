@@ -10,7 +10,7 @@ import { auth } from '@/lib/auth'
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? ''
 
 const FEATURES = [
-  { Icon: BarChart2, title: '시세 차트', desc: '동부·동아\n통합 조회' },
+  { Icon: BarChart2, title: '시세 차트', desc: '4개 거래소\n시세 비교' },
   { Icon: Bell,      title: '목표가 알림', desc: '원하는 가격에\n바로 알림' },
   { Icon: TrendingUp, title: '실시간 랭킹', desc: '상승·하락\n순위 확인' },
 ] as const
@@ -30,11 +30,11 @@ export default function LoginPage() {
     <div className="min-h-screen bg-white flex flex-col max-w-md mx-auto">
       {/* Hero */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 pt-20 pb-10 text-center">
-        <p className="text-sm text-gray-500 mb-1">여러 골프거래소 시세를 한눈에</p>
+        <p className="text-sm font-semibold text-blue-600 mb-1">여러 거래소 시세를 비교해 최저가를 찾아드립니다</p>
         <p className="text-xs text-gray-400 mb-10">목표가 도달 시 즉시 알림</p>
 
         <h1 className="text-3xl font-extrabold text-gray-900 mb-2">MembershipFlow</h1>
-        <p className="text-sm text-gray-500 mb-12">골프 회원권 시세를 한눈에, 목표가 알림까지</p>
+        <p className="text-sm text-gray-500 mb-12">골프 회원권 거래소별 시세 비교, 목표가 알림까지</p>
 
         {/* Feature icons */}
         <div className="flex justify-center gap-10 mb-14">
