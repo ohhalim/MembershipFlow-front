@@ -58,7 +58,10 @@ function ComparisonList({ items }: { items: SourceComparisonItem[] }) {
   return (
     <ul className="space-y-1">
       {items.map((item) => {
-        const dongbuHigher = item.diffAmount > 0
+        const lowest = item.prices.find((p) => p.price === item.minPrice) ?? item.prices[0]
+        const highest = item.prices.find((p) => p.price === item.maxPrice) ?? item.prices[item.prices.length - 1]
+        const extraCount = item.prices.length - 2
+
         return (
           <li key={item.courseId}>
             <Link
@@ -69,12 +72,13 @@ function ComparisonList({ items }: { items: SourceComparisonItem[] }) {
                 <p className="text-xs font-semibold text-gray-800 truncate">{item.name}</p>
                 <p className="text-[11px] text-gray-400 truncate">{item.region}</p>
               </div>
-              <div className="text-right ml-2 flex-shrink-0">
-                <p className={cn('text-[11px] font-bold', dongbuHigher ? 'text-red-500' : 'text-blue-500')}>
-                  동부 {dongbuHigher ? '+' : ''}{formatChangeRate(item.diffRate)}
+              <div className="text-right ml-2 flex-shrink-0 max-w-[130px]">
+                <p className="text-[11px] font-bold text-blue-600 truncate">
+                  최저 {lowest?.sourceName} {formatPriceCompact(item.minPrice)}
                 </p>
-                <p className="text-[10px] text-gray-400">
-                  {formatPriceCompact(item.dongaPrice)} / {formatPriceCompact(item.dongbuPrice)}
+                <p className="text-[10px] text-gray-400 truncate">
+                  최고 {highest?.sourceName} · {item.diffRate.toFixed(1)}% 차이
+                  {extraCount > 0 && ` +${extraCount}`}
                 </p>
               </div>
             </Link>
@@ -144,12 +148,12 @@ export function MarketSidebar() {
 
       <div className="border-t border-gray-100" />
 
-      {/* 동아 vs 동부 가격 차이 */}
+      {/* 거래소 간 가격 차이 */}
       <div>
         <div className="flex items-center gap-1.5 mb-3">
           <ArrowLeftRight size={15} className="text-purple-500" />
-          <h3 className="text-sm font-bold text-gray-800">동아 vs 동부</h3>
-          <span className="text-[11px] text-gray-400 ml-1">가격 차이 TOP5</span>
+          <h3 className="text-sm font-bold text-gray-800">거래소 간 가격 차이</h3>
+          <span className="text-[11px] text-gray-400 ml-1">TOP5</span>
         </div>
         {compLoading ? (
           <div className="space-y-2">
