@@ -107,10 +107,20 @@ describe('useAlertSocket', () => {
     process.env.NEXT_PUBLIC_API_URL = original
   })
 
-  it('resolveBrokerUrl은 NEXT_PUBLIC_API_URL이 없으면 로컬 기본값을 사용한다', () => {
+  it('resolveBrokerUrl은 NEXT_PUBLIC_API_URL이 빈 문자열(프로덕션 실제값)이면 현재 페이지 origin을 사용한다', () => {
+    // 프로덕션 docker-compose는 NEXT_PUBLIC_API_URL=(빈 문자열)로 설정됨 — nginx가 같은
+    // 오리진으로 프록시하기 때문. ''는 falsy라 `||`로 기본값 처리하면 항상 폴백을
+    // 타버리는 버그가 실제로 있었음 — window.location 기반으로 정정.
+    const original = process.env.NEXT_PUBLIC_API_URL
+    process.env.NEXT_PUBLIC_API_URL = ''
+    expect(resolveBrokerUrl()).toBe(`ws://${window.location.host}/ws/websocket`)
+    process.env.NEXT_PUBLIC_API_URL = original
+  })
+
+  it('resolveBrokerUrl은 NEXT_PUBLIC_API_URL이 미설정이어도 현재 페이지 origin을 사용한다', () => {
     const original = process.env.NEXT_PUBLIC_API_URL
     delete process.env.NEXT_PUBLIC_API_URL
-    expect(resolveBrokerUrl()).toBe('ws://localhost:8080/ws/websocket')
+    expect(resolveBrokerUrl()).toBe(`ws://${window.location.host}/ws/websocket`)
     process.env.NEXT_PUBLIC_API_URL = original
   })
 })

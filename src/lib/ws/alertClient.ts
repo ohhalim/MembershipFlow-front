@@ -9,13 +9,19 @@ const ALERT_DESTINATION = '/user/queue/alert'
 
 /**
  * NEXT_PUBLIC_API_URL(http/https)을 STOMP brokerURL(ws/wss)로 변환한다.
- * - 프로덕션: https://membershipflow.site → wss://membershipflow.site/ws/websocket
- * - 로컬: http://localhost:8080(기본값) → ws://localhost:8080/ws/websocket
+ * - 로컬(.env.local에 절대 URL 설정): http://localhost:8081 → ws://localhost:8081/ws/websocket
+ * - 프로덕션: NEXT_PUBLIC_API_URL이 빈 문자열(nginx가 같은 오리진으로 프록시 — REST apiClient와 동일 전제).
+ *   `''`은 falsy라 `||`로 기본값을 주면 항상 폴백을 타버리므로 반드시 `??`로 판별하고,
+ *   비어 있으면 현재 페이지 origin(window.location) 기준으로 조립한다.
  */
 export function resolveBrokerUrl(): string {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
-  const wsUrl = apiUrl.replace(/^https:/, 'wss:').replace(/^http:/, 'ws:')
-  return `${wsUrl}/ws/websocket`
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? ''
+  if (apiUrl) {
+    const wsUrl = apiUrl.replace(/^https:/, 'wss:').replace(/^http:/, 'ws:')
+    return `${wsUrl}/ws/websocket`
+  }
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+  return `${protocol}//${window.location.host}/ws/websocket`
 }
 
 interface UseAlertSocketOptions {
