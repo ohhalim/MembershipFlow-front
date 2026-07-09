@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Home, BarChart2, Heart, User } from 'lucide-react'
 import { cn } from '@/lib/cn'
+import { NotificationBell } from '@/components/notifications/NotificationBell'
 
 const TABS = [
   { href: '/home',      label: '홈',   Icon: Home },
@@ -35,6 +36,9 @@ export function BottomTabBar() {
             </li>
           )
         })}
+        <li className="flex-1">
+          <NotificationBell variant="bottombar" />
+        </li>
       </ul>
     </nav>
   )

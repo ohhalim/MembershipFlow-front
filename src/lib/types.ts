@@ -139,6 +139,19 @@ export interface MySubscription {
   cancelledAt: string | null
 }
 
+// ─── Alert (목표가 알림) ────────────────────────────────────────────────────────
+
+export interface Alert {
+  id: number
+  courseId: number
+  courseName: string
+  triggeredPrice: number
+  targetPrice: number
+  sourceName: string
+  sentAt: string
+  readAt: string | null
+}
+
 // ─── API Error ────────────────────────────────────────────────────────────────
 
 export interface ApiErrorBody {

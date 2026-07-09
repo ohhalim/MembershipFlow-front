@@ -3,15 +3,17 @@ import { BottomTabBar } from '../BottomTabBar'
 
 jest.mock('next/navigation', () => ({
   usePathname: () => '/home',
+  useRouter: () => ({ push: jest.fn(), replace: jest.fn() }),
 }))
 
 describe('BottomTabBar', () => {
-  it('4개 탭을 렌더링한다', () => {
+  it('4개 탭과 알림 벨을 렌더링한다', () => {
     render(<BottomTabBar />)
     expect(screen.getByText('홈')).toBeInTheDocument()
     expect(screen.getByText('랭킹')).toBeInTheDocument()
     expect(screen.getByText('관심')).toBeInTheDocument()
     expect(screen.getByText('MY')).toBeInTheDocument()
+    expect(screen.getByLabelText('알림')).toBeInTheDocument()
   })
 
   it('현재 경로(/home)에서 홈 탭이 활성 색상을 가진다', () => {
