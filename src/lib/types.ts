@@ -77,13 +77,19 @@ export interface RankingItem {
 
 // ─── Source Comparison ───────────────────────────────────────────────────────
 
+export interface SourceComparisonPrice {
+  sourceName: string
+  price: number
+}
+
 export interface SourceComparisonItem {
   courseId: number
   name: string
   region: string
   courseType: string | null
-  dongaPrice: number
-  dongbuPrice: number
+  prices: SourceComparisonPrice[]
+  minPrice: number
+  maxPrice: number
   diffAmount: number
   diffRate: number
 }
