@@ -1,4 +1,29 @@
-import { formatPrice, formatPriceCompact, formatChangeRate, changeRateColor, priceGap, formatMembershipType } from '../utils'
+import { formatPrice, formatPriceCompact, formatChangeRate, changeRateColor, priceGap, formatMembershipType, daysSince, isStale, formatStaleness } from '../utils'
+
+function daysAgoIso(days: number): string {
+  return new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString()
+}
+
+describe('daysSince / isStale / formatStaleness', () => {
+  it('daysSince는 경과 일수를 반환한다', () => {
+    expect(daysSince(daysAgoIso(3))).toBe(3)
+  })
+  it('14일 미만이면 stale이 아니다', () => {
+    expect(isStale(daysAgoIso(13))).toBe(false)
+  })
+  it('14일 이상이면 stale이다', () => {
+    expect(isStale(daysAgoIso(14))).toBe(true)
+  })
+  it('오늘 갱신이면 "오늘 갱신"을 반환한다', () => {
+    expect(formatStaleness(daysAgoIso(0))).toBe('오늘 갱신')
+  })
+  it('stale 아니면 "N일 전 갱신"을 반환한다', () => {
+    expect(formatStaleness(daysAgoIso(5))).toBe('5일 전 갱신')
+  })
+  it('stale이면 "N일간 갱신 안됨"을 반환한다', () => {
+    expect(formatStaleness(daysAgoIso(20))).toBe('20일간 갱신 안됨')
+  })
+})
 
 describe('formatPrice', () => {
   it('억 + 만원 형식으로 반환한다', () => {
