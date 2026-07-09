@@ -1,3 +1,30 @@
+const STALE_THRESHOLD_DAYS = 14
+
+/**
+ * 마지막 갱신 시각으로부터 경과 일수. 갱신일이 오래될수록 "협상 여지가 있을 수 있다"는
+ * 신호가 되므로(거래소 시세표가 실제로는 자주 안 바뀜) 상세 페이지에서 노출한다.
+ */
+export function daysSince(isoDateTime: string): number {
+  const diffMs = Date.now() - new Date(isoDateTime).getTime()
+  return Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)))
+}
+
+/** STALE_THRESHOLD_DAYS(14일) 이상 갱신 안 됐으면 true */
+export function isStale(isoDateTime: string): boolean {
+  return daysSince(isoDateTime) >= STALE_THRESHOLD_DAYS
+}
+
+/**
+ * 갱신 경과일을 사람이 읽기 좋은 문구로 변환
+ * @example formatStaleness('2026-07-08T...') → "1일 전 갱신" 또는 "14일간 갱신 안됨"
+ */
+export function formatStaleness(isoDateTime: string): string {
+  const days = daysSince(isoDateTime)
+  if (days === 0) return '오늘 갱신'
+  if (isStale(isoDateTime)) return `${days}일간 갱신 안됨`
+  return `${days}일 전 갱신`
+}
+
 /**
  * 숫자를 한국 억/만원 형식으로 변환
  * @example formatPrice(250000000) → "2억 5,000만원"

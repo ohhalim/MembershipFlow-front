@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/Badge'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { useCourseDetail, usePriceHistory } from '@/lib/hooks/useCourses'
 import { useWatchlist } from '@/lib/hooks/useWatchlist'
-import { formatPrice, formatPriceCompact, formatChangeRate, changeRateColor, formatCategory, formatMembershipType } from '@/lib/utils'
+import { formatPrice, formatPriceCompact, formatChangeRate, changeRateColor, formatCategory, formatMembershipType, formatStaleness, isStale } from '@/lib/utils'
 import { cn } from '@/lib/cn'
 import type { ChartPeriod, CourseInfo } from '@/lib/types'
 
@@ -161,16 +161,24 @@ export function CourseDetailClient() {
                   'flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3',
                   source.sourceUrl && 'hover:bg-gray-100 transition-colors',
                 )
+                const stale = isStale(source.updatedAt)
                 const rowContent = (
                   <>
-                    <div className="flex items-center gap-2">
-                      <ExternalLink size={14} className="text-gray-400" />
-                      <span className="text-sm text-gray-700">{source.sourceName}</span>
-                      {source.isLowest && (
-                        <Badge variant="blue" className="text-[10px] py-0">최저</Badge>
-                      )}
+                    <div className="flex items-center gap-2 min-w-0">
+                      <ExternalLink size={14} className="text-gray-400 flex-shrink-0" />
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-sm text-gray-700 truncate">{source.sourceName}</span>
+                          {source.isLowest && (
+                            <Badge variant="blue" className="text-[10px] py-0">최저</Badge>
+                          )}
+                        </div>
+                        <p className={cn('text-[11px]', stale ? 'text-amber-600' : 'text-gray-400')}>
+                          {stale && '⚠ '}{formatStaleness(source.updatedAt)}
+                        </p>
+                      </div>
                     </div>
-                    <span className="text-sm font-bold text-gray-900">
+                    <span className="text-sm font-bold text-gray-900 flex-shrink-0">
                       {formatPrice(source.price)}
                     </span>
                   </>
