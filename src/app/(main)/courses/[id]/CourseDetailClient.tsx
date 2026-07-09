@@ -156,23 +156,42 @@ export function CourseDetailClient() {
           <section>
             <h2 className="text-sm font-semibold text-gray-700 mb-3">거래소별 시세</h2>
             <div className="space-y-2">
-              {course.sources.map((source) => (
-                <div
-                  key={source.sourceName}
-                  className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3"
-                >
-                  <div className="flex items-center gap-2">
-                    <ExternalLink size={14} className="text-gray-400" />
-                    <span className="text-sm text-gray-700">{source.sourceName}</span>
-                    {source.isLowest && (
-                      <Badge variant="blue" className="text-[10px] py-0">최저</Badge>
-                    )}
+              {course.sources.map((source) => {
+                const rowClassName = cn(
+                  'flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3',
+                  source.url && 'hover:bg-gray-100 transition-colors',
+                )
+                const rowContent = (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <ExternalLink size={14} className="text-gray-400" />
+                      <span className="text-sm text-gray-700">{source.sourceName}</span>
+                      {source.isLowest && (
+                        <Badge variant="blue" className="text-[10px] py-0">최저</Badge>
+                      )}
+                    </div>
+                    <span className="text-sm font-bold text-gray-900">
+                      {formatPrice(source.price)}
+                    </span>
+                  </>
+                )
+
+                return source.url ? (
+                  <a
+                    key={source.sourceName}
+                    href={source.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={rowClassName}
+                  >
+                    {rowContent}
+                  </a>
+                ) : (
+                  <div key={source.sourceName} className={rowClassName}>
+                    {rowContent}
                   </div>
-                  <span className="text-sm font-bold text-gray-900">
-                    {formatPrice(source.price)}
-                  </span>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </section>
         )}
