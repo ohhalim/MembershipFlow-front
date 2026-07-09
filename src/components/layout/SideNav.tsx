@@ -21,7 +21,7 @@ export function SideNav() {
       <div className="px-3 mb-8 flex items-start justify-between">
         <div>
           <p className="text-base font-bold text-gray-900">MembershipFlow</p>
-          <p className="text-xs text-gray-400 mt-0.5">골프 회원권 시세 추적</p>
+          <p className="text-xs text-gray-400 mt-0.5">거래소별 시세 비교</p>
         </div>
         <NotificationBell variant="sidenav" />
       </div>
