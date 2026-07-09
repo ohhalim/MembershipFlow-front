@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { Heart, ChevronLeft, ExternalLink } from 'lucide-react'
+import { Heart, ChevronLeft, ExternalLink, MapPin } from 'lucide-react'
 import {
   LineChart, Line, XAxis, YAxis, Tooltip,
   ResponsiveContainer, CartesianGrid,
@@ -14,7 +14,7 @@ import { useCourseDetail, usePriceHistory } from '@/lib/hooks/useCourses'
 import { useWatchlist } from '@/lib/hooks/useWatchlist'
 import { formatPrice, formatPriceCompact, formatChangeRate, changeRateColor, formatCategory, formatMembershipType } from '@/lib/utils'
 import { cn } from '@/lib/cn'
-import type { ChartPeriod } from '@/lib/types'
+import type { ChartPeriod, CourseInfo } from '@/lib/types'
 
 const PERIODS: { label: string; value: ChartPeriod }[] = [
   { label: '1일', value: '1d' },
@@ -176,7 +176,128 @@ export function CourseDetailClient() {
             </div>
           </section>
         )}
+
+        {/* 골프장 정보 (info 있을 때만) */}
+        {!courseLoading && course?.info && <CourseInfoSections info={course.info} />}
       </div>
     </>
+  )
+}
+
+/** 원 단위 숫자를 "68,000원" 형식으로 변환 */
+function formatWon(value: number): string {
+  return `${value.toLocaleString()}원`
+}
+
+function CourseInfoSections({ info }: { info: CourseInfo }) {
+  const hasFees = (info.greenFees?.length ?? 0) > 0 || !!info.caddieFee || !!info.cartFee
+  const intros = [
+    { title: '회원권 소개', text: info.membershipIntro },
+    { title: '코스 소개', text: info.courseIntro },
+    { title: '시세 전망', text: info.priceOutlook },
+  ].filter((item): item is { title: string; text: string } => !!item.text)
+
+  return (
+    <>
+      {/* 이용 요금 */}
+      {hasFees && (
+        <section className="mt-6">
+          <h2 className="text-sm font-semibold text-gray-700 mb-3">이용 요금</h2>
+          <div className="bg-gray-50 rounded-xl px-4 py-3 space-y-3">
+            {(info.greenFees?.length ?? 0) > 0 && (
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-xs text-gray-400">
+                    <th className="text-left font-medium pb-2">구분</th>
+                    <th className="text-right font-medium pb-2">주중</th>
+                    <th className="text-right font-medium pb-2">주말</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {info.greenFees!.map((fee, i) => (
+                    <tr key={i} className="border-t border-gray-100">
+                      <td className="py-2 text-gray-700">{fee.grade ?? '-'}</td>
+                      <td className="py-2 text-right font-medium text-gray-900">
+                        {fee.weekday != null ? formatWon(fee.weekday) : '-'}
+                      </td>
+                      <td className="py-2 text-right font-medium text-gray-900">
+                        {fee.weekend != null ? formatWon(fee.weekend) : '-'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+            {info.caddieFee && (
+              <div className="flex items-start justify-between gap-4 text-sm">
+                <span className="text-gray-500 shrink-0">캐디피</span>
+                <span className="text-gray-900 text-right">{info.caddieFee}</span>
+              </div>
+            )}
+            {info.cartFee && (
+              <div className="flex items-start justify-between gap-4 text-sm">
+                <span className="text-gray-500 shrink-0">카트비</span>
+                <span className="text-gray-900 text-right">{info.cartFee}</span>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* 위치 */}
+      {info.address && (
+        <section className="mt-6">
+          <h2 className="text-sm font-semibold text-gray-700 mb-3">위치</h2>
+          <div className="flex items-start gap-2 bg-gray-50 rounded-xl px-4 py-3">
+            <MapPin size={14} className="text-gray-400 mt-0.5 shrink-0" />
+            <span className="text-sm text-gray-700">{info.address}</span>
+          </div>
+        </section>
+      )}
+
+      {/* 골프장 소개 */}
+      {intros.length > 0 && (
+        <section className="mt-6">
+          <h2 className="text-sm font-semibold text-gray-700 mb-3">골프장 소개</h2>
+          <div className="space-y-2">
+            {intros.map(({ title, text }) => (
+              <div key={title} className="bg-gray-50 rounded-xl px-4 py-3">
+                <h3 className="text-xs font-semibold text-gray-500 mb-1.5">{title}</h3>
+                <ExpandableText text={text} />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+    </>
+  )
+}
+
+/** 긴 문단은 3줄로 접고 더보기/접기 토글 제공 */
+const EXPAND_THRESHOLD = 100
+
+function ExpandableText({ text }: { text: string }) {
+  const [expanded, setExpanded] = useState(false)
+  const collapsible = text.length > EXPAND_THRESHOLD
+
+  return (
+    <div>
+      <p
+        className={cn(
+          'text-sm text-gray-700 leading-relaxed whitespace-pre-line',
+          collapsible && !expanded && 'line-clamp-3',
+        )}
+      >
+        {text}
+      </p>
+      {collapsible && (
+        <button
+          onClick={() => setExpanded((v) => !v)}
+          className="mt-1.5 text-xs font-medium text-gray-400 hover:text-gray-600"
+        >
+          {expanded ? '접기' : '더보기'}
+        </button>
+      )}
+    </div>
   )
 }

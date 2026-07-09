@@ -27,6 +27,23 @@ export interface MarketSummary {
 
 export interface CourseDetail extends Course {
   sources: SourcePrice[]
+  info?: CourseInfo | null
+}
+
+export interface GreenFee {
+  grade: string | null
+  weekday: number | null
+  weekend: number | null
+}
+
+export interface CourseInfo {
+  address?: string | null
+  membershipIntro?: string | null
+  courseIntro?: string | null
+  priceOutlook?: string | null
+  greenFees?: GreenFee[] | null
+  caddieFee?: string | null
+  cartFee?: string | null
 }
 
 export interface SourcePrice {

@@ -59,4 +59,12 @@ describe('CourseDetailPage', () => {
     render(<Page />)
     expect(screen.getByTestId('chart')).toBeInTheDocument()
   })
+
+  it('info가 없으면 골프장 정보 섹션을 렌더링하지 않는다', async () => {
+    const { default: Page } = await import('../page')
+    render(<Page />)
+    expect(screen.queryByText('이용 요금')).not.toBeInTheDocument()
+    expect(screen.queryByText('위치')).not.toBeInTheDocument()
+    expect(screen.queryByText('골프장 소개')).not.toBeInTheDocument()
+  })
 })
