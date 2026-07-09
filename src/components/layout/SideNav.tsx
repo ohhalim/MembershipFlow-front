@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Home, BarChart2, Heart, User } from 'lucide-react'
 import { cn } from '@/lib/cn'
+import { NotificationBell } from '@/components/notifications/NotificationBell'
 
 const TABS = [
   { href: '/home',      label: '홈',   Icon: Home },
@@ -17,9 +18,12 @@ export function SideNav() {
 
   return (
     <div className="flex flex-col h-full px-3 py-6">
-      <div className="px-3 mb-8">
-        <p className="text-base font-bold text-gray-900">MembershipFlow</p>
-        <p className="text-xs text-gray-400 mt-0.5">골프 회원권 시세 추적</p>
+      <div className="px-3 mb-8 flex items-start justify-between">
+        <div>
+          <p className="text-base font-bold text-gray-900">MembershipFlow</p>
+          <p className="text-xs text-gray-400 mt-0.5">골프 회원권 시세 추적</p>
+        </div>
+        <NotificationBell variant="sidenav" />
       </div>
 
       <nav className="flex flex-col gap-0.5">
