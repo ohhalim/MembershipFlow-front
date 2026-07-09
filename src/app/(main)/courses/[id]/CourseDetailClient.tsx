@@ -159,7 +159,7 @@ export function CourseDetailClient() {
               {course.sources.map((source) => {
                 const rowClassName = cn(
                   'flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3',
-                  source.url && 'hover:bg-gray-100 transition-colors',
+                  source.sourceUrl && 'hover:bg-gray-100 transition-colors',
                 )
                 const rowContent = (
                   <>
@@ -176,10 +176,10 @@ export function CourseDetailClient() {
                   </>
                 )
 
-                return source.url ? (
+                return source.sourceUrl ? (
                   <a
                     key={source.sourceName}
-                    href={source.url}
+                    href={source.sourceUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={rowClassName}

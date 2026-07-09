@@ -9,14 +9,14 @@ const mockCourse = {
       price: 245000000,
       updatedAt: '2024-01-01',
       isLowest: true,
-      url: 'https://www.donga-membership.com/course/1',
+      sourceUrl: 'https://www.donga-membership.com/course/1',
     },
     {
       sourceName: '시세닷컴',
       price: 248000000,
       updatedAt: '2024-01-01',
       isLowest: false,
-      url: 'https://www.sise.com',
+      sourceUrl: 'https://www.sise.com',
     },
     {
       // 과거 캐시된 응답 등 url이 없는 케이스

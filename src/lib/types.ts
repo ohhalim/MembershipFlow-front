@@ -51,7 +51,7 @@ export interface SourcePrice {
   price: number
   updatedAt: string
   isLowest: boolean
-  url?: string
+  sourceUrl?: string
 }
 
 export interface PricePoint {
