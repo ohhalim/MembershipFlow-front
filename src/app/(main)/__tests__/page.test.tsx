@@ -15,7 +15,9 @@ jest.mock('@/lib/hooks/useCourses', () => ({
 
 jest.mock('@/lib/api/courses', () => ({
   coursesApi: {
-    getSummary: jest.fn().mockResolvedValue({ updatedToday: 132, risers: 3, fallers: 5 }),
+    getSummary: jest
+      .fn()
+      .mockResolvedValue({ updatedToday: 132, risers: 3, fallers: 5, comparedCourses: 62, maxSpreadRate: 900 }),
   },
 }))
 
@@ -116,10 +118,10 @@ describe('HomePage', () => {
     expect(container.querySelectorAll('.animate-pulse').length).toBeGreaterThan(0)
   })
 
-  it('시장 요약 스트립을 표시한다', async () => {
+  it('시장 요약 스트립을 스프레드 중심으로 표시한다', async () => {
     render(<HomePage />)
-    expect(await screen.findByText('132')).toBeInTheDocument()
-    expect(screen.getByText('3')).toBeInTheDocument()
-    expect(screen.getByText('5')).toBeInTheDocument()
+    expect(await screen.findByText('62')).toBeInTheDocument()
+    expect(screen.getByText('900%')).toBeInTheDocument()
+    expect(screen.getByText(/가격차 나는 종목/)).toBeInTheDocument()
   })
 })

@@ -23,6 +23,10 @@ export interface MarketSummary {
   updatedToday: number
   risers: number
   fallers: number
+  /** 2개 이상 거래소에 가격이 있어 비교 가능한 종목 수 */
+  comparedCourses?: number
+  /** 최대 거래소간 가격차율 (%) */
+  maxSpreadRate?: number
 }
 
 export interface CourseDetail extends Course {
