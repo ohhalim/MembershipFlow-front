@@ -121,7 +121,7 @@ describe('HomePage', () => {
   it('시장 요약 스트립을 스프레드 중심으로 표시한다', async () => {
     render(<HomePage />)
     expect(await screen.findByText('62')).toBeInTheDocument()
-    expect(screen.getByText('900%')).toBeInTheDocument()
     expect(screen.getByText(/가격차 나는 종목/)).toBeInTheDocument()
+    expect(screen.queryByText(/최대 격차/)).not.toBeInTheDocument()
   })
 })
