@@ -33,19 +33,12 @@ describe('MarketSummaryStrip', () => {
     renderStrip()
 
     expect(await screen.findByText('62')).toBeInTheDocument()
-    expect(screen.getByText('900%')).toBeInTheDocument()
     expect(screen.getByText(/가격차 나는 종목/)).toBeInTheDocument()
-    expect(screen.getByText(/최대 격차/)).toBeInTheDocument()
+    // 최대 격차율은 개별 소스 데이터 오류가 지배적이라 헤드라인에 노출하지 않음
+    expect(screen.queryByText(/최대 격차/)).not.toBeInTheDocument()
     // 상승/하락은 헤드라인에서 제거됨
     expect(screen.queryByText(/상승/)).not.toBeInTheDocument()
     expect(screen.queryByText(/하락/)).not.toBeInTheDocument()
-  })
-
-  it('maxSpreadRate를 정수로 반올림해 표시한다', async () => {
-    setSummary({ updatedToday: 100, risers: 0, fallers: 0, comparedCourses: 10, maxSpreadRate: 12.7 })
-    renderStrip()
-
-    expect(await screen.findByText('13%')).toBeInTheDocument()
   })
 
   it('스프레드 필드가 없으면 기존 업데이트/상승/하락 폴백을 표시한다', async () => {
