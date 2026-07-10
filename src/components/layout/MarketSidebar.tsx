@@ -16,10 +16,11 @@ function useSourceComparison() {
   )
 }
 
+// 크롤링이 하루 1회라 1일 비교는 대부분 변동 없음 → 7일 기준으로 조정
 function useTopMovers(type: 'rise' | 'fall') {
   return useSWR(
     [`/ranking/top`, type],
-    () => coursesApi.getRankingPage(type, 1, 0),
+    () => coursesApi.getRankingPage(type, 7, 0),
     { revalidateOnFocus: false, revalidateOnReconnect: false },
   )
 }
@@ -101,7 +102,7 @@ export function MarketSidebar() {
         <div className="flex items-center gap-1.5 mb-3">
           <TrendingUp size={15} className="text-red-500" />
           <h3 className="text-sm font-bold text-gray-800">급상승 TOP5</h3>
-          <span className="text-[11px] text-gray-400 ml-1">1일</span>
+          <span className="text-[11px] text-gray-400 ml-1">7일</span>
         </div>
         {riseLoading ? (
           <div className="space-y-2">
@@ -127,7 +128,7 @@ export function MarketSidebar() {
         <div className="flex items-center gap-1.5 mb-3">
           <TrendingDown size={15} className="text-blue-500" />
           <h3 className="text-sm font-bold text-gray-800">급하락 TOP5</h3>
-          <span className="text-[11px] text-gray-400 ml-1">1일</span>
+          <span className="text-[11px] text-gray-400 ml-1">7일</span>
         </div>
         {fallLoading ? (
           <div className="space-y-2">
