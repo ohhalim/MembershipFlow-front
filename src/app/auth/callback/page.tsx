@@ -3,16 +3,15 @@
 import { Suspense, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Skeleton } from '@/components/ui/Skeleton'
-import { auth } from '@/lib/auth'
 
 function CallbackHandler() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
   useEffect(() => {
-    const token = searchParams.get('token')
-    if (token) {
-      auth.setToken(token)
+    // 토큰은 백엔드가 HttpOnly 쿠키로 발급한다 (fe#49) — 여기서는 성공 여부만 보고 이동.
+    // URL에 병행 발급 중인 ?token=은 읽지도 저장하지도 않는다.
+    if (searchParams.get('success') === 'true') {
       router.replace('/home')
     } else {
       router.replace('/login')

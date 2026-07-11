@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { BarChart2, Bell, TrendingUp } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
-import { auth } from '@/lib/auth'
+import { useAuth } from '@/lib/auth'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? ''
 
@@ -17,10 +17,11 @@ const FEATURES = [
 
 export default function LoginPage() {
   const router = useRouter()
+  const { isAuthenticated } = useAuth()
 
   useEffect(() => {
-    if (auth.isAuthenticated()) router.replace('/home')
-  }, [router])
+    if (isAuthenticated) router.replace('/home')
+  }, [isAuthenticated, router])
 
   function handleGoogleLogin() {
     window.location.href = `${API_URL}/oauth2/authorization/google`

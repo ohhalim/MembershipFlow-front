@@ -2,23 +2,18 @@ import { render, screen } from '@testing-library/react'
 import AuthCallbackPage from '../page'
 
 const mockReplace = jest.fn()
-let mockToken: string | null = 'test-jwt-token'
+let mockParams: Record<string, string | null> = {}
 
 jest.mock('next/navigation', () => ({
   useRouter: () => ({ replace: mockReplace }),
-  useSearchParams: () => ({ get: (key: string) => (key === 'token' ? mockToken : null) }),
-}))
-
-const mockSetToken = jest.fn()
-jest.mock('@/lib/auth', () => ({
-  auth: { setToken: (t: string) => mockSetToken(t) },
+  useSearchParams: () => ({ get: (key: string) => mockParams[key] ?? null }),
 }))
 
 describe('AuthCallbackPage', () => {
   beforeEach(() => {
     mockReplace.mockClear()
-    mockSetToken.mockClear()
-    mockToken = 'test-jwt-token'
+    mockParams = {}
+    localStorage.clear()
   })
 
   it('로딩 중 텍스트를 렌더링한다', () => {
@@ -26,16 +21,24 @@ describe('AuthCallbackPage', () => {
     expect(screen.getByText('로그인 처리 중...')).toBeInTheDocument()
   })
 
-  it('token이 있으면 저장 후 홈으로 이동한다', () => {
+  it('success=true면 홈으로 이동한다', () => {
+    mockParams = { success: 'true' }
     render(<AuthCallbackPage />)
-    expect(mockSetToken).toHaveBeenCalledWith('test-jwt-token')
     expect(mockReplace).toHaveBeenCalledWith('/home')
   })
 
-  it('token이 없으면 로그인 페이지로 이동한다', () => {
-    mockToken = null
+  it('success가 없으면 로그인 페이지로 이동한다', () => {
     render(<AuthCallbackPage />)
-    expect(mockSetToken).not.toHaveBeenCalled()
     expect(mockReplace).toHaveBeenCalledWith('/login')
+  })
+
+  it('URL에 token이 있어도 읽거나 저장하지 않는다 (fe#49/fe#50)', () => {
+    // 백엔드가 전환기 동안 ?token=을 병행 발급하지만, 인증은 HttpOnly 쿠키로만 처리한다
+    mockParams = { success: 'true', token: 'leaked-jwt-token' }
+    render(<AuthCallbackPage />)
+
+    expect(mockReplace).toHaveBeenCalledWith('/home')
+    expect(localStorage.getItem('mf_token')).toBeNull()
+    expect(localStorage.length).toBe(0)
   })
 })
