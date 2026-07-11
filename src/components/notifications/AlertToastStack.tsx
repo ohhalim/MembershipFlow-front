@@ -2,6 +2,7 @@
 
 import { X } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
+import { courseDisplayTitle } from '@/lib/courseDisplay'
 import type { Alert } from '@/lib/types'
 
 export interface AlertToastItem {
@@ -28,7 +29,7 @@ export function AlertToastStack({ toasts, onDismiss }: AlertToastStackProps) {
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-gray-900">목표가 알림</p>
             <p className="text-xs text-gray-500 mt-0.5 truncate">
-              {alert.courseName} · {formatPrice(alert.triggeredPrice)}
+              {courseDisplayTitle(alert.courseName)} · {formatPrice(alert.triggeredPrice)}
             </p>
           </div>
           <button

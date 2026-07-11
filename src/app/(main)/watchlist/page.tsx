@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/Skeleton'
 import { cn } from '@/lib/cn'
 import { useWatchlist } from '@/lib/hooks/useWatchlist'
 import { formatPrice, formatPriceCompact, priceGap, changeRateColor } from '@/lib/utils'
+import { courseDisplayTitle } from '@/lib/courseDisplay'
 
 export default function WatchlistPage() {
   const router = useRouter()
@@ -88,7 +89,7 @@ export default function WatchlistPage() {
                   {/* 상단: 종목명 + 현재가 */}
                   <div className="flex items-start justify-between mb-2">
                     <Link href={`/courses/${item.courseId}`} className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-gray-900 truncate">{item.courseName}</p>
+                      <p className="text-sm font-bold text-gray-900 truncate">{courseDisplayTitle(item.courseName)}</p>
                       <p className="text-xs text-gray-400 mt-0.5">{item.region}</p>
                     </Link>
                     <div className="text-right ml-3">
