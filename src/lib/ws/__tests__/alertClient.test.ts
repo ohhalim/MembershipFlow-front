@@ -6,7 +6,7 @@ const subscribeMock = jest.fn()
 
 interface CapturedConfig {
   brokerURL: string
-  connectHeaders: Record<string, string>
+  connectHeaders?: Record<string, string>
   reconnectDelay: number
   onConnect: () => void
 }
@@ -24,14 +24,6 @@ jest.mock('@stomp/stompjs', () => ({
   }),
 }))
 
-jest.mock('@/lib/auth', () => ({
-  auth: {
-    isAuthenticated: jest.fn(),
-    getToken: jest.fn(() => 'test-token'),
-  },
-}))
-
-import { auth } from '@/lib/auth'
 import { useAlertSocket, resolveBrokerUrl } from '../alertClient'
 
 describe('useAlertSocket', () => {
@@ -40,24 +32,21 @@ describe('useAlertSocket', () => {
     capturedConfig = null
   })
 
-  it('로그인 상태가 아니면 연결하지 않는다', () => {
-    ;(auth.isAuthenticated as jest.Mock).mockReturnValue(false)
-    renderHook(() => useAlertSocket({ onMessage: jest.fn() }))
+  it('로그인 상태가 아니면(enabled=false) 연결하지 않는다', () => {
+    renderHook(() => useAlertSocket({ enabled: false, onMessage: jest.fn() }))
     expect(activateMock).not.toHaveBeenCalled()
   })
 
-  it('로그인 상태면 Authorization 헤더와 함께 연결한다', () => {
-    ;(auth.isAuthenticated as jest.Mock).mockReturnValue(true)
-    renderHook(() => useAlertSocket({ onMessage: jest.fn() }))
+  it('로그인 상태면(enabled=true) 연결한다 — 인증은 핸드셰이크 쿠키로 처리되므로 Authorization 헤더가 없다', () => {
+    renderHook(() => useAlertSocket({ enabled: true, onMessage: jest.fn() }))
     expect(activateMock).toHaveBeenCalled()
-    expect(capturedConfig?.connectHeaders).toEqual({ Authorization: 'Bearer test-token' })
+    expect(capturedConfig?.connectHeaders).toBeUndefined()
     expect(capturedConfig?.brokerURL).toContain('/ws/websocket')
   })
 
   it('연결 후 /user/queue/alert 를 구독하고 수신 메시지를 파싱해서 콜백을 호출한다', () => {
-    ;(auth.isAuthenticated as jest.Mock).mockReturnValue(true)
     const onMessage = jest.fn()
-    renderHook(() => useAlertSocket({ onMessage }))
+    renderHook(() => useAlertSocket({ enabled: true, onMessage }))
 
     capturedConfig?.onConnect()
 
@@ -82,9 +71,8 @@ describe('useAlertSocket', () => {
   })
 
   it('메시지 파싱에 실패해도 예외를 던지지 않는다', () => {
-    ;(auth.isAuthenticated as jest.Mock).mockReturnValue(true)
     const onMessage = jest.fn()
-    renderHook(() => useAlertSocket({ onMessage }))
+    renderHook(() => useAlertSocket({ enabled: true, onMessage }))
 
     capturedConfig?.onConnect()
     const handler = subscribeMock.mock.calls[0][1]
@@ -94,8 +82,7 @@ describe('useAlertSocket', () => {
   })
 
   it('언마운트 시 deactivate를 호출한다', () => {
-    ;(auth.isAuthenticated as jest.Mock).mockReturnValue(true)
-    const { unmount } = renderHook(() => useAlertSocket({ onMessage: jest.fn() }))
+    const { unmount } = renderHook(() => useAlertSocket({ enabled: true, onMessage: jest.fn() }))
     unmount()
     expect(deactivateMock).toHaveBeenCalled()
   })

@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/Badge'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { useMySubscription } from '@/lib/hooks/useSubscription'
 import { formatPrice } from '@/lib/utils'
-import { auth } from '@/lib/auth'
+import { useAuth } from '@/lib/auth'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 
@@ -20,17 +20,21 @@ const STATUS_LABEL: Record<string, { label: string; variant: 'green' | 'gray' | 
 
 export default function MyPage() {
   const { data: subscription, isLoading } = useMySubscription()
+  const { isAuthenticated, isLoading: authLoading, logout } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
-    if (!auth.isAuthenticated()) router.replace('/')
-  }, [router])
+    if (!authLoading && !isAuthenticated) router.replace('/')
+  }, [authLoading, isAuthenticated, router])
 
-  if (!auth.isAuthenticated()) return null
+  if (!isAuthenticated) return null
 
-  function handleLogout() {
-    auth.clearToken()
-    router.replace('/')
+  async function handleLogout() {
+    try {
+      await logout()
+    } finally {
+      router.replace('/')
+    }
   }
 
   return (
