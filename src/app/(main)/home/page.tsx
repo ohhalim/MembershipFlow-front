@@ -8,7 +8,7 @@ import { MarketSummaryStrip } from '@/components/course/MarketSummaryStrip'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { cn } from '@/lib/cn'
 import { useCourseList } from '@/lib/hooks/useCourses'
-import { auth } from '@/lib/auth'
+import { useAuth } from '@/lib/auth'
 import type { CourseCategory } from '@/lib/types'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? ''
@@ -23,14 +23,10 @@ const FEATURES = [
 ] as const
 
 function LoginBanner() {
-  const [visible, setVisible] = useState(false)
+  const { isAuthenticated, isLoading } = useAuth()
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setVisible(!auth.isAuthenticated())
-  }, [])
-
-  if (!visible) return null
+  // 로그인 판정이 끝나기 전에는 배너를 띄우지 않는다 (깜빡임 방지)
+  if (isLoading || isAuthenticated) return null
 
   return (
     <div className="mx-4 mt-3 mb-1 rounded-2xl bg-blue-50 border border-blue-100 px-4 py-4">

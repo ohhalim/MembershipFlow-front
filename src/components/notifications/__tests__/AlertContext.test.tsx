@@ -11,7 +11,12 @@ function renderWithIsolatedCache(ui: React.ReactElement) {
 }
 
 jest.mock('@/lib/auth', () => ({
-  auth: { isAuthenticated: () => true, getToken: () => 'test-token' },
+  useAuth: () => ({
+    user: { id: 1, email: 'test@test.com', name: '테스터' },
+    isAuthenticated: true,
+    isLoading: false,
+    logout: jest.fn(),
+  }),
 }))
 
 const mockGetList = jest.fn()
@@ -24,8 +29,10 @@ jest.mock('@/lib/api/alerts', () => ({
 }))
 
 let capturedOnMessage: ((alert: Alert) => void) | null = null
+let capturedEnabled: boolean | null = null
 jest.mock('@/lib/ws/alertClient', () => ({
-  useAlertSocket: ({ onMessage }: { onMessage: (alert: Alert) => void }) => {
+  useAlertSocket: ({ enabled, onMessage }: { enabled: boolean; onMessage: (alert: Alert) => void }) => {
+    capturedEnabled = enabled
     capturedOnMessage = onMessage
   },
 }))
@@ -71,6 +78,8 @@ describe('AlertProvider', () => {
     await waitFor(() => expect(screen.getByTestId('unread')).toHaveTextContent('1'))
     expect(screen.getByText('서울 CC')).toBeInTheDocument()
     expect(screen.getByText('제주 CC')).toBeInTheDocument()
+    // 로그인 상태이므로 소켓 연결이 활성화되어야 한다
+    expect(capturedEnabled).toBe(true)
   })
 
   it('WebSocket 메시지 수신 시 안읽은 개수가 증가하고 토스트가 표시된다', async () => {

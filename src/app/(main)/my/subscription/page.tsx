@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { auth } from '@/lib/auth'
+import { useAuth } from '@/lib/auth'
 import { Check, ChevronLeft, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 import { Button } from '@/components/ui/Button'
@@ -26,10 +26,11 @@ function SubscriptionPageContent() {
   const [success, setSuccess] = useState(() => searchParams.get('success') === '1')
 
   const isActive = mySubscription?.status === 'ACTIVE'
+  const { isAuthenticated, isLoading: authLoading } = useAuth()
 
   useEffect(() => {
-    if (!auth.isAuthenticated()) router.replace('/')
-  }, [router])
+    if (!authLoading && !isAuthenticated) router.replace('/')
+  }, [authLoading, isAuthenticated, router])
 
   useEffect(() => {
     if (searchParams.get('success') === '1') {
@@ -40,7 +41,7 @@ function SubscriptionPageContent() {
     }
   }, [searchParams, mutate, router])
 
-  if (!auth.isAuthenticated()) return null
+  if (!isAuthenticated) return null
 
   async function handleSubscribe() {
     if (!selectedPlan) return

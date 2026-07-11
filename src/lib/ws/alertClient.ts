@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from 'react'
 import { Client, type IMessage } from '@stomp/stompjs'
-import { auth } from '@/lib/auth'
 import type { Alert } from '@/lib/types'
 
 const ALERT_DESTINATION = '/user/queue/alert'
@@ -25,15 +24,19 @@ export function resolveBrokerUrl(): string {
 }
 
 interface UseAlertSocketOptions {
+  /** 로그인 상태에서만 연결한다 — HttpOnly 쿠키는 JS로 못 읽으므로 호출부(useAuth)가 판정해서 넘긴다 */
+  enabled: boolean
   /** 목표가 알림 메시지 수신 시 호출 */
   onMessage: (alert: Alert) => void
 }
 
 /**
  * 목표가 알림 실시간 수신용 STOMP 소켓 훅.
- * 로그인 상태에서만 연결하고, 언마운트 시 자동으로 해제한다.
+ * enabled(로그인 상태)일 때만 연결하고, 언마운트 시 자동으로 해제한다.
+ * 인증은 WebSocket 핸드셰이크에 자동 포함되는 HttpOnly access_token 쿠키로 처리된다 (fe#50)
+ * — 브라우저가 same-origin 쿠키를 함께 보내므로 Authorization 헤더가 필요 없다.
  */
-export function useAlertSocket({ onMessage }: UseAlertSocketOptions): void {
+export function useAlertSocket({ enabled, onMessage }: UseAlertSocketOptions): void {
   const onMessageRef = useRef(onMessage)
 
   useEffect(() => {
@@ -41,13 +44,10 @@ export function useAlertSocket({ onMessage }: UseAlertSocketOptions): void {
   }, [onMessage])
 
   useEffect(() => {
-    if (!auth.isAuthenticated()) return
+    if (!enabled) return
 
     const client = new Client({
       brokerURL: resolveBrokerUrl(),
-      connectHeaders: {
-        Authorization: `Bearer ${auth.getToken()}`,
-      },
       reconnectDelay: 5000,
       onConnect: () => {
         client.subscribe(ALERT_DESTINATION, (message: IMessage) => {
@@ -66,5 +66,5 @@ export function useAlertSocket({ onMessage }: UseAlertSocketOptions): void {
     return () => {
       void client.deactivate()
     }
-  }, [])
+  }, [enabled])
 }

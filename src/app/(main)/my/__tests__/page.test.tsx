@@ -1,10 +1,17 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import MyPage from '../page'
 
 const mockReplace = jest.fn()
 jest.mock('next/navigation', () => ({ useRouter: () => ({ replace: mockReplace }) }))
+
+const mockLogout = jest.fn()
 jest.mock('@/lib/auth', () => ({
-  auth: { clearToken: jest.fn(), isAuthenticated: () => true },
+  useAuth: () => ({
+    user: { id: 1, email: 'test@test.com', name: '테스터' },
+    isAuthenticated: true,
+    isLoading: false,
+    logout: (...args: unknown[]) => mockLogout(...args),
+  }),
 }))
 
 const mockUseMySubscription = jest.fn()
@@ -15,6 +22,7 @@ jest.mock('@/lib/hooks/useSubscription', () => ({
 describe('MyPage', () => {
   beforeEach(() => {
     mockReplace.mockClear()
+    mockLogout.mockClear().mockResolvedValue(undefined)
     mockUseMySubscription.mockReturnValue({ data: null, isLoading: false })
   })
 
@@ -48,9 +56,10 @@ describe('MyPage', () => {
     expect(screen.getByText('신한 **** 1234')).toBeInTheDocument()
   })
 
-  it('로그아웃 클릭 시 토큰 삭제 후 랜딩 페이지로 이동한다', () => {
+  it('로그아웃 클릭 시 세션 종료 API 호출 후 랜딩 페이지로 이동한다', async () => {
     render(<MyPage />)
     fireEvent.click(screen.getByText('로그아웃'))
-    expect(mockReplace).toHaveBeenCalledWith('/')
+    await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/'))
+    expect(mockLogout).toHaveBeenCalled()
   })
 })

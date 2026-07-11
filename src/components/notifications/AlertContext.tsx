@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useRef, useState, type ReactNod
 import useSWR, { useSWRConfig } from 'swr'
 import { alertsApi } from '@/lib/api/alerts'
 import { useAlertSocket } from '@/lib/ws/alertClient'
-import { auth } from '@/lib/auth'
+import { useAuth } from '@/lib/auth'
 import type { Alert } from '@/lib/types'
 import { AlertToastStack, type AlertToastItem } from './AlertToastStack'
 
@@ -31,8 +31,9 @@ export function useAlertContext(): AlertContextValue {
 
 export function AlertProvider({ children }: { children: ReactNode }) {
   const { mutate } = useSWRConfig()
+  const { isAuthenticated } = useAuth()
   const { data: alerts, isLoading } = useSWR<Alert[]>(
-    auth.isAuthenticated() ? ALERTS_KEY : null,
+    isAuthenticated ? ALERTS_KEY : null,
     alertsApi.getList,
     {
       onErrorRetry: (error, _key, _config, revalidate, { retryCount }) => {
@@ -61,7 +62,7 @@ export function AlertProvider({ children }: { children: ReactNode }) {
     [mutate, dismissToast],
   )
 
-  useAlertSocket({ onMessage: handleIncoming })
+  useAlertSocket({ enabled: isAuthenticated, onMessage: handleIncoming })
 
   const markRead = useCallback(
     async (id: number) => {

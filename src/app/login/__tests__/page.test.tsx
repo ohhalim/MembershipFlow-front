@@ -6,7 +6,7 @@ jest.mock('next/navigation', () => ({
   useRouter: () => ({ replace: mockReplace }),
 }))
 jest.mock('@/lib/auth', () => ({
-  auth: { isAuthenticated: () => false },
+  useAuth: () => ({ user: null, isAuthenticated: false, isLoading: false, logout: jest.fn() }),
 }))
 
 describe('LoginPage', () => {
