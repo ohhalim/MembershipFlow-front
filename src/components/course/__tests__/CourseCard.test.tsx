@@ -63,4 +63,28 @@ describe('CourseCard', () => {
     )
     expect(screen.queryByText(/동아 2\.5억/)).not.toBeInTheDocument()
   })
+
+  it('숫자 tier를 제목에서 분리해 단위가 있는 보조정보로 표시한다', () => {
+    render(
+      <CourseCard
+        course={{ ...mockCourse, name: '휘닉스파크(8500)', region: '', membershipType: 'REGULAR' }}
+      />,
+    )
+
+    expect(screen.getByText('휘닉스파크')).toBeInTheDocument()
+    expect(screen.queryByText('휘닉스파크(8500)')).not.toBeInTheDocument()
+    expect(screen.getByText('일반 · 분양가 8,500만')).toBeInTheDocument()
+  })
+
+  it('이름에 붙은 회원 구분을 제목에서 분리하고 중복 표시하지 않는다', () => {
+    render(
+      <CourseCard
+        course={{ ...mockCourse, name: '에딘버러주중가족', region: '', membershipType: 'WEEKDAY' }}
+      />,
+    )
+
+    expect(screen.getByText('에딘버러')).toBeInTheDocument()
+    expect(screen.getByText('주중 가족')).toBeInTheDocument()
+    expect(screen.queryByText(/· 주중/)).not.toBeInTheDocument()
+  })
 })

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { serverFetch } from '@/lib/api/server'
 import { formatPriceCompact, formatCategory } from '@/lib/utils'
+import { courseDisplayTitle } from '@/lib/courseDisplay'
 import type { CourseDetail } from '@/lib/types'
 import { CourseDetailClient } from './CourseDetailClient'
 
@@ -14,13 +15,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
     const course = await serverFetch<CourseDetail>(`/api/v1/courses/${id}`)
     const priceText = course.latestPrice != null ? formatPriceCompact(course.latestPrice) : '시세 문의'
-    const title = `${course.name} 회원권 시세 — ${priceText}`
+    const displayName = courseDisplayTitle(course.name)
+    const title = `${displayName} 회원권 시세 — ${priceText}`
     const category = formatCategory(course.category)
     // 주소 앞 두 어절(시/도 + 시/군/구)로 지역 검색 SEO 강화 — info 없으면 기존 문구 유지
     const regionPrefix = course.info?.address
       ? `${course.info.address.split(' ').slice(0, 2).join(' ')} · `
       : ''
-    const description = `${regionPrefix}${course.name}${category ? ` ${category}` : ''} 회원권 최신 시세 ${priceText}. `
+    const description = `${regionPrefix}${displayName}${category ? ` ${category}` : ''} 회원권 최신 시세 ${priceText}. `
       + `동아골프·동부회원권 등 거래소별 가격 비교와 시세 차트를 MembershipFlow에서 확인하세요.`
 
     return {
