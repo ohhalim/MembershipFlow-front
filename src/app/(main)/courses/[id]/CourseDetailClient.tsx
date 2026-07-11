@@ -12,9 +12,10 @@ import { Badge } from '@/components/ui/Badge'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { useCourseDetail, usePriceHistory } from '@/lib/hooks/useCourses'
 import { useWatchlist } from '@/lib/hooks/useWatchlist'
-import { formatPrice, formatPriceCompact, formatChangeRate, changeRateColor, formatCategory, formatMembershipType, formatStaleness, isStale } from '@/lib/utils'
+import { formatPrice, formatPriceCompact, formatChangeRate, changeRateColor, formatCategory, formatStaleness, isStale } from '@/lib/utils'
 import { cn } from '@/lib/cn'
 import type { ChartPeriod, CourseInfo } from '@/lib/types'
+import { courseDisplayMeta, courseDisplayTitle } from '@/lib/courseDisplay'
 
 const PERIODS: { label: string; value: ChartPeriod }[] = [
   { label: '1일', value: '1d' },
@@ -55,7 +56,7 @@ export function CourseDetailClient() {
   return (
     <>
       <Header
-        title={courseLoading ? '' : (course?.name ?? '')}
+        title={courseLoading ? '' : courseDisplayTitle(course?.name ?? '')}
         left={
           <button onClick={() => router.back()} className="p-1 -ml-1">
             <ChevronLeft size={22} className="text-gray-700" />
@@ -82,7 +83,7 @@ export function CourseDetailClient() {
         ) : course ? (
           <div className="mb-6">
             <p className="text-xs text-gray-400 mb-1">
-              {[course.region, formatCategory(course.category), formatMembershipType(course.membershipType)]
+              {[course.region, formatCategory(course.category), ...courseDisplayMeta(course.name, null, course.membershipType)]
                 .filter(Boolean).join(' · ')}
             </p>
             <p className="text-2xl font-extrabold text-gray-900">

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Bell } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { formatPrice } from '@/lib/utils'
+import { courseDisplayTitle } from '@/lib/courseDisplay'
 import { useAlertContext } from './AlertContext'
 import type { Alert } from '@/lib/types'
 
@@ -78,7 +79,7 @@ export function NotificationBell({ variant = 'sidenav' }: NotificationBellProps)
                           <span className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0" />
                         )}
                         <span className="text-sm font-medium text-gray-900 truncate">
-                          {alert.courseName}
+                          {courseDisplayTitle(alert.courseName)}
                         </span>
                       </span>
                       <span className="text-xs text-gray-500">

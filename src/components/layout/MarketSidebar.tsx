@@ -6,6 +6,7 @@ import useSWR from 'swr'
 import { coursesApi } from '@/lib/api/courses'
 import { formatPriceCompact, formatChangeRate } from '@/lib/utils'
 import { cn } from '@/lib/cn'
+import { courseDisplayTitle } from '@/lib/courseDisplay'
 import type { RankingItem, SourceComparisonItem } from '@/lib/types'
 
 function useSourceComparison() {
@@ -39,7 +40,7 @@ function MoverList({ items, type }: { items: RankingItem[]; type: 'rise' | 'fall
             className="flex items-center justify-between py-2 px-2 rounded-lg hover:bg-gray-50 transition-colors"
           >
             <div className="min-w-0">
-              <p className="text-xs font-semibold text-gray-800 truncate">{item.courseName}</p>
+              <p className="text-xs font-semibold text-gray-800 truncate">{courseDisplayTitle(item.courseName)}</p>
               <p className="text-[11px] text-gray-400 truncate">{item.region}</p>
             </div>
             <div className="text-right ml-2 flex-shrink-0">
@@ -70,7 +71,7 @@ function ComparisonList({ items }: { items: SourceComparisonItem[] }) {
               className="flex items-center justify-between py-2 px-2 rounded-lg hover:bg-gray-50 transition-colors"
             >
               <div className="min-w-0">
-                <p className="text-xs font-semibold text-gray-800 truncate">{item.name}</p>
+                <p className="text-xs font-semibold text-gray-800 truncate">{courseDisplayTitle(item.name)}</p>
                 <p className="text-[11px] text-gray-400 truncate">{item.region}</p>
               </div>
               <div className="text-right ml-2 flex-shrink-0 max-w-[130px]">

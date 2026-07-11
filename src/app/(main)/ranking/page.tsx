@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/Skeleton'
 import { cn } from '@/lib/cn'
 import { useRankingInfinite } from '@/lib/hooks/useCourses'
 import { formatPriceCompact, formatChangeRate, changeRateColor } from '@/lib/utils'
+import { courseDisplayTitle } from '@/lib/courseDisplay'
 import type { RankingType, RankingPeriod } from '@/lib/types'
 
 const TYPES: { label: string; value: RankingType; Icon: typeof TrendingUp }[] = [
@@ -107,7 +108,7 @@ export default function RankingPage() {
 
                 {/* 종목명 */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-gray-900 truncate">{item.courseName}</p>
+                  <p className="text-sm font-semibold text-gray-900 truncate">{courseDisplayTitle(item.courseName)}</p>
                   <p className="text-xs text-gray-400 mt-0.5">{item.region}</p>
                 </div>
 
