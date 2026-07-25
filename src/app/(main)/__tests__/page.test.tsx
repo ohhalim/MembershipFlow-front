@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { act, render, screen, fireEvent } from '@testing-library/react'
 import HomePage from '../home/page'
 
 jest.mock('next/navigation', () => ({ useRouter: () => ({ push: jest.fn() }) }))
@@ -45,7 +45,12 @@ beforeAll(() => {
 
 describe('HomePage', () => {
   beforeEach(() => {
+    jest.useFakeTimers()
     mockUseCourseList.mockReturnValue(defaultReturn)
+  })
+
+  afterEach(() => {
+    jest.useRealTimers()
   })
 
   it('종목 목록을 렌더링한다', () => {
@@ -57,6 +62,20 @@ describe('HomePage', () => {
   it('검색창을 렌더링한다', () => {
     render(<HomePage />)
     expect(screen.getByPlaceholderText(/검색/)).toBeInTheDocument()
+  })
+
+  it('검색어는 마지막 입력 300ms 후 목록 요청에 반영된다', () => {
+    render(<HomePage />)
+
+    fireEvent.change(screen.getByPlaceholderText(/검색/), { target: { value: '송도CC' } })
+    expect(mockUseCourseList).toHaveBeenLastCalledWith(
+      expect.objectContaining({ keyword: '' }),
+    )
+
+    act(() => jest.advanceTimersByTime(300))
+    expect(mockUseCourseList).toHaveBeenLastCalledWith(
+      expect.objectContaining({ keyword: '송도CC' }),
+    )
   })
 
   it('카테고리 탭을 렌더링한다', () => {

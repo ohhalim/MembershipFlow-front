@@ -12,6 +12,7 @@ import { useSubscriptionPlans, useMySubscription } from '@/lib/hooks/useSubscrip
 import { subscriptionApi } from '@/lib/api/subscription'
 import { formatPrice } from '@/lib/utils'
 import type { SubscriptionPlan } from '@/lib/types'
+import { resolveSubscriptionCallbackUrl } from '@/lib/subscriptionUrls'
 
 function SubscriptionPageContent() {
   const router = useRouter()
@@ -23,7 +24,7 @@ function SubscriptionPageContent() {
   const [error, setError] = useState<string | null>(
     () => searchParams.get('error') === '1' ? '카드 등록에 실패했어요. 다시 시도해주세요.' : null
   )
-  const [success, setSuccess] = useState(() => searchParams.get('success') === '1')
+  const [success] = useState(() => searchParams.get('success') === '1')
 
   const isActive = mySubscription?.status === 'ACTIVE'
   const { isAuthenticated, isLoading: authLoading } = useAuth()
@@ -57,7 +58,7 @@ function SubscriptionPageContent() {
 
       await payment.requestBillingAuth({
         method: 'CARD',
-        successUrl: `${window.location.origin}/api/v1/subscriptions/callback`,
+        successUrl: resolveSubscriptionCallbackUrl(window.location.origin),
         failUrl: `${window.location.origin}/my/subscription?error=1`,
       })
     } catch (e) {

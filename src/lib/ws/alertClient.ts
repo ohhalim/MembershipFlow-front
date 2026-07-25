@@ -3,6 +3,8 @@
 import { useEffect, useRef } from 'react'
 import { Client, type IMessage } from '@stomp/stompjs'
 import type { Alert } from '@/lib/types'
+import { parseApiResponse } from '@/lib/api/contract'
+import { alertSchema } from '@/lib/api/schemas'
 
 const ALERT_DESTINATION = '/user/queue/alert'
 
@@ -52,7 +54,7 @@ export function useAlertSocket({ enabled, onMessage }: UseAlertSocketOptions): v
       onConnect: () => {
         client.subscribe(ALERT_DESTINATION, (message: IMessage) => {
           try {
-            const alert = JSON.parse(message.body) as Alert
+            const alert = parseApiResponse(JSON.parse(message.body), alertSchema, ALERT_DESTINATION)
             onMessageRef.current(alert)
           } catch {
             // 파싱 불가한 메시지는 무시

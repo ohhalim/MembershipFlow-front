@@ -1,20 +1,31 @@
 import { apiClient } from './client'
 import type { SubscriptionPlan, BillingPrepareResponse, MySubscription } from '@/lib/types'
+import { z } from 'zod'
+import {
+  billingPrepareSchema,
+  cancelResponseSchema,
+  mySubscriptionSchema,
+  subscriptionPlanSchema,
+} from './schemas'
 
 export const subscriptionApi = {
   getPlans(): Promise<SubscriptionPlan[]> {
-    return apiClient.get<SubscriptionPlan[]>('/api/v1/subscriptions/plans')
+    return apiClient.get('/api/v1/subscriptions/plans', z.array(subscriptionPlanSchema))
   },
 
   prepare(planId: number): Promise<BillingPrepareResponse> {
-    return apiClient.post<BillingPrepareResponse>(`/api/v1/subscriptions/prepare?planId=${planId}`, {})
+    return apiClient.post(
+      `/api/v1/subscriptions/prepare?planId=${planId}`,
+      {},
+      billingPrepareSchema,
+    )
   },
 
   getMySubscription(): Promise<MySubscription> {
-    return apiClient.get<MySubscription>('/api/v1/subscriptions/me')
+    return apiClient.get('/api/v1/subscriptions/me', mySubscriptionSchema)
   },
 
-  cancel(): Promise<void> {
-    return apiClient.delete<void>('/api/v1/subscriptions/me')
+  async cancel(): Promise<void> {
+    await apiClient.delete('/api/v1/subscriptions/me', cancelResponseSchema)
   },
 }

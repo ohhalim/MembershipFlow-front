@@ -77,7 +77,7 @@ export default function WatchlistPage() {
         ) : (
           <div className="space-y-3">
             {items?.map((item) => {
-              const gap = item.targetPrice != null
+              const gap = item.targetPrice != null && item.latestPrice != null
                 ? priceGap(item.targetPrice, item.latestPrice)
                 : null
 
@@ -94,7 +94,7 @@ export default function WatchlistPage() {
                     </Link>
                     <div className="text-right ml-3">
                       <p className="text-sm font-bold text-gray-900">
-                        {formatPriceCompact(item.latestPrice)}
+                        {item.latestPrice != null ? formatPriceCompact(item.latestPrice) : '-'}
                       </p>
                     </div>
                   </div>
