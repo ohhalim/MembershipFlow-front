@@ -4,10 +4,17 @@
 const INTERNAL_API_URL =
   process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
 
-export async function serverFetch<T>(path: string, revalidateSeconds = 3600): Promise<T> {
+export async function serverFetch<T>(
+  path: string,
+  revalidateSeconds = 3600,
+  schema?: ZodType<T>,
+): Promise<T> {
   const res = await fetch(`${INTERNAL_API_URL}${path}`, { next: { revalidate: revalidateSeconds } })
   if (!res.ok) {
     throw new Error(`serverFetch 실패: ${path} (${res.status})`)
   }
-  return res.json() as Promise<T>
+  const data: unknown = await res.json()
+  return schema ? parseApiResponse(data, schema, path) : data as T
 }
+import type { ZodType } from 'zod'
+import { parseApiResponse } from './contract'

@@ -10,7 +10,7 @@ export interface Course {
   membershipType: string
   latestPrice: number | null
   changeRate: number | null  // percentage (+ 상승 / - 하락)
-  updatedAt: string
+  updatedAt: string | null
   sourcePrices?: CourseSourcePrice[]  // 거래소별 최신가
 }
 
@@ -55,7 +55,7 @@ export interface SourcePrice {
   price: number
   updatedAt: string
   isLowest: boolean
-  sourceUrl?: string
+  sourceUrl?: string | null
 }
 
 export interface PricePoint {
@@ -107,7 +107,7 @@ export interface WatchlistItem {
   region: string
   targetPrice: number | null
   alertYn: boolean
-  latestPrice: number
+  latestPrice: number | null
   createdAt: string
 }
 
@@ -143,7 +143,7 @@ export interface MySubscription {
   plan: { id: number; code: string; name: string; price: number }
   status: 'ACTIVE' | 'CANCELLED' | 'SUSPENDED' | 'PAYMENT_FAILED'
   startedAt: string
-  nextBillingAt: string
+  nextBillingAt: string | null
   cardNumberMasked: string | null
   cardCompany: string | null
   cancelledAt: string | null
@@ -167,5 +167,4 @@ export interface Alert {
 export interface ApiErrorBody {
   code: string
   message: string
-  status: number
 }
