@@ -12,6 +12,7 @@ import { useSubscriptionPlans, useMySubscription } from '@/lib/hooks/useSubscrip
 import { subscriptionApi } from '@/lib/api/subscription'
 import { formatPrice } from '@/lib/utils'
 import type { SubscriptionPlan } from '@/lib/types'
+import { resolveSubscriptionCallbackUrl } from '@/lib/subscriptionUrls'
 
 function SubscriptionPageContent() {
   const router = useRouter()
@@ -57,7 +58,7 @@ function SubscriptionPageContent() {
 
       await payment.requestBillingAuth({
         method: 'CARD',
-        successUrl: `${window.location.origin}/api/v1/subscriptions/callback`,
+        successUrl: resolveSubscriptionCallbackUrl(window.location.origin),
         failUrl: `${window.location.origin}/my/subscription?error=1`,
       })
     } catch (e) {
