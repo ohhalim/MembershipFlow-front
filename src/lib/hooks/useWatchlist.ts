@@ -6,9 +6,9 @@ import type { WatchlistItem, WatchlistAddRequest, WatchlistUpdateRequest } from 
 
 const KEY = '/api/v1/watchlist'
 
-export function useWatchlist() {
+export function useWatchlist(enabled = true) {
   const { mutate } = useSWRConfig()
-  const swr = useSWR<WatchlistItem[]>(KEY, watchlistApi.getList, {
+  const swr = useSWR<WatchlistItem[]>(enabled ? KEY : null, watchlistApi.getList, {
     onErrorRetry: (error, _key, _config, revalidate, { retryCount }) => {
       if (error?.status === 401) return
       if (retryCount >= 2) return

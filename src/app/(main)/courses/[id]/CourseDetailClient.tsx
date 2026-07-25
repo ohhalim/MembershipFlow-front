@@ -16,6 +16,7 @@ import { formatPrice, formatPriceCompact, formatChangeRate, changeRateColor, for
 import { cn } from '@/lib/cn'
 import type { ChartPeriod, CourseInfo } from '@/lib/types'
 import { courseDisplayMeta, courseDisplayTitle } from '@/lib/courseDisplay'
+import { useAuth } from '@/lib/auth'
 
 const PERIODS: { label: string; value: ChartPeriod }[] = [
   { label: '1일', value: '1d' },
@@ -31,15 +32,20 @@ export function CourseDetailClient() {
   const id = Number(params.id)
   const [period, setPeriod] = useState<ChartPeriod>('1m')
   const [heartLoading, setHeartLoading] = useState(false)
+  const { isAuthenticated, isLoading: authLoading } = useAuth()
 
   const { data: course, isLoading: courseLoading } = useCourseDetail(id)
   const { data: history, isLoading: historyLoading } = usePriceHistory(id, period)
-  const { data: watchlist, add: addWatch, remove: removeWatch } = useWatchlist()
+  const { data: watchlist, add: addWatch, remove: removeWatch } = useWatchlist(isAuthenticated)
 
   const watchlistItem = watchlist?.find((w) => w.courseId === id)
   const isWatched = !!watchlistItem
 
   async function handleToggleWatchlist() {
+    if (!isAuthenticated) {
+      router.push('/login')
+      return
+    }
     if (heartLoading) return
     setHeartLoading(true)
     try {
@@ -63,7 +69,12 @@ export function CourseDetailClient() {
           </button>
         }
         right={
-          <button onClick={handleToggleWatchlist} disabled={heartLoading} className="p-1">
+          <button
+            onClick={handleToggleWatchlist}
+            disabled={heartLoading || authLoading}
+            aria-label={isWatched ? '관심 종목에서 삭제' : '관심 종목에 추가'}
+            className="p-1"
+          >
             <Heart
               size={20}
               className={cn(isWatched ? 'fill-red-400 text-red-400' : 'text-gray-400')}
