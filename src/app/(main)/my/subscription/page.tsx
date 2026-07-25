@@ -23,7 +23,7 @@ function SubscriptionPageContent() {
   const [error, setError] = useState<string | null>(
     () => searchParams.get('error') === '1' ? '카드 등록에 실패했어요. 다시 시도해주세요.' : null
   )
-  const [success, setSuccess] = useState(() => searchParams.get('success') === '1')
+  const [success] = useState(() => searchParams.get('success') === '1')
 
   const isActive = mySubscription?.status === 'ACTIVE'
   const { isAuthenticated, isLoading: authLoading } = useAuth()

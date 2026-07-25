@@ -3,7 +3,7 @@
 import useSWR from 'swr'
 import useSWRInfinite from 'swr/infinite'
 import { coursesApi, type CourseListParams, type CourseListPage, type RankingPage } from '@/lib/api/courses'
-import type { Course, CourseDetail, PricePoint, ChartPeriod, RankingItem, RankingType, RankingPeriod } from '@/lib/types'
+import type { CourseDetail, PricePoint, ChartPeriod, RankingType, RankingPeriod } from '@/lib/types'
 
 export function useCourseList(params: CourseListParams = {}) {
   const { keyword = '', category = '', membershipType = '', sort = 'latest' } = params
