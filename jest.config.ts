@@ -8,6 +8,7 @@ const config: Config = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   moduleNameMapper: { '^@/(.*)$': '<rootDir>/src/$1' },
   testMatch: ['**/__tests__/**/*.test.(ts|tsx)', '**/*.test.(ts|tsx)'],
+  modulePathIgnorePatterns: ['<rootDir>/.next/'],
 }
 
 export default createJestConfig(config)

@@ -8,6 +8,7 @@ import { MarketSummaryStrip } from '@/components/course/MarketSummaryStrip'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { cn } from '@/lib/cn'
 import { useCourseList } from '@/lib/hooks/useCourses'
+import { useDebouncedValue } from '@/lib/hooks/useDebouncedValue'
 import { useAuth } from '@/lib/auth'
 import type { CourseCategory } from '@/lib/types'
 
@@ -93,8 +94,14 @@ export default function HomePage() {
   const [membershipType, setMembershipType] = useState('')
   const [sort, setSort] = useState<'latest' | 'price_asc' | 'price_desc'>('latest')
   const sentinelRef = useRef<HTMLDivElement>(null)
+  const debouncedKeyword = useDebouncedValue(keyword, 300)
 
-  const { courses, isLoading, isLoadingMore, hasMore, loadMore } = useCourseList({ keyword, category, membershipType, sort })
+  const { courses, isLoading, isLoadingMore, hasMore, loadMore } = useCourseList({
+    keyword: debouncedKeyword,
+    category,
+    membershipType,
+    sort,
+  })
 
   useEffect(() => {
     const el = sentinelRef.current

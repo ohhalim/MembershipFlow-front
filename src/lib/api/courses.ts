@@ -10,6 +10,14 @@ import type {
   SourceComparisonItem,
   MarketSummary,
 } from '@/lib/types'
+import {
+  courseDetailSchema,
+  courseListPageSchema,
+  marketSummarySchema,
+  priceChartSchema,
+  rankingPageSchema,
+  sourceComparisonSchema,
+} from './schemas'
 
 export interface CourseListParams {
   keyword?: string
@@ -39,14 +47,12 @@ export const coursesApi = {
     if (params.sort) query.set('sort', params.sort)
     query.set('page', String(page))
     query.set('size', '20')
-    const res = await apiClient.get<{ content: Course[]; last: boolean; totalElements: number }>(
-      `/api/v1/courses?${query.toString()}`,
-    )
+    const res = await apiClient.get(`/api/v1/courses?${query.toString()}`, courseListPageSchema)
     return { content: res.content, last: res.last, totalElements: res.totalElements }
   },
 
   getDetail(id: number): Promise<CourseDetail> {
-    return apiClient.get<CourseDetail>(`/api/v1/courses/${id}`)
+    return apiClient.get(`/api/v1/courses/${id}`, courseDetailSchema)
   },
 
   async getPriceHistory(id: number, period: ChartPeriod): Promise<PricePoint[]> {
@@ -56,31 +62,30 @@ export const coursesApi = {
     const from = new Date(to)
     from.setDate(from.getDate() - days[period])
     const fmt = (d: Date) => d.toISOString().slice(0, 10)
-    const res = await apiClient.get<{ points: { date: string; avgPrice: number }[] }>(
+    const res = await apiClient.get(
       `/api/v1/courses/${id}/prices?from=${fmt(from)}&to=${fmt(to)}&interval=${interval[period]}`,
+      priceChartSchema,
     )
     return res.points.map((p) => ({ date: p.date, price: p.avgPrice }))
   },
 
   getSourceComparison(limit = 10): Promise<SourceComparisonItem[]> {
-    return apiClient.get<SourceComparisonItem[]>(
+    return apiClient.get(
       `/api/v1/courses/source-comparison?limit=${limit}`,
+      sourceComparisonSchema,
     )
   },
 
   getSummary(): Promise<MarketSummary> {
-    return apiClient.get<MarketSummary>('/api/v1/courses/summary')
+    return apiClient.get('/api/v1/courses/summary', marketSummarySchema)
   },
 
   async getRankingPage(type: RankingType, period: RankingPeriod, page: number): Promise<RankingPage> {
     const sort = type === 'rise' ? 'GAIN' : 'LOSS'
-    const res = await apiClient.get<{
-      content: { rank: number; courseId: number; name: string; region: string; currentPrice: number; changeRate: number }[]
-      page: number
-      size: number
-      totalElements: number
-      hasNext: boolean
-    }>(`/api/v1/courses/ranking?period=${period}d&sort=${sort}&page=${page}&size=20`)
+    const res = await apiClient.get(
+      `/api/v1/courses/ranking?period=${period}d&sort=${sort}&page=${page}&size=20`,
+      rankingPageSchema,
+    )
     return {
       content: res.content.map((item) => ({
         rank: item.rank,

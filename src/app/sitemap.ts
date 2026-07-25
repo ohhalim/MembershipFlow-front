@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { serverFetch } from '@/lib/api/server'
+import { courseIdPageSchema } from '@/lib/api/schemas'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://membershipflow.site'
 
@@ -39,8 +40,10 @@ async function fetchAllCourseIds(): Promise<number[]> {
   const size = 100
   // 안전장치: 백엔드 응답이 예상과 다르게 last=false를 반복해도 무한루프 방지
   for (let guard = 0; guard < 100; guard++) {
-    const res = await serverFetch<{ content: { id: number }[]; last: boolean }>(
+    const res = await serverFetch(
       `/api/v1/courses?page=${page}&size=${size}`,
+      3600,
+      courseIdPageSchema,
     )
     ids.push(...res.content.map((c) => c.id))
     if (res.last) break
