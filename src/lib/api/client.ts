@@ -1,4 +1,6 @@
 import type { ApiErrorBody } from '@/lib/types'
+import type { ZodType } from 'zod'
+import { parseApiResponse } from './contract'
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? ''
 
@@ -37,7 +39,12 @@ async function tryRefresh(): Promise<boolean> {
   }
 }
 
-async function request<T>(path: string, init: RequestInit = {}, retry = true): Promise<T> {
+async function request<T>(
+  path: string,
+  init: RequestInit = {},
+  retry = true,
+  schema?: ZodType<T>,
+): Promise<T> {
   // 인증은 HttpOnly access_token 쿠키로 처리된다 (fe#50) — credentials: 'include' 필수
   const res = await fetch(`${BASE_URL}${path}`, {
     ...init,
@@ -59,7 +66,7 @@ async function request<T>(path: string, init: RequestInit = {}, retry = true): P
         if (typeof window !== 'undefined') window.location.href = '/login'
         throw new ApiError(401, 'UNAUTHORIZED', '로그인이 필요합니다')
       }
-      return request<T>(path, init, false)
+      return request<T>(path, init, false, schema)
     }
 
     // 이미 갱신 중이면 완료될 때까지 대기
@@ -68,7 +75,7 @@ async function request<T>(path: string, init: RequestInit = {}, retry = true): P
         if (!ok) {
           reject(new ApiError(401, 'UNAUTHORIZED', '로그인이 필요합니다'))
         } else {
-          resolve(request<T>(path, init, false))
+          resolve(request<T>(path, init, false, schema))
         }
       })
     })
@@ -84,18 +91,19 @@ async function request<T>(path: string, init: RequestInit = {}, retry = true): P
   }
 
   if (res.status === 204) return undefined as T
-  return res.json() as Promise<T>
+  const data: unknown = await res.json()
+  return schema ? parseApiResponse(data, schema, path) : data as T
 }
 
 export const apiClient = {
-  get<T>(path: string): Promise<T> {
-    return request<T>(path)
+  get<T>(path: string, schema?: ZodType<T>): Promise<T> {
+    return request<T>(path, {}, true, schema)
   },
-  post<T>(path: string, body: unknown): Promise<T> {
-    return request<T>(path, { method: 'POST', body: JSON.stringify(body) })
+  post<T>(path: string, body: unknown, schema?: ZodType<T>): Promise<T> {
+    return request<T>(path, { method: 'POST', body: JSON.stringify(body) }, true, schema)
   },
-  put<T>(path: string, body: unknown): Promise<T> {
-    return request<T>(path, { method: 'PUT', body: JSON.stringify(body) })
+  put<T>(path: string, body: unknown, schema?: ZodType<T>): Promise<T> {
+    return request<T>(path, { method: 'PUT', body: JSON.stringify(body) }, true, schema)
   },
   patch<T>(path: string, body?: unknown): Promise<T> {
     return request<T>(path, {
@@ -103,7 +111,7 @@ export const apiClient = {
       body: body !== undefined ? JSON.stringify(body) : undefined,
     })
   },
-  delete<T>(path: string): Promise<T> {
-    return request<T>(path, { method: 'DELETE' })
+  delete<T>(path: string, schema?: ZodType<T>): Promise<T> {
+    return request<T>(path, { method: 'DELETE' }, true, schema)
   },
 }

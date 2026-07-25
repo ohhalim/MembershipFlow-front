@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { serverFetch } from '@/lib/api/server'
 import { formatPriceCompact, formatCategory } from '@/lib/utils'
 import { courseDisplayTitle } from '@/lib/courseDisplay'
-import type { CourseDetail } from '@/lib/types'
+import { courseDetailSchema } from '@/lib/api/schemas'
 import { CourseDetailClient } from './CourseDetailClient'
 
 interface Props {
@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params
 
   try {
-    const course = await serverFetch<CourseDetail>(`/api/v1/courses/${id}`)
+    const course = await serverFetch(`/api/v1/courses/${id}`, 3600, courseDetailSchema)
     const priceText = course.latestPrice != null ? formatPriceCompact(course.latestPrice) : '시세 문의'
     const displayName = courseDisplayTitle(course.name)
     const title = `${displayName} 회원권 시세 — ${priceText}`

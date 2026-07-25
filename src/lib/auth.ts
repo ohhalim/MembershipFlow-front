@@ -2,6 +2,8 @@
 
 import { useCallback } from 'react'
 import useSWR from 'swr'
+import { parseApiResponse } from '@/lib/api/contract'
+import { authUserSchema } from '@/lib/api/schemas'
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? ''
 
@@ -28,7 +30,7 @@ export async function fetchMe(): Promise<AuthUser | null> {
   if (typeof window !== 'undefined') localStorage.removeItem(LEGACY_TOKEN_KEY)
 
   const res = await fetch(`${BASE_URL}${AUTH_ME_KEY}`, { credentials: 'include' })
-  if (res.ok) return res.json()
+  if (res.ok) return parseApiResponse(await res.json(), authUserSchema, AUTH_ME_KEY)
   if (res.status !== 401) return null
 
   const refreshed = await fetch(`${BASE_URL}/api/v1/auth/refresh`, {
@@ -38,7 +40,9 @@ export async function fetchMe(): Promise<AuthUser | null> {
   if (!refreshed.ok) return null
 
   const retry = await fetch(`${BASE_URL}${AUTH_ME_KEY}`, { credentials: 'include' })
-  return retry.ok ? retry.json() : null
+  return retry.ok
+    ? parseApiResponse(await retry.json(), authUserSchema, AUTH_ME_KEY)
+    : null
 }
 
 interface UseAuthResult {
