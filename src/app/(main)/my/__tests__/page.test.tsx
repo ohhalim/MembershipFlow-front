@@ -58,7 +58,7 @@ describe('MyPage', () => {
     expect(screen.getByText('신한 **** 1234')).toBeInTheDocument()
   })
 
-  it('이용 종료일이 지난 취소 구독은 해지 완료로 표시한다', () => {
+  it('이용 종료일이 지난 취소 구독은 구독 없음으로 표시한다', () => {
     mockUseMySubscription.mockReturnValue({
       data: {
         id: 1,
@@ -76,9 +76,34 @@ describe('MyPage', () => {
 
     render(<MyPage />)
 
-    expect(screen.getByText('해지 완료')).toBeInTheDocument()
-    expect(screen.getByText('이용 종료일: 2026-07-25')).toBeInTheDocument()
+    expect(screen.getByText('구독 플랜 없음')).toBeInTheDocument()
+    expect(screen.queryByText('해지 완료')).not.toBeInTheDocument()
+    expect(screen.queryByText('이용 종료일: 2026-07-25')).not.toBeInTheDocument()
+    expect(screen.queryByText('베이직')).not.toBeInTheDocument()
     expect(screen.queryByText(/다음 결제일/)).not.toBeInTheDocument()
+  })
+
+  it('이용 기간이 남은 취소 구독은 해지 예정으로 표시한다', () => {
+    mockUseMySubscription.mockReturnValue({
+      data: {
+        id: 1,
+        plan: { id: 1, code: 'BASIC', name: '베이직', price: 9900 },
+        status: 'CANCELLED',
+        serviceActive: true,
+        serviceEndsAt: '2026-08-25T00:00:00',
+        startedAt: '2026-07-25T00:00:00',
+        nextBillingAt: '2026-08-25T00:00:00',
+        cardCompany: null, cardNumberMasked: null,
+        cancelledAt: '2026-07-27T00:00:00',
+      },
+      isLoading: false,
+    })
+
+    render(<MyPage />)
+
+    expect(screen.getByText('해지 예정')).toBeInTheDocument()
+    expect(screen.getByText('이용 종료일: 2026-08-25')).toBeInTheDocument()
+    expect(screen.queryByText('구독 플랜 없음')).not.toBeInTheDocument()
   })
 
   it('로그아웃 클릭 시 세션 종료 API 호출 후 랜딩 페이지로 이동한다', async () => {

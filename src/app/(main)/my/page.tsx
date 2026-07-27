@@ -22,9 +22,10 @@ export default function MyPage() {
   const { isAuthenticated, isLoading: authLoading, logout } = useAuth()
   const router = useRouter()
   const cancelled = subscription?.status === 'CANCELLED'
+  const expiredCancellation = cancelled && !subscription.serviceActive
   const subscriptionStatus = subscription
     ? cancelled
-      ? { label: subscription.serviceActive ? '해지 예정' : '해지 완료', variant: 'gray' as const }
+      ? { label: '해지 예정', variant: 'gray' as const }
       : STATUS_LABEL[subscription.status] ?? { label: subscription.status, variant: 'gray' as const }
     : null
   const subscriptionDateLabel = cancelled ? '이용 종료일' : '다음 결제일'
@@ -59,7 +60,7 @@ export default function MyPage() {
                 <Skeleton className="w-48 h-4" />
                 <Skeleton className="w-24 h-4" />
               </div>
-            ) : subscription ? (
+            ) : subscription && !expiredCancellation ? (
               <div className="p-4">
                 <div className="flex items-center justify-between mb-1">
                   <p className="text-sm font-bold text-gray-900">{subscription.plan.name}</p>
