@@ -51,9 +51,16 @@ describe('API response contract', () => {
   })
 
   it('region=null을 목록·랭킹·거래소 비교 계약으로 파싱한다', async () => {
-    const nullableRegionCourse = { ...validDetail, region: null }
-    delete (nullableRegionCourse as Partial<typeof validDetail>).sources
-    delete (nullableRegionCourse as Partial<typeof validDetail>).info
+    const nullableRegionCourse = {
+      id: validDetail.id,
+      name: validDetail.name,
+      region: null,
+      category: validDetail.category,
+      membershipType: validDetail.membershipType,
+      latestPrice: validDetail.latestPrice,
+      changeRate: validDetail.changeRate,
+      updatedAt: validDetail.updatedAt,
+    }
 
     global.fetch = jest.fn()
       .mockResolvedValueOnce(jsonResponse({
