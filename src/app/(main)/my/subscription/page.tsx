@@ -26,7 +26,15 @@ function SubscriptionPageContent() {
   )
   const [success] = useState(() => searchParams.get('success') === '1')
 
-  const isActive = mySubscription?.status === 'ACTIVE'
+  const serviceActive = mySubscription?.serviceActive ?? false
+  const canCancel = mySubscription?.status === 'ACTIVE'
+  const cancelled = mySubscription?.status === 'CANCELLED'
+  const statusLabel = cancelled
+    ? serviceActive ? '해지 예정' : '해지 완료'
+    : mySubscription?.status === 'ACTIVE' ? '현재 구독 중'
+      : mySubscription?.status === 'PAYMENT_FAILED' ? '결제 실패'
+        : mySubscription?.status === 'SUSPENDED' ? '일시정지'
+          : ''
   const { isAuthenticated, isLoading: authLoading } = useAuth()
 
   useEffect(() => {
@@ -103,17 +111,24 @@ function SubscriptionPageContent() {
         {/* 현재 구독 상태 */}
         {!subLoading && mySubscription && (
           <div className="rounded-2xl bg-blue-50 border border-blue-100 p-4 mb-6">
-            <p className="text-xs text-blue-600 font-semibold mb-1">현재 구독 중</p>
+            <p className="text-xs text-blue-600 font-semibold mb-1">
+              {statusLabel}
+            </p>
             <p className="text-sm font-bold text-gray-900">{mySubscription.plan.name}</p>
             <p className="text-xs text-gray-500 mt-0.5">
-              {formatPrice(mySubscription.plan.price)} / 월 · 다음 결제: {mySubscription.nextBillingAt?.slice(0, 10)}
+              {formatPrice(mySubscription.plan.price)} / 월
+              {cancelled && mySubscription.serviceEndsAt
+                ? ` · 이용 종료일: ${mySubscription.serviceEndsAt.slice(0, 10)}`
+                : mySubscription.nextBillingAt
+                  ? ` · 다음 결제: ${mySubscription.nextBillingAt.slice(0, 10)}`
+                  : ''}
             </p>
           </div>
         )}
 
         {/* 플랜 목록 */}
         <h2 className="text-sm font-semibold text-gray-700 mb-3">
-          {isActive ? '플랜 변경' : '플랜 선택'}
+          {serviceActive ? '현재 플랜' : '플랜 선택'}
         </h2>
 
         {plansLoading ? (
@@ -123,7 +138,7 @@ function SubscriptionPageContent() {
         ) : (
           <div className="space-y-3 mb-6">
             {plans?.map((plan) => {
-              const isCurrent = mySubscription?.plan.id === plan.id
+              const isCurrent = serviceActive && mySubscription?.plan.id === plan.id
               const isSelected = selectedPlan?.id === plan.id
 
               return (
@@ -175,16 +190,16 @@ function SubscriptionPageContent() {
         )}
 
         {/* CTA */}
-        {!isActive ? (
+        {!serviceActive ? (
           <Button
             fullWidth
             size="lg"
             onClick={handleSubscribe}
             disabled={!selectedPlan || loading}
           >
-            {loading ? '처리 중...' : '결제 카드 등록하기'}
+            {loading ? '처리 중...' : mySubscription ? '다시 구독하기' : '결제 카드 등록하기'}
           </Button>
-        ) : (
+        ) : canCancel ? (
           <button
             onClick={handleCancel}
             disabled={loading}
@@ -192,6 +207,10 @@ function SubscriptionPageContent() {
           >
             {loading ? '처리 중...' : '구독 해지하기'}
           </button>
+        ) : (
+          <p className="py-2 text-center text-xs text-gray-400">
+            이용 종료일까지 현재 구독을 사용할 수 있어요.
+          </p>
         )}
       </div>
     </>

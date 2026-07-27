@@ -52,7 +52,7 @@ describe('SubscriptionPage', () => {
 
   it('플랜 선택 시 선택됨 표시', () => {
     render(<SubscriptionPage />)
-    fireEvent.click(screen.getByText('베이직'))
+    fireEvent.click(screen.getByRole('button', { name: /베이직/ }))
     expect(screen.getByText('선택됨')).toBeInTheDocument()
   })
 
@@ -73,6 +73,8 @@ describe('SubscriptionPage', () => {
         id: 1,
         plan: { id: 1, code: 'BASIC', name: '베이직', price: 9900 },
         status: 'ACTIVE',
+        serviceActive: true,
+        serviceEndsAt: null,
         startedAt: '2024-01-01',
         nextBillingAt: '2024-02-01',
         cardCompany: null, cardNumberMasked: null, cancelledAt: null,
@@ -82,6 +84,32 @@ describe('SubscriptionPage', () => {
     })
     render(<SubscriptionPage />)
     expect(screen.getByText('구독 해지하기')).toBeInTheDocument()
+  })
+
+  it('이용 종료일이 지난 취소 구독은 다시 구독할 수 있다', () => {
+    mockUseMySub.mockReturnValue({
+      data: {
+        id: 1,
+        plan: { id: 1, code: 'BASIC', name: '베이직', price: 9900 },
+        status: 'CANCELLED',
+        serviceActive: false,
+        serviceEndsAt: '2026-07-25T00:00:00',
+        startedAt: '2026-06-25T00:00:00',
+        nextBillingAt: '2026-07-25T00:00:00',
+        cardCompany: null, cardNumberMasked: null,
+        cancelledAt: '2026-07-20T00:00:00',
+      },
+      isLoading: false,
+      mutate: jest.fn(),
+    })
+
+    render(<SubscriptionPage />)
+
+    expect(screen.getByText('해지 완료')).toBeInTheDocument()
+    expect(screen.getByText(/이용 종료일: 2026-07-25/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '다시 구독하기' })).toBeDisabled()
+    fireEvent.click(screen.getByRole('button', { name: /베이직/ }))
+    expect(screen.getByRole('button', { name: '다시 구독하기' })).not.toBeDisabled()
   })
 
   it('로딩 중 스켈레톤을 표시한다', () => {

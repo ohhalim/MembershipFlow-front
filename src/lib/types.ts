@@ -142,6 +142,8 @@ export interface MySubscription {
   id: number
   plan: { id: number; code: string; name: string; price: number }
   status: 'ACTIVE' | 'CANCELLED' | 'SUSPENDED' | 'PAYMENT_FAILED'
+  serviceActive: boolean
+  serviceEndsAt: string | null
   startedAt: string
   nextBillingAt: string | null
   cardNumberMasked: string | null

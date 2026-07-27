@@ -13,7 +13,6 @@ import { useEffect } from 'react'
 
 const STATUS_LABEL: Record<string, { label: string; variant: 'green' | 'gray' | 'red' | 'blue' }> = {
   ACTIVE:          { label: '구독 중', variant: 'green' },
-  CANCELLED:       { label: '해지 예정', variant: 'gray' },
   SUSPENDED:       { label: '일시정지', variant: 'gray' },
   PAYMENT_FAILED:  { label: '결제 실패', variant: 'red' },
 }
@@ -22,6 +21,14 @@ export default function MyPage() {
   const { data: subscription, isLoading } = useMySubscription()
   const { isAuthenticated, isLoading: authLoading, logout } = useAuth()
   const router = useRouter()
+  const cancelled = subscription?.status === 'CANCELLED'
+  const subscriptionStatus = subscription
+    ? cancelled
+      ? { label: subscription.serviceActive ? '해지 예정' : '해지 완료', variant: 'gray' as const }
+      : STATUS_LABEL[subscription.status] ?? { label: subscription.status, variant: 'gray' as const }
+    : null
+  const subscriptionDateLabel = cancelled ? '이용 종료일' : '다음 결제일'
+  const subscriptionDate = cancelled ? subscription?.serviceEndsAt : subscription?.nextBillingAt
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) router.replace('/')
@@ -56,8 +63,8 @@ export default function MyPage() {
               <div className="p-4">
                 <div className="flex items-center justify-between mb-1">
                   <p className="text-sm font-bold text-gray-900">{subscription.plan.name}</p>
-                  <Badge variant={STATUS_LABEL[subscription.status]?.variant ?? 'gray'}>
-                    {STATUS_LABEL[subscription.status]?.label ?? subscription.status}
+                  <Badge variant={subscriptionStatus?.variant ?? 'gray'}>
+                    {subscriptionStatus?.label ?? subscription.status}
                   </Badge>
                 </div>
                 <p className="text-xs text-gray-500 mb-3">
@@ -71,9 +78,11 @@ export default function MyPage() {
                     </span>
                   </div>
                 )}
-                <p className="text-xs text-gray-400">
-                  다음 결제일: {subscription.nextBillingAt?.slice(0, 10)}
-                </p>
+                {subscriptionDate && (
+                  <p className="text-xs text-gray-400">
+                    {subscriptionDateLabel}: {subscriptionDate.slice(0, 10)}
+                  </p>
+                )}
                 <Link
                   href="/my/subscription"
                   className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100"
