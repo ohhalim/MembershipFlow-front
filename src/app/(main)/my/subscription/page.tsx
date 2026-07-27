@@ -29,8 +29,9 @@ function SubscriptionPageContent() {
   const serviceActive = mySubscription?.serviceActive ?? false
   const canCancel = mySubscription?.status === 'ACTIVE'
   const cancelled = mySubscription?.status === 'CANCELLED'
+  const expiredCancellation = cancelled && !serviceActive
   const statusLabel = cancelled
-    ? serviceActive ? '해지 예정' : '해지 완료'
+    ? '해지 예정'
     : mySubscription?.status === 'ACTIVE' ? '현재 구독 중'
       : mySubscription?.status === 'PAYMENT_FAILED' ? '결제 실패'
         : mySubscription?.status === 'SUSPENDED' ? '일시정지'
@@ -109,7 +110,7 @@ function SubscriptionPageContent() {
         )}
 
         {/* 현재 구독 상태 */}
-        {!subLoading && mySubscription && (
+        {!subLoading && mySubscription && !expiredCancellation && (
           <div className="rounded-2xl bg-blue-50 border border-blue-100 p-4 mb-6">
             <p className="text-xs text-blue-600 font-semibold mb-1">
               {statusLabel}
@@ -197,7 +198,7 @@ function SubscriptionPageContent() {
             onClick={handleSubscribe}
             disabled={!selectedPlan || loading}
           >
-            {loading ? '처리 중...' : mySubscription ? '다시 구독하기' : '결제 카드 등록하기'}
+            {loading ? '처리 중...' : expiredCancellation || !mySubscription ? '결제 카드 등록하기' : '다시 구독하기'}
           </Button>
         ) : canCancel ? (
           <button
