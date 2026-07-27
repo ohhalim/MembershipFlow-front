@@ -49,4 +49,53 @@ describe('API response contract', () => {
     await expect(coursesApi.getDetail(1)).resolves.toEqual(validDetail)
     expect(warn).not.toHaveBeenCalled()
   })
+
+  it('region=null을 목록·랭킹·거래소 비교 계약으로 파싱한다', async () => {
+    const nullableRegionCourse = { ...validDetail, region: null }
+    delete (nullableRegionCourse as Partial<typeof validDetail>).sources
+    delete (nullableRegionCourse as Partial<typeof validDetail>).info
+
+    global.fetch = jest.fn()
+      .mockResolvedValueOnce(jsonResponse({
+        content: [nullableRegionCourse],
+        last: true,
+        totalElements: 1,
+      }))
+      .mockResolvedValueOnce(jsonResponse({
+        content: [{
+          rank: 1,
+          courseId: 1,
+          name: '88',
+          region: null,
+          currentPrice: 438_000_000,
+          changeRate: 9.5,
+        }],
+        page: 0,
+        size: 20,
+        totalElements: 1,
+        hasNext: false,
+      }))
+      .mockResolvedValueOnce(jsonResponse([{
+        courseId: 1,
+        name: '88',
+        region: null,
+        courseType: 'GOLF',
+        prices: [{ sourceName: '동아', price: 438_000_000 }],
+        minPrice: 438_000_000,
+        maxPrice: 438_000_000,
+        diffAmount: 0,
+        diffRate: 0,
+      }]))
+
+    await expect(coursesApi.getList()).resolves.toMatchObject({
+      content: [expect.objectContaining({ region: null })],
+    })
+    await expect(coursesApi.getRankingPage('rise', 7, 0)).resolves.toMatchObject({
+      content: [expect.objectContaining({ region: null })],
+    })
+    await expect(coursesApi.getSourceComparison()).resolves.toEqual([
+      expect.objectContaining({ region: null }),
+    ])
+    expect(warn).not.toHaveBeenCalled()
+  })
 })

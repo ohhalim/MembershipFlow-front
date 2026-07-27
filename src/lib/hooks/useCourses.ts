@@ -1,9 +1,18 @@
 'use client'
 
+import { useCallback } from 'react'
 import useSWR from 'swr'
 import useSWRInfinite from 'swr/infinite'
 import { coursesApi, type CourseListParams, type CourseListPage, type RankingPage } from '@/lib/api/courses'
+import { ApiError } from '@/lib/api/client'
+import { ApiContractError } from '@/lib/api/contract'
 import type { CourseDetail, PricePoint, ChartPeriod, RankingType, RankingPeriod } from '@/lib/types'
+
+export function shouldRetryCourseRequest(error: unknown): boolean {
+  if (error instanceof ApiContractError) return false
+  if (error instanceof ApiError && error.status === 429) return false
+  return true
+}
 
 export function useCourseList(params: CourseListParams = {}) {
   const { keyword = '', category = '', membershipType = '', sort = 'latest' } = params
@@ -13,7 +22,7 @@ export function useCourseList(params: CourseListParams = {}) {
     return ['/api/v1/courses', keyword, category, membershipType, sort, pageIndex] as const
   }
 
-  const { data, size, setSize, isLoading, isValidating } = useSWRInfinite<CourseListPage>(
+  const { data, size, setSize, isLoading, isValidating, error } = useSWRInfinite<CourseListPage>(
     getKey,
     ([, kw, cat, mt, s, page]) => coursesApi.getList(
       { keyword: kw as string, category: cat as string, membershipType: mt as string, sort: s as CourseListParams['sort'] },
@@ -23,7 +32,7 @@ export function useCourseList(params: CourseListParams = {}) {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       onErrorRetry: (err, _key, _cfg, revalidate, { retryCount }) => {
-        if (retryCount >= 2) return
+        if (!shouldRetryCourseRequest(err) || retryCount >= 2) return
         setTimeout(() => revalidate({ retryCount }), 3000)
       },
     },
@@ -31,14 +40,18 @@ export function useCourseList(params: CourseListParams = {}) {
 
   const courses = data ? data.flatMap((p) => p.content) : []
   const isLoadingMore = isValidating && size > (data?.length ?? 0)
-  const hasMore = data ? !data[data.length - 1]?.last : true
+  const hasMore = Boolean(data?.length) && !error && !data?.[data.length - 1]?.last
+  const loadMore = useCallback(() => {
+    if (!hasMore || isValidating || error) return
+    void setSize((currentSize) => currentSize + 1)
+  }, [error, hasMore, isValidating, setSize])
 
   return {
     courses,
     isLoading,
     isLoadingMore,
     hasMore,
-    loadMore: () => setSize(size + 1),
+    loadMore,
     total: data?.[0]?.totalElements ?? 0,
   }
 }
@@ -58,14 +71,14 @@ export function useRankingInfinite(type: RankingType, period: RankingPeriod) {
     return [`/api/v1/courses/ranking`, type, period, pageIndex] as const
   }
 
-  const { data, size, setSize, isLoading, isValidating } = useSWRInfinite<RankingPage>(
+  const { data, size, setSize, isLoading, isValidating, error } = useSWRInfinite<RankingPage>(
     getKey,
     ([, t, p, page]) => coursesApi.getRankingPage(t as RankingType, p as RankingPeriod, page as number),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
-      onErrorRetry: (_err, _key, _cfg, revalidate, { retryCount }) => {
-        if (retryCount >= 2) return
+      onErrorRetry: (err, _key, _cfg, revalidate, { retryCount }) => {
+        if (!shouldRetryCourseRequest(err) || retryCount >= 2) return
         setTimeout(() => revalidate({ retryCount }), 3000)
       },
     },
@@ -73,14 +86,18 @@ export function useRankingInfinite(type: RankingType, period: RankingPeriod) {
 
   const items = data ? data.flatMap((p) => p.content) : []
   const isLoadingMore = isValidating && size > (data?.length ?? 0)
-  const hasMore = data ? data[data.length - 1]?.hasNext : true
+  const hasMore = Boolean(data?.length) && !error && Boolean(data?.[data.length - 1]?.hasNext)
+  const loadMore = useCallback(() => {
+    if (!hasMore || isValidating || error) return
+    void setSize((currentSize) => currentSize + 1)
+  }, [error, hasMore, isValidating, setSize])
 
   return {
     items,
     isLoading,
     isLoadingMore,
     hasMore,
-    loadMore: () => setSize(size + 1),
+    loadMore,
     total: data?.[0]?.totalElements ?? 0,
   }
 }
