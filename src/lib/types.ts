@@ -5,7 +5,7 @@ export type CourseCategory = 'GOLF' | 'CONDO' | 'FITNESS'
 export interface Course {
   id: number
   name: string
-  region: string
+  region: string | null
   category: CourseCategory
   membershipType: string
   latestPrice: number | null
@@ -74,7 +74,7 @@ export interface RankingItem {
   rank: number
   courseId: number
   courseName: string
-  region: string
+  region: string | null
   latestPrice: number
   changeRate: number
 }
@@ -89,7 +89,7 @@ export interface SourceComparisonPrice {
 export interface SourceComparisonItem {
   courseId: number
   name: string
-  region: string
+  region: string | null
   courseType: string | null
   prices: SourceComparisonPrice[]
   minPrice: number
@@ -104,7 +104,7 @@ export interface WatchlistItem {
   id: number
   courseId: number
   courseName: string
-  region: string
+  region: string | null
   targetPrice: number | null
   alertYn: boolean
   latestPrice: number | null
