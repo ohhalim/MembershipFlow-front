@@ -143,6 +143,8 @@ export const mySubscriptionSchema = z.object({
     price: z.number(),
   }),
   status: z.enum(['ACTIVE', 'CANCELLED', 'SUSPENDED', 'PAYMENT_FAILED']),
+  serviceActive: z.boolean(),
+  serviceEndsAt: nullableText,
   startedAt: z.string(),
   nextBillingAt: nullableText,
   cardNumberMasked: nullableText,
