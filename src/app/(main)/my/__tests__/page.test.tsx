@@ -43,6 +43,8 @@ describe('MyPage', () => {
         id: 1,
         plan: { id: 1, code: 'BASIC', name: '베이직', price: 9900 },
         status: 'ACTIVE',
+        serviceActive: true,
+        serviceEndsAt: null,
         startedAt: '2024-01-01T00:00:00',
         nextBillingAt: '2024-02-01T00:00:00',
         cardCompany: '신한', cardNumberMasked: '**** 1234',
@@ -54,6 +56,29 @@ describe('MyPage', () => {
     expect(screen.getByText('베이직')).toBeInTheDocument()
     expect(screen.getByText('구독 중')).toBeInTheDocument()
     expect(screen.getByText('신한 **** 1234')).toBeInTheDocument()
+  })
+
+  it('이용 종료일이 지난 취소 구독은 해지 완료로 표시한다', () => {
+    mockUseMySubscription.mockReturnValue({
+      data: {
+        id: 1,
+        plan: { id: 1, code: 'BASIC', name: '베이직', price: 9900 },
+        status: 'CANCELLED',
+        serviceActive: false,
+        serviceEndsAt: '2026-07-25T00:00:00',
+        startedAt: '2026-06-25T00:00:00',
+        nextBillingAt: '2026-07-25T00:00:00',
+        cardCompany: null, cardNumberMasked: null,
+        cancelledAt: '2026-07-20T00:00:00',
+      },
+      isLoading: false,
+    })
+
+    render(<MyPage />)
+
+    expect(screen.getByText('해지 완료')).toBeInTheDocument()
+    expect(screen.getByText('이용 종료일: 2026-07-25')).toBeInTheDocument()
+    expect(screen.queryByText(/다음 결제일/)).not.toBeInTheDocument()
   })
 
   it('로그아웃 클릭 시 세션 종료 API 호출 후 랜딩 페이지로 이동한다', async () => {

@@ -1,5 +1,6 @@
 import { ApiContractError } from '../contract'
 import { coursesApi } from '../courses'
+import { subscriptionApi } from '../subscription'
 
 const validDetail = {
   id: 1,
@@ -103,6 +104,25 @@ describe('API response contract', () => {
     await expect(coursesApi.getSourceComparison()).resolves.toEqual([
       expect.objectContaining({ region: null }),
     ])
+    expect(warn).not.toHaveBeenCalled()
+  })
+
+  it('종료된 취소 구독의 서비스 상태와 종료일을 파싱한다', async () => {
+    const expiredSubscription = {
+      id: 1,
+      plan: { id: 1, code: 'INDIVIDUAL', name: '개인 구독', price: 49_000 },
+      status: 'CANCELLED',
+      serviceActive: false,
+      serviceEndsAt: '2026-07-25T00:00:00',
+      startedAt: '2026-06-25T00:00:00',
+      nextBillingAt: '2026-07-25T00:00:00',
+      cardNumberMasked: '1234-****',
+      cardCompany: '테스트카드',
+      cancelledAt: '2026-07-20T00:00:00',
+    }
+    global.fetch = jest.fn().mockResolvedValue(jsonResponse(expiredSubscription))
+
+    await expect(subscriptionApi.getMySubscription()).resolves.toEqual(expiredSubscription)
     expect(warn).not.toHaveBeenCalled()
   })
 })
