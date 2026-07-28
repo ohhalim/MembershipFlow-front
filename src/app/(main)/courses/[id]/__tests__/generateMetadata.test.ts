@@ -23,6 +23,7 @@ describe('CourseDetailPage generateMetadata', () => {
     expect(metadata.title).toBe('가야 회원권 시세 — 1.5억')
     expect(metadata.description).toContain('가야')
     expect(metadata.description).toContain('1.5억')
+    expect(metadata.alternates).toEqual({ canonical: '/courses/2' })
   })
 
   it('info.address가 있으면 description 앞에 지역을 붙인다', async () => {
@@ -59,5 +60,6 @@ describe('CourseDetailPage generateMetadata', () => {
     const metadata = await generateMetadata({ params: Promise.resolve({ id: '999' }) })
 
     expect(metadata.title).toBe('회원권 시세')
+    expect(metadata.alternates).toEqual({ canonical: '/courses/999' })
   })
 })

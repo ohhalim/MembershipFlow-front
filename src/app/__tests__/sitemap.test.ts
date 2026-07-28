@@ -18,6 +18,7 @@ describe('sitemap', () => {
 
     expect(result.some((r) => r.url === 'https://membershipflow.site')).toBe(true)
     expect(result.some((r) => r.url === 'https://membershipflow.site/ranking')).toBe(true)
+    expect(result.some((r) => r.url === 'https://membershipflow.site/login')).toBe(false)
   })
 
   it('전체 코스 목록을 페이지네이션으로 순회해 sitemap에 포함한다', async () => {

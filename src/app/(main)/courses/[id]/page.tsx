@@ -28,11 +28,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
       title,
       description,
+      alternates: { canonical: `/courses/${id}` },
       openGraph: { title, description },
     }
   } catch {
     // 코스 미존재/백엔드 장애 시에도 페이지 자체는 렌더링되도록 폴백 메타데이터만 반환
-    return { title: '회원권 시세' }
+    return {
+      title: '회원권 시세',
+      alternates: { canonical: `/courses/${id}` },
+    }
   }
 }
 
