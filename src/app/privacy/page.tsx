@@ -3,6 +3,7 @@ import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: '개인정보처리방침 — MembershipFlow',
+  alternates: { canonical: '/privacy' },
 }
 
 const SECTIONS = [
