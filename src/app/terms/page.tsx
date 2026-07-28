@@ -3,6 +3,7 @@ import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: '이용약관 — MembershipFlow',
+  alternates: { canonical: '/terms' },
 }
 
 const SECTIONS = [
