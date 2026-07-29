@@ -118,7 +118,7 @@ export function CourseCard({ course }: CourseCardProps) {
       <ChevronRight
         size={16}
         aria-hidden="true"
-        className="text-gray-300 transition-transform group-hover:translate-x-0.5 group-hover:text-blue-500"
+        className="col-start-3 row-start-1 text-gray-300 transition-transform group-hover:translate-x-0.5 group-hover:text-blue-500 lg:col-auto lg:row-auto"
       />
     </Link>
   )
