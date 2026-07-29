@@ -6,7 +6,7 @@ import useSWRInfinite from 'swr/infinite'
 import { coursesApi, type CourseListParams, type CourseListPage, type RankingPage } from '@/lib/api/courses'
 import { ApiError } from '@/lib/api/client'
 import { ApiContractError } from '@/lib/api/contract'
-import type { CourseDetail, PricePoint, ChartPeriod, RankingType, RankingPeriod } from '@/lib/types'
+import type { CourseDetail, PriceChartData, ChartPeriod, RankingType, RankingPeriod } from '@/lib/types'
 
 export function shouldRetryCourseRequest(error: unknown): boolean {
   if (error instanceof ApiContractError) return false
@@ -62,7 +62,7 @@ export function useCourseDetail(id: number) {
 
 export function usePriceHistory(id: number, period: ChartPeriod) {
   const key = id ? `/api/v1/courses/${id}/price-history?period=${period}` : null
-  return useSWR<PricePoint[]>(key, () => coursesApi.getPriceHistory(id, period))
+  return useSWR<PriceChartData>(key, () => coursesApi.getPriceHistory(id, period))
 }
 
 export function useRankingInfinite(type: RankingType, period: RankingPeriod) {

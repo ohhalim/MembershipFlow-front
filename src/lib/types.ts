@@ -65,6 +65,14 @@ export interface PricePoint {
 
 export type ChartPeriod = '1d' | '1w' | '1m' | '3m' | '1y'
 
+export interface PriceChartData {
+  interval: string
+  from: string
+  to: string
+  points: PricePoint[]
+  subscriptionRequired: boolean
+}
+
 // ─── Ranking ─────────────────────────────────────────────────────────────────
 
 export type RankingType = 'rise' | 'fall'

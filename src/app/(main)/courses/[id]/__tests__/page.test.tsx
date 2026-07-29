@@ -1,5 +1,8 @@
 import { render, screen } from '@testing-library/react'
 
+const mockRetryPriceHistory = jest.fn()
+const mockUsePriceHistory = jest.fn()
+
 const mockCourse = {
   id: 1, name: '서울 CC', region: '서울', category: 'GOLF' as const,
   membershipType: '개인', latestPrice: 250000000, changeRate: 2.5, updatedAt: '2024-01-01',
@@ -15,7 +18,7 @@ jest.mock('next/navigation', () => ({
 }))
 jest.mock('recharts', () => ({
   LineChart: ({ children }: { children: React.ReactNode }) => <div data-testid="chart">{children}</div>,
-  Line: () => null,
+  Line: ({ dot }: { dot: unknown }) => <div data-testid="chart-line" data-dot={dot ? 'visible' : 'hidden'} />,
   XAxis: () => null,
   YAxis: () => null,
   Tooltip: () => null,
@@ -24,13 +27,25 @@ jest.mock('recharts', () => ({
 }))
 jest.mock('@/lib/hooks/useCourses', () => ({
   useCourseDetail: () => ({ data: mockCourse, isLoading: false }),
-  usePriceHistory: () => ({
-    data: [{ date: '2024-01-01', price: 245000000 }],
-    isLoading: false,
-  }),
+  usePriceHistory: () => mockUsePriceHistory(),
 }))
 
 describe('CourseDetailPage', () => {
+  beforeEach(() => {
+    mockUsePriceHistory.mockReturnValue({
+      data: {
+        interval: 'DAY',
+        from: '2024-01-01',
+        to: '2024-01-01',
+        points: [{ date: '2024-01-01', price: 245000000 }],
+        subscriptionRequired: false,
+      },
+      isLoading: false,
+      error: undefined,
+      mutate: mockRetryPriceHistory,
+    })
+  })
+
   it('종목명과 가격을 렌더링한다', async () => {
     const { default: Page } = await import('../page')
     render(<Page />)
@@ -58,6 +73,43 @@ describe('CourseDetailPage', () => {
     const { default: Page } = await import('../page')
     render(<Page />)
     expect(screen.getByTestId('chart')).toBeInTheDocument()
+    expect(screen.getByTestId('chart-line')).toHaveAttribute('data-dot', 'visible')
+  })
+
+  it('제한된 기간과 빈 시세를 안내한다', async () => {
+    mockUsePriceHistory.mockReturnValue({
+      data: {
+        interval: 'DAY',
+        from: '2024-01-01',
+        to: '2024-01-08',
+        points: [],
+        subscriptionRequired: true,
+      },
+      isLoading: false,
+      error: undefined,
+      mutate: mockRetryPriceHistory,
+    })
+
+    const { default: Page } = await import('../page')
+    render(<Page />)
+
+    expect(screen.getByText(/무료 조회는 최근 7일/)).toBeInTheDocument()
+    expect(screen.getByText('선택한 기간의 시세 데이터가 없습니다.')).toBeInTheDocument()
+  })
+
+  it('시세 요청 실패 시 재시도 상태를 표시한다', async () => {
+    mockUsePriceHistory.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      error: new Error('network'),
+      mutate: mockRetryPriceHistory,
+    })
+
+    const { default: Page } = await import('../page')
+    render(<Page />)
+
+    expect(screen.getByRole('alert')).toHaveTextContent('시세를 불러오지 못했습니다.')
+    expect(screen.getByRole('button', { name: '다시 시도' })).toBeInTheDocument()
   })
 
   it('info가 없으면 골프장 정보 섹션을 렌더링하지 않는다', async () => {
