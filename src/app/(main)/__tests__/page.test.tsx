@@ -57,7 +57,7 @@ describe('HomePage', () => {
     render(<HomePage />)
 
     expect(screen.getByRole('heading', { name: '골프 회원권 최저가 찾기' })).toBeInTheDocument()
-    expect(screen.getByText('6개 회원권 거래소 시세 한눈에 비교')).toBeInTheDocument()
+    expect(screen.getByText('8개 회원권 거래소 시세 한눈에 비교')).toBeInTheDocument()
   })
 
   it('중앙 목록의 비교 기준을 명시한다', () => {

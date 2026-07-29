@@ -33,7 +33,7 @@ describe('MarketSummaryStrip', () => {
     renderStrip()
 
     expect(await screen.findByText('62')).toBeInTheDocument()
-    expect(screen.getByText('6개 거래소 비교')).toBeInTheDocument()
+    expect(screen.getByText('8개 거래소 비교')).toBeInTheDocument()
     expect(screen.getByText(/가격차 나는 종목/)).toBeInTheDocument()
     // 최대 격차율은 개별 소스 데이터 오류가 지배적이라 헤드라인에 노출하지 않음
     expect(screen.queryByText(/최대 격차/)).not.toBeInTheDocument()
@@ -47,7 +47,7 @@ describe('MarketSummaryStrip', () => {
     renderStrip()
 
     expect(await screen.findByText('132')).toBeInTheDocument()
-    expect(screen.getByText('6개 거래소 비교 중')).toBeInTheDocument()
+    expect(screen.getByText('8개 거래소 비교 중')).toBeInTheDocument()
     expect(screen.getByText('3')).toBeInTheDocument()
     expect(screen.getByText('5')).toBeInTheDocument()
     expect(screen.getByText(/상승/)).toBeInTheDocument()
