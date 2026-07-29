@@ -17,6 +17,7 @@ import { cn } from '@/lib/cn'
 import type { ChartPeriod, CourseInfo } from '@/lib/types'
 import { courseDisplayMeta, courseDisplayTitle } from '@/lib/courseDisplay'
 import { useAuth } from '@/lib/auth'
+import { calculatePriceChartDomain } from '@/lib/priceChart'
 
 const PERIODS: { label: string; value: ChartPeriod }[] = [
   { label: '1일', value: '1d' },
@@ -40,6 +41,7 @@ export function CourseDetailClient() {
 
   const watchlistItem = watchlist?.find((w) => w.courseId === id)
   const isWatched = !!watchlistItem
+  const priceChartDomain = calculatePriceChartDomain(history)
 
   async function handleToggleWatchlist() {
     if (!isAuthenticated) {
@@ -141,6 +143,9 @@ export function CourseDetailClient() {
                   interval="preserveStartEnd"
                 />
                 <YAxis
+                  domain={priceChartDomain}
+                  allowDataOverflow
+                  tickCount={5}
                   tick={{ fontSize: 10, fill: '#9ca3af' }}
                   tickFormatter={(v) => formatPriceCompact(v)}
                   width={52}

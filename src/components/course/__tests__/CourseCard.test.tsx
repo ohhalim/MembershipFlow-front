@@ -23,6 +23,15 @@ describe('CourseCard', () => {
     expect(screen.getByText('주말회원')).toBeInTheDocument()
   })
 
+  it('메타 라벨과 값의 크기·간격을 구분한다', () => {
+    render(<CourseCard course={mockCourse} />)
+
+    expect(screen.getByText('지역')).toHaveClass('text-[10px]')
+    expect(screen.getByText('경기')).toHaveClass('text-xs')
+    expect(screen.getByText('지역').parentElement).toHaveClass('gap-2.5')
+    expect(screen.getByText('구분').parentElement).toHaveClass('gap-2.5')
+  })
+
   it('가격을 간략 형식으로 렌더링한다', () => {
     render(<CourseCard course={mockCourse} />)
     expect(screen.getByText('2.5억')).toBeInTheDocument()
@@ -83,7 +92,8 @@ describe('CourseCard', () => {
     expect(screen.getByText('휘닉스파크')).toBeInTheDocument()
     expect(screen.queryByText('휘닉스파크(8500)')).not.toBeInTheDocument()
     expect(screen.getByText('일반 회원권')).toBeInTheDocument()
-    expect(screen.getByText('분양가 8,500만')).toBeInTheDocument()
+    expect(screen.getByText('분양가')).toBeInTheDocument()
+    expect(screen.getByText('8,500만')).toBeInTheDocument()
   })
 
   it('이름에 붙은 회원 구분을 제목에서 분리하고 중복 표시하지 않는다', () => {

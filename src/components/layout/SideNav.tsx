@@ -18,12 +18,11 @@ export function SideNav() {
 
   return (
     <div className="flex flex-col h-full px-3 py-6">
-      <div className="px-3 mb-8 flex items-start justify-between">
-        <div>
+      <div className="px-3 mb-8">
+        <Link href="/home" className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
           <p className="text-base font-bold text-gray-900">MembershipFlow</p>
           <p className="text-xs text-gray-400 mt-0.5">거래소별 시세 비교</p>
-        </div>
-        <NotificationBell variant="sidenav" />
+        </Link>
       </div>
 
       <nav className="flex flex-col gap-0.5">
@@ -45,6 +44,7 @@ export function SideNav() {
             </Link>
           )
         })}
+        <NotificationBell variant="sidenav" />
       </nav>
 
       <div className="mt-auto px-3 flex gap-3 text-[11px] text-gray-400">

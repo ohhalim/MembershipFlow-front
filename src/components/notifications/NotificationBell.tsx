@@ -28,7 +28,7 @@ export function NotificationBell({ variant = 'sidenav' }: NotificationBellProps)
   }
 
   return (
-    <div className="relative">
+    <div className={cn('relative', variant === 'sidenav' && 'w-full')}>
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
@@ -36,7 +36,7 @@ export function NotificationBell({ variant = 'sidenav' }: NotificationBellProps)
         className={cn(
           'transition-colors',
           variant === 'sidenav'
-            ? 'flex items-center justify-center w-9 h-9 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-gray-800'
+            ? 'flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-800'
             : 'w-full flex flex-col items-center gap-0.5 py-2.5 text-xs font-medium text-gray-400 hover:text-gray-600',
         )}
       >
@@ -48,7 +48,7 @@ export function NotificationBell({ variant = 'sidenav' }: NotificationBellProps)
             </span>
           )}
         </span>
-        {variant === 'bottombar' && <span>알림</span>}
+        <span>알림</span>
       </button>
 
       {open && (

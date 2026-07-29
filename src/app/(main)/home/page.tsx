@@ -11,7 +11,6 @@ import { useCourseList } from '@/lib/hooks/useCourses'
 import { useDebouncedValue } from '@/lib/hooks/useDebouncedValue'
 import { useAuth } from '@/lib/auth'
 import { EXCHANGE_COUNT, EXCHANGE_NAMES } from '@/lib/exchanges'
-import type { CourseCategory } from '@/lib/types'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? ''
 
@@ -65,11 +64,6 @@ function LoginBanner() {
   )
 }
 
-const CATEGORIES: { label: string; value: '' | CourseCategory }[] = [
-  { label: '전체', value: '' },
-  { label: '골프', value: 'GOLF' },
-]
-
 const MEMBERSHIP_TYPES: { label: string; value: string }[] = [
   { label: '전체', value: '' },
   { label: '일반', value: 'REGULAR' },
@@ -88,7 +82,6 @@ const SORTS = [
 
 export default function HomePage() {
   const [keyword, setKeyword] = useState('')
-  const [category, setCategory] = useState<'' | CourseCategory>('')
   const [membershipType, setMembershipType] = useState('')
   const [sort, setSort] = useState<'latest' | 'price_asc' | 'price_desc'>('latest')
   const sentinelRef = useRef<HTMLDivElement>(null)
@@ -96,7 +89,7 @@ export default function HomePage() {
 
   const { courses, isLoading, isLoadingMore, hasMore, loadMore } = useCourseList({
     keyword: debouncedKeyword,
-    category,
+    category: 'GOLF',
     membershipType,
     sort,
   })
@@ -139,50 +132,33 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* 카테고리 탭 */}
-      <div className="flex gap-2 px-4 py-2 overflow-x-auto scrollbar-hide">
-        {CATEGORIES.map(({ label, value }) => (
-          <button
-            key={value}
-            onClick={() => setCategory(value)}
-            className={cn(
-              'flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium border transition-colors',
-              category === value
-                ? 'bg-blue-500 text-white border-blue-500'
-                : 'bg-white text-gray-500 border-gray-200',
-            )}
-          >
-            {label}
-          </button>
-        ))}
-
+      {/* 구분 필터 칩 + 정렬 */}
+      <div className="flex items-center gap-3 px-4 py-2">
+        <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto scrollbar-hide">
+          {MEMBERSHIP_TYPES.map(({ label, value }) => (
+            <button
+              key={value}
+              onClick={() => setMembershipType(value)}
+              className={cn(
+                'flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium border transition-colors',
+                membershipType === value
+                  ? 'bg-blue-500 text-white border-blue-500'
+                  : 'bg-white text-gray-500 border-gray-200',
+              )}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
         <select
           value={sort}
           onChange={(e) => setSort(e.target.value as typeof sort)}
-          className="ml-auto flex-shrink-0 text-xs text-gray-500 bg-transparent border-none outline-none cursor-pointer"
+          className="flex-shrink-0 text-xs text-gray-500 bg-transparent border-none outline-none cursor-pointer"
         >
           {SORTS.map(({ label, value }) => (
             <option key={value} value={value}>{label}</option>
           ))}
         </select>
-      </div>
-
-      {/* 구분 필터 칩 */}
-      <div className="flex gap-2 px-4 pb-2 overflow-x-auto scrollbar-hide">
-        {MEMBERSHIP_TYPES.map(({ label, value }) => (
-          <button
-            key={value}
-            onClick={() => setMembershipType(value)}
-            className={cn(
-              'flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium border transition-colors',
-              membershipType === value
-                ? 'bg-blue-500 text-white border-blue-500'
-                : 'bg-white text-gray-500 border-gray-200',
-            )}
-          >
-            {label}
-          </button>
-        ))}
       </div>
 
       {/* 시장 요약 스트립 */}
