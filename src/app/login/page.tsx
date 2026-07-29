@@ -6,11 +6,12 @@ import { useRouter } from 'next/navigation'
 import { BarChart2, Bell, TrendingUp } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { useAuth } from '@/lib/auth'
+import { EXCHANGE_COUNT } from '@/lib/exchanges'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? ''
 
 const FEATURES = [
-  { Icon: BarChart2, title: '시세 차트', desc: '4개 거래소\n시세 비교' },
+  { Icon: BarChart2, title: '시세 차트', desc: `${EXCHANGE_COUNT}개 거래소\n시세 비교` },
   { Icon: Bell,      title: '목표가 알림', desc: '원하는 가격에\n바로 알림' },
   { Icon: TrendingUp, title: '실시간 랭킹', desc: '상승·하락\n순위 확인' },
 ] as const

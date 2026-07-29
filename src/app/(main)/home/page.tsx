@@ -10,12 +10,10 @@ import { cn } from '@/lib/cn'
 import { useCourseList } from '@/lib/hooks/useCourses'
 import { useDebouncedValue } from '@/lib/hooks/useDebouncedValue'
 import { useAuth } from '@/lib/auth'
+import { EXCHANGE_COUNT, EXCHANGE_NAMES } from '@/lib/exchanges'
 import type { CourseCategory } from '@/lib/types'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? ''
-
-// 시세를 비교하는 거래소 목록 — 홈 헤더/배너 카피에서 공용으로 사용
-const EXCHANGE_NAMES = ['동아골프', '동부회원권', '시세닷컴', '에이스회원권'] as const
 
 const FEATURES = [
   { Icon: BarChart2, label: '시세 차트' },
@@ -122,7 +120,7 @@ export default function HomePage() {
     <>
       <Header title="골프 회원권 최저가 찾기" />
       <p className="px-4 -mt-2 mb-2 text-sm font-bold text-blue-600">
-        {EXCHANGE_NAMES.length}개 회원권 거래소 시세 한눈에 비교
+        {EXCHANGE_COUNT}개 회원권 거래소 시세 한눈에 비교
       </p>
 
       <LoginBanner />

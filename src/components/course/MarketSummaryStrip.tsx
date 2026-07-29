@@ -2,6 +2,7 @@
 
 import useSWR from 'swr'
 import { coursesApi } from '@/lib/api/courses'
+import { EXCHANGE_COUNT } from '@/lib/exchanges'
 
 export function MarketSummaryStrip() {
   const { data } = useSWR('/courses/summary', () => coursesApi.getSummary(), {
@@ -19,7 +20,7 @@ export function MarketSummaryStrip() {
     <div className="flex items-center gap-3 px-4 py-2 text-xs text-gray-500 bg-gray-50 border-y border-gray-100">
       {hasSpread ? (
         <>
-          <span className="font-semibold text-blue-600">4개 거래소 비교</span>
+          <span className="font-semibold text-blue-600">{EXCHANGE_COUNT}개 거래소 비교</span>
           <span className="text-gray-300">|</span>
           <span>
             가격차 나는 종목{' '}
@@ -32,7 +33,7 @@ export function MarketSummaryStrip() {
         </>
       ) : (
         <>
-          <span className="font-semibold text-blue-600">4개 거래소 비교 중</span>
+          <span className="font-semibold text-blue-600">{EXCHANGE_COUNT}개 거래소 비교 중</span>
           <span className="text-gray-300">|</span>
           <span>
             오늘 업데이트 <b className="text-gray-800 font-semibold">{data.updatedToday}</b>

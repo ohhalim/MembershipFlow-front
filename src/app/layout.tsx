@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { EXCHANGE_NAMES_TEXT } from '@/lib/exchanges';
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,7 +15,7 @@ const geistMono = Geist_Mono({
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://membershipflow.site';
 const SITE_TITLE = '골프 회원권 최저가 찾기 | MembershipFlow';
-const SITE_DESCRIPTION = '동아골프·동부회원권·시세닷컴·에이스회원권의 골프 회원권 시세를 한 번에 비교하고 최저가를 찾아보세요. 목표가 도달 알림도 받을 수 있습니다.';
+const SITE_DESCRIPTION = `${EXCHANGE_NAMES_TEXT}의 골프 회원권 시세를 한 번에 비교하고 최저가를 찾아보세요. 목표가 도달 알림도 받을 수 있습니다.`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
