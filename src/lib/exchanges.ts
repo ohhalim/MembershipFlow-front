@@ -4,6 +4,9 @@ export const EXCHANGE_NAMES = [
   '시세닷컴',
   '에이스회원권',
   '프리미엄회원권',
+  '회원권 쿨거래',
+  'KB회원권거래소',
+  '회원권SEARCH',
 ] as const
 
 export const EXCHANGE_COUNT = EXCHANGE_NAMES.length
