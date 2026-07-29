@@ -60,6 +60,15 @@ describe('HomePage', () => {
     expect(screen.getByText('4개 회원권 거래소 시세 한눈에 비교')).toBeInTheDocument()
   })
 
+  it('중앙 목록의 비교 기준을 명시한다', () => {
+    render(<HomePage />)
+
+    expect(screen.getByRole('heading', { name: '회원권 최저가 비교' })).toBeInTheDocument()
+    expect(screen.getByText('거래소별 최신 시세 기준')).toBeInTheDocument()
+    expect(screen.getByText('가장 낮은 거래소')).toBeInTheDocument()
+    expect(screen.getByText('거래소별 가격 비교')).toBeInTheDocument()
+  })
+
   it('종목 목록을 렌더링한다', () => {
     render(<HomePage />)
     expect(screen.getByText('서울 CC')).toBeInTheDocument()

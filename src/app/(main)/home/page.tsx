@@ -191,30 +191,49 @@ export default function HomePage() {
       <MarketSummaryStrip />
 
       {/* 목록 */}
-      <div className="divide-y divide-dashed divide-gray-200">
-        {isLoading
-          ? Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="flex items-center justify-between px-4 py-3.5">
-                <div className="space-y-1.5">
-                  <Skeleton className="w-32 h-4" />
-                  <Skeleton className="w-20 h-3" />
-                </div>
-                <div className="space-y-1.5 items-end flex flex-col">
-                  <Skeleton className="w-16 h-4" />
-                  <Skeleton className="w-12 h-3" />
-                </div>
-              </div>
-            ))
-          : courses.map((course) => (
-              <CourseCard key={course.id} course={course} />
-            ))}
-
-        {!isLoading && courses.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-20 text-gray-400">
-            <p className="text-sm">검색 결과가 없어요</p>
+      <section aria-labelledby="course-price-comparison-title" className="border-t border-gray-200 bg-white">
+        <div className="flex items-end justify-between px-4 py-4 lg:px-6">
+          <div>
+            <h2 id="course-price-comparison-title" className="text-base font-bold text-gray-900">
+              회원권 최저가 비교
+            </h2>
+            <p className="mt-1 text-xs text-gray-500">거래소별 최신 시세 기준</p>
           </div>
-        )}
-      </div>
+          <p className="hidden text-xs text-gray-400 sm:block">카드를 누르면 상세 비교로 이동</p>
+        </div>
+
+        <div className="hidden grid-cols-[minmax(180px,0.9fr)_minmax(210px,0.9fr)_minmax(300px,1.4fr)_16px] gap-6 border-y border-gray-100 bg-gray-50 px-6 py-2.5 text-[11px] font-semibold text-gray-500 lg:grid">
+          <span>회원권</span>
+          <span>가장 낮은 거래소</span>
+          <span>거래소별 가격 비교</span>
+          <span />
+        </div>
+
+        <div className="divide-y divide-gray-100">
+          {isLoading
+            ? Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="flex items-center justify-between px-4 py-5 lg:px-6">
+                  <div className="space-y-1.5">
+                    <Skeleton className="w-32 h-4" />
+                    <Skeleton className="w-20 h-3" />
+                  </div>
+                  <div className="space-y-1.5 items-end flex flex-col">
+                    <Skeleton className="w-16 h-4" />
+                    <Skeleton className="w-12 h-3" />
+                  </div>
+                </div>
+              ))
+            : courses.map((course) => (
+                <CourseCard key={course.id} course={course} />
+              ))}
+
+          {!isLoading && courses.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+              <p className="text-sm">검색 결과가 없어요</p>
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* 무한 스크롤 센티넬 */}
       <div ref={sentinelRef} className="h-12 flex items-center justify-center">

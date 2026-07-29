@@ -17,7 +17,10 @@ describe('CourseCard', () => {
   it('종목명과 지역을 렌더링한다', () => {
     render(<CourseCard course={mockCourse} />)
     expect(screen.getByText('레이크사이드CC')).toBeInTheDocument()
-    expect(screen.getByText('경기 · 주말회원')).toBeInTheDocument()
+    expect(screen.getByText('지역')).toBeInTheDocument()
+    expect(screen.getByText('경기')).toBeInTheDocument()
+    expect(screen.getByText('구분')).toBeInTheDocument()
+    expect(screen.getByText('주말회원')).toBeInTheDocument()
   })
 
   it('가격을 간략 형식으로 렌더링한다', () => {
@@ -25,9 +28,9 @@ describe('CourseCard', () => {
     expect(screen.getByText('2.5억')).toBeInTheDocument()
   })
 
-  it('상승률을 ▲ 기호와 함께 렌더링한다', () => {
+  it('최저가와 기준이 다른 등락률은 목록에 표시하지 않는다', () => {
     render(<CourseCard course={mockCourse} />)
-    expect(screen.getByText('▲ 2.5%')).toBeInTheDocument()
+    expect(screen.queryByText('▲ 2.5%')).not.toBeInTheDocument()
   })
 
   it('가격 정보가 없으면 - 를 표시한다', () => {
@@ -40,7 +43,7 @@ describe('CourseCard', () => {
     expect(screen.getByRole('link')).toHaveAttribute('href', '/courses/1')
   })
 
-  it('거래소가 2곳 이상이면 거래소별 가격을 표시한다', () => {
+  it('거래소가 2곳 이상이면 최저가 거래소와 나머지 가격을 분리해 표시한다', () => {
     render(
       <CourseCard
         course={{
@@ -52,24 +55,22 @@ describe('CourseCard', () => {
         }}
       />,
     )
-    expect(screen.getByLabelText('거래소별 시세')).toBeInTheDocument()
-    expect(screen.getByText('동아 2.5억')).toBeInTheDocument()
-    expect(screen.getByText('동부 2.4억')).toBeInTheDocument()
+    expect(screen.getByLabelText('거래소별 가격 비교')).toBeInTheDocument()
+    expect(screen.getByText('2개 거래소 중 최저가')).toBeInTheDocument()
+    expect(screen.getByText('동부회원권')).toBeInTheDocument()
+    expect(screen.getByText('동아골프')).toBeInTheDocument()
+    expect(screen.getByText('1,000만원')).toBeInTheDocument()
   })
 
-  it('거래소가 1곳이면 거래소별 가격을 표시하지 않는다', () => {
+  it('거래소가 1곳이면 최저가로 과장하지 않고 확인 시세로 표시한다', () => {
     render(
       <CourseCard
         course={{ ...mockCourse, sourcePrices: [{ source: '동아골프', price: 250_000_000 }] }}
       />,
     )
-    expect(screen.queryByText(/동아 2\.5억/)).not.toBeInTheDocument()
-  })
-
-  it('가격의 의미를 최근 시세로 표시한다', () => {
-    render(<CourseCard course={mockCourse} />)
-
-    expect(screen.getByText('최근 시세')).toBeInTheDocument()
+    expect(screen.getByText('확인 시세')).toBeInTheDocument()
+    expect(screen.getByText('동아골프')).toBeInTheDocument()
+    expect(screen.getByText('비교 가능한 거래소가 1곳뿐입니다')).toBeInTheDocument()
   })
 
   it('숫자 tier를 제목에서 분리해 단위가 있는 보조정보로 표시한다', () => {
@@ -81,7 +82,8 @@ describe('CourseCard', () => {
 
     expect(screen.getByText('휘닉스파크')).toBeInTheDocument()
     expect(screen.queryByText('휘닉스파크(8500)')).not.toBeInTheDocument()
-    expect(screen.getByText('일반 · 분양가 8,500만')).toBeInTheDocument()
+    expect(screen.getByText('일반 회원권')).toBeInTheDocument()
+    expect(screen.getByText('분양가 8,500만')).toBeInTheDocument()
   })
 
   it('이름에 붙은 회원 구분을 제목에서 분리하고 중복 표시하지 않는다', () => {
@@ -93,6 +95,5 @@ describe('CourseCard', () => {
 
     expect(screen.getByText('에딘버러')).toBeInTheDocument()
     expect(screen.getByText('주중 가족')).toBeInTheDocument()
-    expect(screen.queryByText(/· 주중/)).not.toBeInTheDocument()
   })
 })
