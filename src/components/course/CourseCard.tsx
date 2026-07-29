@@ -48,19 +48,24 @@ export function CourseCard({ course }: CourseCardProps) {
           {displayName.title}
         </p>
         {(region || productMeta.length > 0) && (
-          <div className="mt-2 flex flex-wrap gap-1.5 text-[11px] text-gray-600">
+          <div className="mt-2.5 flex flex-wrap gap-2 text-gray-600">
             {region && (
-              <span className="rounded-md bg-gray-100 px-2 py-1">
-                <span className="text-gray-400">지역</span>{' '}
-                <strong className="font-semibold text-gray-700">{region}</strong>
+              <span className="inline-flex items-baseline gap-2.5 whitespace-nowrap rounded-lg bg-gray-100 px-2.5 py-1.5">
+                <span className="text-[10px] font-medium tracking-wide text-gray-400">지역</span>
+                <strong className="text-xs font-bold text-gray-800">{region}</strong>
               </span>
             )}
             {productMeta.map((value) => (
-              <span key={value} className="rounded-md bg-gray-100 px-2 py-1">
-                {!value.startsWith('분양가 ') && (
-                  <><span className="text-gray-400">구분</span>{' '}</>
-                )}
-                <strong className="font-semibold text-gray-700">{value}</strong>
+              <span
+                key={value}
+                className="inline-flex items-baseline gap-2.5 whitespace-nowrap rounded-lg bg-gray-100 px-2.5 py-1.5"
+              >
+                <span className="text-[10px] font-medium tracking-wide text-gray-400">
+                  {value.startsWith('분양가 ') ? '분양가' : '구분'}
+                </span>
+                <strong className="text-xs font-bold text-gray-800">
+                  {value.startsWith('분양가 ') ? value.replace('분양가 ', '') : value}
+                </strong>
               </span>
             ))}
           </div>
