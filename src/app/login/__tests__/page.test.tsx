@@ -18,6 +18,7 @@ describe('LoginPage', () => {
     render(<LoginPage />)
     expect(screen.getByText('MembershipFlow')).toBeInTheDocument()
     expect(screen.getByText('여러 거래소 시세를 비교해 최저가를 찾아드립니다')).toBeInTheDocument()
+    expect(screen.getByText(/5개 거래소/)).toBeInTheDocument()
   })
 
   it('3개 기능 아이콘을 렌더링한다', () => {
