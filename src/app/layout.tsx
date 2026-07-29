@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://membershipflow.site';
-const SITE_TITLE = 'MembershipFlow — 골프 회원권 거래소별 시세 비교';
-const SITE_DESCRIPTION = '동아골프·동부회원권·시세닷컴·에이스회원권 시세를 한 곳에서 비교하고 최저가를 확인하세요. 목표가 도달 시 즉시 알림.';
+const SITE_TITLE = '골프 회원권 최저가 찾기 | MembershipFlow';
+const SITE_DESCRIPTION = '동아골프·동부회원권·시세닷컴·에이스회원권의 골프 회원권 시세를 한 번에 비교하고 최저가를 찾아보세요. 목표가 도달 알림도 받을 수 있습니다.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

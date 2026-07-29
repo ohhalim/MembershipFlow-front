@@ -52,7 +52,9 @@ describe('CourseCard', () => {
         }}
       />,
     )
-    expect(screen.getByText('동아 2.5억 · 동부 2.4억')).toBeInTheDocument()
+    expect(screen.getByLabelText('거래소별 시세')).toBeInTheDocument()
+    expect(screen.getByText('동아 2.5억')).toBeInTheDocument()
+    expect(screen.getByText('동부 2.4억')).toBeInTheDocument()
   })
 
   it('거래소가 1곳이면 거래소별 가격을 표시하지 않는다', () => {
@@ -62,6 +64,12 @@ describe('CourseCard', () => {
       />,
     )
     expect(screen.queryByText(/동아 2\.5억/)).not.toBeInTheDocument()
+  })
+
+  it('가격의 의미를 최근 시세로 표시한다', () => {
+    render(<CourseCard course={mockCourse} />)
+
+    expect(screen.getByText('최근 시세')).toBeInTheDocument()
   })
 
   it('숫자 tier를 제목에서 분리해 단위가 있는 보조정보로 표시한다', () => {
