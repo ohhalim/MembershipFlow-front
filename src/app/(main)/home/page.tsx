@@ -120,9 +120,9 @@ export default function HomePage() {
 
   return (
     <>
-      <Header title="골프 회원권 시세 비교" />
+      <Header title="골프 회원권 최저가 찾기" />
       <p className="px-4 -mt-2 mb-2 text-sm font-bold text-blue-600">
-        {EXCHANGE_NAMES.length}개 거래소 최저가 비교
+        {EXCHANGE_NAMES.length}개 회원권 거래소 시세 한눈에 비교
       </p>
 
       <LoginBanner />

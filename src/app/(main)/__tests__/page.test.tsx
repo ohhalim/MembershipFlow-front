@@ -53,6 +53,13 @@ describe('HomePage', () => {
     jest.useRealTimers()
   })
 
+  it('최저가 찾기 중심의 홈 제목과 비교 범위를 표시한다', () => {
+    render(<HomePage />)
+
+    expect(screen.getByRole('heading', { name: '골프 회원권 최저가 찾기' })).toBeInTheDocument()
+    expect(screen.getByText('4개 회원권 거래소 시세 한눈에 비교')).toBeInTheDocument()
+  })
+
   it('종목 목록을 렌더링한다', () => {
     render(<HomePage />)
     expect(screen.getByText('서울 CC')).toBeInTheDocument()
