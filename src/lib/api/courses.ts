@@ -2,7 +2,7 @@ import { apiClient } from './client'
 import type {
   Course,
   CourseDetail,
-  PricePoint,
+  PriceChartData,
   ChartPeriod,
   RankingItem,
   RankingType,
@@ -24,6 +24,13 @@ export interface CourseListParams {
   category?: string
   membershipType?: string
   sort?: 'latest' | 'price_asc' | 'price_desc'
+}
+
+export function formatLocalDateParam(date: Date): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
 }
 
 export interface CourseListPage {
@@ -55,18 +62,23 @@ export const coursesApi = {
     return apiClient.get(`/api/v1/courses/${id}`, courseDetailSchema)
   },
 
-  async getPriceHistory(id: number, period: ChartPeriod): Promise<PricePoint[]> {
+  async getPriceHistory(id: number, period: ChartPeriod): Promise<PriceChartData> {
     const days: Record<ChartPeriod, number> = { '1d': 1, '1w': 7, '1m': 30, '3m': 90, '1y': 365 }
     const interval: Record<ChartPeriod, string> = { '1d': 'DAY', '1w': 'DAY', '1m': 'DAY', '3m': 'WEEK', '1y': 'MONTH' }
     const to = new Date()
     const from = new Date(to)
     from.setDate(from.getDate() - days[period])
-    const fmt = (d: Date) => d.toISOString().slice(0, 10)
     const res = await apiClient.get(
-      `/api/v1/courses/${id}/prices?from=${fmt(from)}&to=${fmt(to)}&interval=${interval[period]}`,
+      `/api/v1/courses/${id}/prices?from=${formatLocalDateParam(from)}&to=${formatLocalDateParam(to)}&interval=${interval[period]}`,
       priceChartSchema,
     )
-    return res.points.map((p) => ({ date: p.date, price: p.avgPrice }))
+    return {
+      interval: res.interval,
+      from: res.from,
+      to: res.to,
+      points: res.points.map((p) => ({ date: p.date, price: p.minPrice })),
+      subscriptionRequired: res.subscriptionRequired,
+    }
   },
 
   getSourceComparison(limit = 10): Promise<SourceComparisonItem[]> {

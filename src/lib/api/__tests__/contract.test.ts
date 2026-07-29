@@ -1,5 +1,5 @@
 import { ApiContractError } from '../contract'
-import { coursesApi } from '../courses'
+import { coursesApi, formatLocalDateParam } from '../courses'
 import { subscriptionApi } from '../subscription'
 
 const validDetail = {
@@ -23,6 +23,12 @@ describe('API response contract', () => {
   })
 
   afterAll(() => warn.mockRestore())
+
+  it('차트 날짜를 브라우저의 현지 날짜 기준으로 만든다', () => {
+    const localMidnight = new Date(2026, 6, 30, 0, 30)
+
+    expect(formatLocalDateParam(localMidnight)).toBe('2026-07-30')
+  })
 
   function jsonResponse(body: unknown): Response {
     return {
@@ -104,6 +110,34 @@ describe('API response contract', () => {
     await expect(coursesApi.getSourceComparison()).resolves.toEqual([
       expect.objectContaining({ region: null }),
     ])
+    expect(warn).not.toHaveBeenCalled()
+  })
+
+  it('시세 차트는 거래소 최저가와 조회 제한 상태를 유지한다', async () => {
+    global.fetch = jest.fn().mockResolvedValue(jsonResponse({
+      courseId: 1,
+      courseName: '88',
+      interval: 'DAY',
+      from: '2026-07-23',
+      to: '2026-07-30',
+      points: [{
+        date: '2026-07-30',
+        avgPrice: 300_000_000,
+        minPrice: 245_000_000,
+        maxPrice: 350_000_000,
+        count: 3,
+      }],
+      summary: null,
+      subscriptionRequired: true,
+    }))
+
+    await expect(coursesApi.getPriceHistory(1, '1y')).resolves.toEqual({
+      interval: 'DAY',
+      from: '2026-07-23',
+      to: '2026-07-30',
+      points: [{ date: '2026-07-30', price: 245_000_000 }],
+      subscriptionRequired: true,
+    })
     expect(warn).not.toHaveBeenCalled()
   })
 

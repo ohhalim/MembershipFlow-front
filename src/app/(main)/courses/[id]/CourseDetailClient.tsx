@@ -36,11 +36,17 @@ export function CourseDetailClient() {
   const { isAuthenticated, isLoading: authLoading } = useAuth()
 
   const { data: course, isLoading: courseLoading } = useCourseDetail(id)
-  const { data: history, isLoading: historyLoading } = usePriceHistory(id, period)
+  const {
+    data: priceChart,
+    isLoading: historyLoading,
+    error: historyError,
+    mutate: retryPriceHistory,
+  } = usePriceHistory(id, period)
   const { data: watchlist, add: addWatch, remove: removeWatch } = useWatchlist(isAuthenticated)
 
   const watchlistItem = watchlist?.find((w) => w.courseId === id)
   const isWatched = !!watchlistItem
+  const history = priceChart?.points
   const priceChartDomain = calculatePriceChartDomain(history)
 
   async function handleToggleWatchlist() {
@@ -128,13 +134,34 @@ export function CourseDetailClient() {
           ))}
         </div>
 
+        {priceChart?.subscriptionRequired && (
+          <p className="mb-3 rounded-lg bg-blue-50 px-3 py-2 text-xs text-blue-700">
+            무료 조회는 최근 7일 시세를 표시합니다. 전체 기간은 구독 후 확인할 수 있습니다.
+          </p>
+        )}
+
         {/* 차트 */}
         <div className="h-48 -mx-2 mb-6">
           {historyLoading ? (
             <Skeleton className="w-full h-full rounded-xl" />
+          ) : historyError ? (
+            <div role="alert" className="flex h-full flex-col items-center justify-center gap-2 text-sm text-gray-500">
+              <p>시세를 불러오지 못했습니다.</p>
+              <button
+                type="button"
+                onClick={() => retryPriceHistory()}
+                className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700"
+              >
+                다시 시도
+              </button>
+            </div>
+          ) : !history?.length ? (
+            <div className="flex h-full items-center justify-center text-sm text-gray-400">
+              선택한 기간의 시세 데이터가 없습니다.
+            </div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={history ?? []} margin={{ top: 4, right: 8, bottom: 0, left: -20 }}>
+              <LineChart data={history} margin={{ top: 4, right: 8, bottom: 0, left: -20 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis
                   dataKey="date"
@@ -160,7 +187,7 @@ export function CourseDetailClient() {
                   dataKey="price"
                   stroke="#3b82f6"
                   strokeWidth={2}
-                  dot={false}
+                  dot={history.length === 1 ? { r: 4, fill: '#3b82f6' } : false}
                   activeDot={{ r: 4 }}
                 />
               </LineChart>

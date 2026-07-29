@@ -60,7 +60,15 @@ export const courseIdPageSchema = z.object({
 })
 
 export const priceChartSchema = z.object({
-  points: z.array(z.object({ date: z.string(), avgPrice: z.number() })),
+  interval: z.string(),
+  from: z.string(),
+  to: z.string(),
+  points: z.array(z.object({
+    date: z.string(),
+    avgPrice: z.number(),
+    minPrice: z.number(),
+  })),
+  subscriptionRequired: z.boolean(),
 })
 
 export const sourceComparisonSchema = z.array(z.object({
