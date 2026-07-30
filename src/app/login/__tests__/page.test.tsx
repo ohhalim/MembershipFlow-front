@@ -17,8 +17,8 @@ describe('LoginPage', () => {
   it('서비스 소개 텍스트를 렌더링한다', () => {
     render(<LoginPage />)
     expect(screen.getByText('MembershipFlow')).toBeInTheDocument()
-    expect(screen.getByText('여러 거래소 시세를 비교해 최저가를 찾아드립니다')).toBeInTheDocument()
-    expect(screen.getByText(/8개 거래소/)).toBeInTheDocument()
+    expect(screen.getByText('8개 회원권 거래소 시세를 한눈에 비교')).toBeInTheDocument()
+    expect(screen.getByRole('main')).toHaveClass('lg:grid-cols-[1.15fr_0.85fr]')
   })
 
   it('3개 기능 아이콘을 렌더링한다', () => {
