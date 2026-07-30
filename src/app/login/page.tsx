@@ -29,32 +29,46 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col max-w-md mx-auto">
-      {/* Hero */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 pt-20 pb-10 text-center">
-        <p className="text-sm font-semibold text-blue-600 mb-1">여러 거래소 시세를 비교해 최저가를 찾아드립니다</p>
-        <p className="text-xs text-gray-400 mb-10">목표가 도달 시 즉시 알림</p>
+    <div className="min-h-screen bg-gray-50 lg:flex lg:items-center lg:justify-center lg:p-8">
+      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col overflow-hidden bg-white lg:grid lg:min-h-[680px] lg:max-w-5xl lg:grid-cols-[1.15fr_0.85fr] lg:rounded-[32px] lg:border lg:border-gray-200 lg:shadow-xl">
+        {/* Hero */}
+        <section className="flex flex-1 flex-col items-center justify-center px-6 pb-10 pt-20 text-center lg:items-start lg:bg-blue-50 lg:px-14 lg:py-16 lg:text-left">
+          <div className="lg:max-w-lg">
+            <p className="mb-2 text-sm font-semibold text-blue-600 lg:text-base">{EXCHANGE_COUNT}개 회원권 거래소 시세를 한눈에 비교</p>
+            <h1 className="mb-4 text-3xl font-extrabold text-gray-900 lg:text-5xl lg:leading-tight">MembershipFlow</h1>
+            <p className="mb-3 text-sm text-gray-500 lg:text-lg lg:leading-relaxed">
+              골프 회원권 최저가를 찾고<br className="hidden lg:block" /> 원하는 가격에 도달하면 바로 알려드려요.
+            </p>
+            <p className="mb-10 text-xs text-gray-400 lg:text-sm">여러 거래소 시세를 직접 확인하는 시간을 줄여드립니다.</p>
+          </div>
 
-        <h1 className="text-3xl font-extrabold text-gray-900 mb-2">MembershipFlow</h1>
-        <p className="text-sm text-gray-500 mb-12">골프 회원권 거래소별 시세 비교, 목표가 알림까지</p>
-
-        {/* Feature icons */}
-        <div className="flex justify-center gap-10 mb-14">
-          {FEATURES.map(({ Icon, title, desc }) => (
-            <div key={title} className="flex flex-col items-center gap-2">
-              <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center">
-                <Icon size={22} className="text-gray-600" />
+          {/* Feature icons */}
+          <div className="flex w-full justify-center gap-7 lg:justify-start lg:gap-6">
+            {FEATURES.map(({ Icon, title, desc }) => (
+              <div key={title} className="flex min-w-0 flex-1 flex-col items-center gap-2 lg:items-start">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 lg:bg-white">
+                  <Icon size={22} className="text-gray-600" />
+                </div>
+                <p className="text-xs font-semibold text-gray-700 lg:text-sm">{title}</p>
+                <p className="whitespace-pre-line text-center text-[10px] leading-relaxed text-gray-400 lg:text-left lg:text-xs">{desc}</p>
               </div>
-              <p className="text-xs font-semibold text-gray-700">{title}</p>
-              <p className="text-[10px] text-gray-400 text-center whitespace-pre-line">{desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
+            ))}
+          </div>
+        </section>
 
-      {/* Bottom CTA */}
-      <div className="px-6 pb-10 space-y-3">
-        <Button fullWidth size="lg" onClick={handleGoogleLogin} className="gap-2">
+        {/* Login CTA */}
+        <section className="px-6 pb-10 lg:flex lg:flex-col lg:justify-center lg:px-12 lg:pb-0">
+          <div className="hidden lg:block">
+            <p className="mb-2 text-sm font-semibold text-blue-600">로그인</p>
+            <h2 className="mb-3 text-2xl font-bold text-gray-900">
+              <span className="block">관심 회원권의 최저가를</span>
+              <span className="block">놓치지 마세요</span>
+            </h2>
+            <p className="mb-8 text-sm leading-relaxed text-gray-500">관심 종목과 목표가 알림을 저장하고 어느 기기에서든 이어서 확인할 수 있습니다.</p>
+          </div>
+
+          <div className="space-y-3">
+            <Button fullWidth size="lg" onClick={handleGoogleLogin} className="gap-2">
           <svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
             <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">
               <path fill="#4285F4" d="M -3.264 51.509 C -3.264 50.719 -3.334 49.969 -3.454 49.239 L -14.754 49.239 L -14.754 53.749 L -8.284 53.749 C -8.574 55.229 -9.424 56.479 -10.684 57.329 L -10.684 60.329 L -6.824 60.329 C -4.564 58.239 -3.264 55.159 -3.264 51.509 Z"/>
@@ -64,15 +78,17 @@ export default function LoginPage() {
             </g>
           </svg>
           Google로 계속하기
-        </Button>
-        <p className="text-[10px] text-center text-gray-400">
-          로그인 시{' '}
-          <Link href="/terms" className="underline hover:text-gray-600">이용약관</Link>
-          {' '}및{' '}
-          <Link href="/privacy" className="underline hover:text-gray-600">개인정보처리방침</Link>
-          에 동의합니다.
-        </p>
-      </div>
+            </Button>
+            <p className="text-center text-[10px] text-gray-400">
+              로그인 시{' '}
+              <Link href="/terms" className="underline hover:text-gray-600">이용약관</Link>
+              {' '}및{' '}
+              <Link href="/privacy" className="underline hover:text-gray-600">개인정보처리방침</Link>
+              에 동의합니다.
+            </p>
+          </div>
+        </section>
+      </main>
     </div>
   )
 }
