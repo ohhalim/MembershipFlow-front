@@ -15,28 +15,32 @@ export class ApiError extends Error {
   }
 }
 
-let isRefreshing = false
-let refreshSubscribers: Array<(ok: boolean) => void> = []
-
-function onRefreshDone(ok: boolean) {
-  refreshSubscribers.forEach(cb => cb(ok))
-  refreshSubscribers = []
+export interface RefreshResult {
+  ok: boolean
+  /** 네트워크 오류처럼 HTTP 상태를 확인할 수 없으면 null */
+  status: number | null
 }
+
+let refreshPromise: Promise<RefreshResult> | null = null
 
 /**
  * refresh_token 쿠키로 access_token 쿠키를 재발급받는다.
  * 성공 시 서버가 Set-Cookie로 새 access_token을 내려주므로 응답 본문은 쓰지 않는다.
  */
-async function tryRefresh(): Promise<boolean> {
-  try {
-    const res = await fetch(`${BASE_URL}/api/v1/auth/refresh`, {
-      method: 'POST',
-      credentials: 'include',
+export function refreshSession(): Promise<RefreshResult> {
+  if (refreshPromise) return refreshPromise
+
+  refreshPromise = fetch(`${BASE_URL}/api/v1/auth/refresh`, {
+    method: 'POST',
+    credentials: 'include',
+  })
+    .then((res) => ({ ok: res.ok, status: res.status }))
+    .catch(() => ({ ok: false, status: null }))
+    .finally(() => {
+      refreshPromise = null
     })
-    return res.ok
-  } catch {
-    return false
-  }
+
+  return refreshPromise
 }
 
 async function request<T>(
@@ -56,29 +60,24 @@ async function request<T>(
   })
 
   if (res.status === 401 && retry) {
-    if (!isRefreshing) {
-      isRefreshing = true
-      const refreshed = await tryRefresh()
-      isRefreshing = false
-      onRefreshDone(refreshed)
-
-      if (!refreshed) {
+    // 인증 상태 조회(fetchMe)와 일반 API 요청이 동시에 만료를 발견해도
+    // 하나의 refresh 요청을 공유한다. refresh token rotation으로 인해
+    // 두 번째 요청이 기존 토큰을 다시 사용하는 경쟁 상태를 방지한다.
+    const refreshed = await refreshSession()
+    if (!refreshed.ok) {
+      if (refreshed.status === 401 || refreshed.status === 403) {
         if (typeof window !== 'undefined') window.location.href = '/login'
         throw new ApiError(401, 'UNAUTHORIZED', '로그인이 필요합니다')
       }
-      return request<T>(path, init, false, schema)
+
+      throw new ApiError(
+        refreshed.status ?? 503,
+        'AUTH_REFRESH_UNAVAILABLE',
+        '로그인 상태를 확인할 수 없습니다. 잠시 후 다시 시도해주세요',
+      )
     }
 
-    // 이미 갱신 중이면 완료될 때까지 대기
-    return new Promise<T>((resolve, reject) => {
-      refreshSubscribers.push(ok => {
-        if (!ok) {
-          reject(new ApiError(401, 'UNAUTHORIZED', '로그인이 필요합니다'))
-        } else {
-          resolve(request<T>(path, init, false, schema))
-        }
-      })
-    })
+    return request<T>(path, init, false, schema)
   }
 
   if (!res.ok) {

@@ -2,6 +2,7 @@ import { renderHook, waitFor, act } from '@testing-library/react'
 import { SWRConfig } from 'swr'
 import type { ReactNode } from 'react'
 import { fetchMe, useAuth } from '../auth'
+import { ApiError, apiClient } from '../api/client'
 
 const mockFetch = jest.fn()
 const user = { id: 1, email: 'test@test.com', name: '테스터' }
@@ -60,11 +61,59 @@ describe('fetchMe', () => {
     expect(mockFetch).toHaveBeenCalledTimes(2)
   })
 
-  it('401 외의 실패는 refresh 없이 null을 반환한다', async () => {
+  it('401 외의 실패는 비로그인이 아니라 인증 서버 오류로 구분한다', async () => {
     mockFetch.mockResolvedValueOnce(response(500))
 
-    await expect(fetchMe()).resolves.toBeNull()
+    await expect(fetchMe()).rejects.toMatchObject({
+      status: 500,
+      code: 'AUTH_REQUEST_FAILED',
+    })
     expect(mockFetch).toHaveBeenCalledTimes(1)
+  })
+
+  it('refresh 5xx는 비로그인이 아니라 인증 서버 오류로 구분한다', async () => {
+    mockFetch
+      .mockResolvedValueOnce(response(401))
+      .mockResolvedValueOnce(response(503))
+
+    await expect(fetchMe()).rejects.toMatchObject({
+      status: 503,
+      code: 'AUTH_REFRESH_UNAVAILABLE',
+    })
+    expect(mockFetch).toHaveBeenCalledTimes(2)
+  })
+
+  it('fetchMe와 보호 API 요청은 동시에 만료되어도 refresh 요청 하나를 공유한다', async () => {
+    let meCalls = 0
+    let watchlistCalls = 0
+    let refreshCalls = 0
+
+    mockFetch.mockImplementation(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url === '/api/v1/auth/me') {
+        meCalls += 1
+        return response(meCalls === 1 ? 401 : 200, user)
+      }
+      if (url === '/api/v1/watchlist') {
+        watchlistCalls += 1
+        return response(watchlistCalls === 1 ? 401 : 200, [])
+      }
+      if (url === '/api/v1/auth/refresh') {
+        refreshCalls += 1
+        await new Promise((resolve) => setTimeout(resolve, 0))
+        return response(204)
+      }
+      throw new Error(`unexpected request: ${url}`)
+    })
+
+    const [me, watchlist] = await Promise.all([
+      fetchMe(),
+      apiClient.get('/api/v1/watchlist'),
+    ])
+
+    expect(me).toEqual(user)
+    expect(watchlist).toEqual([])
+    expect(refreshCalls).toBe(1)
   })
 })
 
@@ -89,6 +138,17 @@ describe('useAuth', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false))
     expect(result.current.isAuthenticated).toBe(false)
     expect(result.current.user).toBeNull()
+    expect(result.current.authStatus).toBe('anonymous')
+  })
+
+  it('인증 API 5xx이면 인증 불가 상태로 유지한다', async () => {
+    mockFetch.mockResolvedValueOnce(response(500))
+
+    const { result } = renderHook(() => useAuth(), { wrapper })
+
+    await waitFor(() => expect(result.current.authStatus).toBe('unavailable'))
+    expect(result.current.isAuthenticated).toBe(false)
+    expect(result.current.error).toBeInstanceOf(ApiError)
   })
 
   it('logout 호출 시 로그아웃 API를 호출하고 비로그인 상태가 된다', async () => {
