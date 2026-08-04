@@ -17,8 +17,21 @@ import { resolveSubscriptionCallbackUrl } from '@/lib/subscriptionUrls'
 function SubscriptionPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { data: plans, isLoading: plansLoading } = useSubscriptionPlans()
-  const { data: mySubscription, isLoading: subLoading, mutate } = useMySubscription()
+  const {
+    isAuthenticated,
+    isLoading: authLoading,
+    authStatus: rawAuthStatus,
+  } = useAuth()
+  const authStatus = rawAuthStatus ?? (
+    authLoading ? 'checking' : isAuthenticated ? 'authenticated' : 'anonymous'
+  )
+  const { data: plans, isLoading: plansLoading, error: plansError } = useSubscriptionPlans(authStatus === 'authenticated')
+  const {
+    data: mySubscription,
+    isLoading: subLoading,
+    error: subError,
+    mutate,
+  } = useMySubscription(authStatus === 'authenticated')
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(
@@ -36,11 +49,9 @@ function SubscriptionPageContent() {
       : mySubscription?.status === 'PAYMENT_FAILED' ? '결제 실패'
         : mySubscription?.status === 'SUSPENDED' ? '일시정지'
           : ''
-  const { isAuthenticated, isLoading: authLoading } = useAuth()
-
   useEffect(() => {
-    if (!authLoading && !isAuthenticated) router.replace('/')
-  }, [authLoading, isAuthenticated, router])
+    if (authStatus === 'anonymous') router.replace('/')
+  }, [authStatus, router])
 
   useEffect(() => {
     if (searchParams.get('success') === '1') {
@@ -51,7 +62,13 @@ function SubscriptionPageContent() {
     }
   }, [searchParams, mutate, router])
 
+  if (authStatus === 'checking') return null
+  if (authStatus === 'unavailable') {
+    return <p className="px-4 py-8 text-center text-sm text-gray-500">로그인 상태를 확인할 수 없어요. 잠시 후 다시 시도해주세요.</p>
+  }
   if (!isAuthenticated) return null
+
+  const subscriptionDataUnavailable = Boolean(subError || plansError)
 
   async function handleSubscribe() {
     if (!selectedPlan) return
@@ -190,13 +207,17 @@ function SubscriptionPageContent() {
           </div>
         )}
 
+        {subscriptionDataUnavailable && (
+          <p className="mb-4 text-xs text-gray-500">구독 정보를 불러오지 못했어요. 결제 상태를 확인한 뒤 다시 시도해주세요.</p>
+        )}
+
         {/* CTA */}
         {!serviceActive ? (
           <Button
             fullWidth
             size="lg"
             onClick={handleSubscribe}
-            disabled={!selectedPlan || loading}
+            disabled={!selectedPlan || loading || subscriptionDataUnavailable}
           >
             {loading ? '처리 중...' : expiredCancellation || !mySubscription ? '결제 카드 등록하기' : '다시 구독하기'}
           </Button>

@@ -18,8 +18,17 @@ const STATUS_LABEL: Record<string, { label: string; variant: 'green' | 'gray' | 
 }
 
 export default function MyPage() {
-  const { data: subscription, isLoading } = useMySubscription()
-  const { isAuthenticated, isLoading: authLoading, logout } = useAuth()
+  const {
+    isAuthenticated,
+    isLoading: authLoading,
+    authStatus: rawAuthStatus,
+    logout,
+  } = useAuth()
+  // 기존 useAuth 모킹/호출부와의 호환성을 위해 authStatus가 없는 경우를 보정한다.
+  const authStatus = rawAuthStatus ?? (
+    authLoading ? 'checking' : isAuthenticated ? 'authenticated' : 'anonymous'
+  )
+  const { data: subscription, isLoading } = useMySubscription(authStatus === 'authenticated')
   const router = useRouter()
   const cancelled = subscription?.status === 'CANCELLED'
   const expiredCancellation = cancelled && !subscription.serviceActive
@@ -32,9 +41,13 @@ export default function MyPage() {
   const subscriptionDate = cancelled ? subscription?.serviceEndsAt : subscription?.nextBillingAt
 
   useEffect(() => {
-    if (!authLoading && !isAuthenticated) router.replace('/')
-  }, [authLoading, isAuthenticated, router])
+    if (authStatus === 'anonymous') router.replace('/')
+  }, [authStatus, router])
 
+  if (authStatus === 'checking') return null
+  if (authStatus === 'unavailable') {
+    return <p className="px-4 py-8 text-center text-sm text-gray-500">로그인 상태를 확인할 수 없어요. 잠시 후 다시 시도해주세요.</p>
+  }
   if (!isAuthenticated) return null
 
   async function handleLogout() {
