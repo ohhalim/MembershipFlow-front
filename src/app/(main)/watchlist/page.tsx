@@ -15,14 +15,25 @@ import { courseDisplayTitle } from '@/lib/courseDisplay'
 
 export default function WatchlistPage() {
   const router = useRouter()
-  const { data: items, isLoading, update, remove } = useWatchlist()
-  const { isAuthenticated, isLoading: authLoading } = useAuth()
+  const {
+    isAuthenticated,
+    isLoading: authLoading,
+    authStatus: rawAuthStatus,
+  } = useAuth()
+  const authStatus = rawAuthStatus ?? (
+    authLoading ? 'checking' : isAuthenticated ? 'authenticated' : 'anonymous'
+  )
+  const { data: items, isLoading, update, remove } = useWatchlist(authStatus === 'authenticated')
   const [deletingId, setDeletingId] = useState<number | null>(null)
 
   useEffect(() => {
-    if (!authLoading && !isAuthenticated) router.replace('/')
-  }, [authLoading, isAuthenticated, router])
+    if (authStatus === 'anonymous') router.replace('/')
+  }, [authStatus, router])
 
+  if (authStatus === 'checking') return null
+  if (authStatus === 'unavailable') {
+    return <p className="px-4 py-8 text-center text-sm text-gray-500">로그인 상태를 확인할 수 없어요. 잠시 후 다시 시도해주세요.</p>
+  }
   if (!isAuthenticated) return null
 
   async function handleToggleAlert(id: number, current: boolean, targetPrice: number | null) {

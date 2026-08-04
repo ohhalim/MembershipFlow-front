@@ -3,6 +3,7 @@
 import { useCallback } from 'react'
 import useSWR from 'swr'
 import { parseApiResponse } from '@/lib/api/contract'
+import { ApiError, refreshSession } from '@/lib/api/client'
 import { authUserSchema } from '@/lib/api/schemas'
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? ''
@@ -18,6 +19,23 @@ export interface AuthUser {
   name: string
 }
 
+export type AuthStatus = 'checking' | 'authenticated' | 'anonymous' | 'unavailable'
+
+async function throwAuthResponseError(res: Response, path: string): Promise<never> {
+  const body = await res.json().catch(() => null) as { code?: unknown; message?: unknown } | null
+  const code = typeof body?.code === 'string' ? body.code : 'AUTH_REQUEST_FAILED'
+  const message = typeof body?.message === 'string' ? body.message : `인증 요청에 실패했습니다 (${res.status})`
+  throw new ApiError(res.status, code, `${path}: ${message}`)
+}
+
+function throwRefreshUnavailable(status: number | null): never {
+  throw new ApiError(
+    status ?? 503,
+    'AUTH_REFRESH_UNAVAILABLE',
+    '로그인 상태를 확인할 수 없습니다. 잠시 후 다시 시도해주세요',
+  )
+}
+
 /**
  * HttpOnly access_token 쿠키로 현재 로그인 사용자를 조회한다. 미로그인이면 null.
  *
@@ -31,26 +49,31 @@ export async function fetchMe(): Promise<AuthUser | null> {
 
   const res = await fetch(`${BASE_URL}${AUTH_ME_KEY}`, { credentials: 'include' })
   if (res.ok) return parseApiResponse(await res.json(), authUserSchema, AUTH_ME_KEY)
-  if (res.status !== 401) return null
+  if (res.status !== 401) return throwAuthResponseError(res, AUTH_ME_KEY)
 
-  const refreshed = await fetch(`${BASE_URL}/api/v1/auth/refresh`, {
-    method: 'POST',
-    credentials: 'include',
-  })
-  if (!refreshed.ok) return null
+  const refreshed = await refreshSession()
+  if (!refreshed.ok) {
+    // refresh 401/403은 정상적인 비로그인 상태이고, 그 외에는 인증 서버 장애다.
+    if (refreshed.status === 401 || refreshed.status === 403) return null
+    return throwRefreshUnavailable(refreshed.status)
+  }
 
   const retry = await fetch(`${BASE_URL}${AUTH_ME_KEY}`, { credentials: 'include' })
-  return retry.ok
-    ? parseApiResponse(await retry.json(), authUserSchema, AUTH_ME_KEY)
-    : null
+  if (retry.ok) return parseApiResponse(await retry.json(), authUserSchema, AUTH_ME_KEY)
+  if (retry.status === 401) return null
+  return throwAuthResponseError(retry, AUTH_ME_KEY)
 }
 
-interface UseAuthResult {
+export interface UseAuthResult {
   user: AuthUser | null
   /** 로그인 여부 — isLoading 동안은 false */
   isAuthenticated: boolean
   /** 최초 사용자 조회가 끝나기 전까지 true */
   isLoading: boolean
+  /** 인증 확인 상태 — 서버 장애(unavailable)와 비로그인(anonymous)을 구분한다. */
+  authStatus: AuthStatus
+  /** 인증 조회 또는 갱신이 실패한 원인 */
+  error?: unknown
   /** 서버 세션(쿠키) 종료 후 클라이언트 인증 상태를 비운다 */
   logout: () => Promise<void>
 }
@@ -60,25 +83,35 @@ interface UseAuthResult {
  * 쿠키는 JS로 읽을 수 없으므로 /api/v1/auth/me 호출 성공 여부로 판정한다 (fe#49/fe#50).
  */
 export function useAuth(): UseAuthResult {
-  const { data, isLoading, mutate } = useSWR<AuthUser | null>(AUTH_ME_KEY, fetchMe, {
+  const { data, error, isLoading, mutate } = useSWR<AuthUser | null>(AUTH_ME_KEY, fetchMe, {
     revalidateOnFocus: false,
   })
 
   const logout = useCallback(async () => {
-    try {
-      await fetch(`${BASE_URL}/api/v1/auth/logout`, {
-        method: 'POST',
-        credentials: 'include',
-      })
-    } finally {
-      await mutate(null, false)
+    const res = await fetch(`${BASE_URL}/api/v1/auth/logout`, {
+      method: 'POST',
+      credentials: 'include',
+    })
+    if (!res.ok && res.status !== 401) {
+      return throwAuthResponseError(res, '/api/v1/auth/logout')
     }
+    await mutate(null, false)
   }, [mutate])
+
+  const authStatus: AuthStatus = isLoading
+    ? 'checking'
+    : error
+      ? 'unavailable'
+      : data
+        ? 'authenticated'
+        : 'anonymous'
 
   return {
     user: data ?? null,
     isAuthenticated: !!data,
     isLoading,
+    authStatus,
+    error,
     logout,
   }
 }
