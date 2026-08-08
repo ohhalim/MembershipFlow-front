@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { Home, BarChart2, Heart, User } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { NotificationBell } from '@/components/notifications/NotificationBell'
+import { ProtectedNavLink } from './AccessGate'
 
 const TABS = [
   { href: '/home',      label: '홈',   Icon: Home },
@@ -28,6 +29,45 @@ export function SideNav() {
       <nav className="flex flex-col gap-0.5">
         {TABS.map(({ href, label, Icon }) => {
           const active = pathname === href
+          if (href === '/watchlist') {
+            return (
+              <ProtectedNavLink
+                key={href}
+                href={href}
+                label={label}
+                active={active}
+                requiresSubscription
+                className={cn(
+                  'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors',
+                  active
+                    ? 'bg-blue-50 text-blue-600'
+                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800',
+                )}
+              >
+                <Icon size={18} />
+                {label}
+              </ProtectedNavLink>
+            )
+          }
+          if (href === '/my') {
+            return (
+              <ProtectedNavLink
+                key={href}
+                href={href}
+                label={label}
+                active={active}
+                className={cn(
+                  'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors',
+                  active
+                    ? 'bg-blue-50 text-blue-600'
+                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800',
+                )}
+              >
+                <Icon size={18} />
+                {label}
+              </ProtectedNavLink>
+            )
+          }
           return (
             <Link
               key={href}
