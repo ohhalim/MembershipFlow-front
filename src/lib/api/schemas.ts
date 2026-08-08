@@ -133,6 +133,7 @@ export const subscriptionPlanSchema = z.object({
   code: z.string(),
   name: z.string(),
   price: z.number(),
+  billingCycle: z.enum(['MONTHLY', 'ANNUAL']),
   description: z.string(),
 })
 
@@ -149,6 +150,7 @@ export const mySubscriptionSchema = z.object({
     code: z.string(),
     name: z.string(),
     price: z.number(),
+    billingCycle: z.enum(['MONTHLY', 'ANNUAL']),
   }),
   status: z.enum(['ACTIVE', 'CANCELLED', 'SUSPENDED', 'PAYMENT_FAILED']),
   serviceActive: z.boolean(),

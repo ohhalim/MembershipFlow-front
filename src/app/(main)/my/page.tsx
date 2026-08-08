@@ -6,7 +6,7 @@ import { Header } from '@/components/layout/Header'
 import { Badge } from '@/components/ui/Badge'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { useMySubscription } from '@/lib/hooks/useSubscription'
-import { formatPrice } from '@/lib/utils'
+import { billingCycleUnit, formatPrice } from '@/lib/utils'
 import { useAuth } from '@/lib/auth'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
@@ -82,7 +82,7 @@ export default function MyPage() {
                   </Badge>
                 </div>
                 <p className="text-xs text-gray-500 mb-3">
-                  {formatPrice(subscription.plan.price)} / 월
+                  {formatPrice(subscription.plan.price)} / {billingCycleUnit(subscription.plan.billingCycle)}
                 </p>
                 {subscription.cardCompany && (
                   <div className="flex items-center gap-2 bg-gray-50 rounded-xl px-3 py-2 mb-3">

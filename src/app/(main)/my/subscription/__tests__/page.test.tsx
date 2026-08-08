@@ -33,8 +33,8 @@ jest.mock('@/lib/hooks/useSubscription', () => ({
 }))
 
 const mockPlans = [
-  { id: 1, code: 'BASIC', name: '베이직', price: 9900, description: '기본 기능' },
-  { id: 2, code: 'PRO', name: '프로', price: 19900, description: '모든 기능' },
+  { id: 1, code: 'MONTHLY', name: '월간 구독', price: 10000, billingCycle: 'MONTHLY', description: '기본 기능' },
+  { id: 2, code: 'ANNUAL', name: '연간 구독', price: 90000, billingCycle: 'ANNUAL', description: '모든 기능' },
 ]
 
 describe('SubscriptionPage', () => {
@@ -46,13 +46,17 @@ describe('SubscriptionPage', () => {
 
   it('플랜 목록을 렌더링한다', () => {
     render(<SubscriptionPage />)
-    expect(screen.getByText('베이직')).toBeInTheDocument()
-    expect(screen.getByText('프로')).toBeInTheDocument()
+    expect(screen.getByText('월간 구독')).toBeInTheDocument()
+    expect(screen.getByText('연간 구독')).toBeInTheDocument()
+    expect(screen.getByText('1만원')).toBeInTheDocument()
+    expect(screen.getByText('9만원')).toBeInTheDocument()
+    expect(screen.getByText('/ 월')).toBeInTheDocument()
+    expect(screen.getByText('/ 년')).toBeInTheDocument()
   })
 
   it('플랜 선택 시 선택됨 표시', () => {
     render(<SubscriptionPage />)
-    fireEvent.click(screen.getByRole('button', { name: /베이직/ }))
+    fireEvent.click(screen.getByRole('button', { name: /월간 구독/ }))
     expect(screen.getByText('선택됨')).toBeInTheDocument()
   })
 
@@ -63,7 +67,7 @@ describe('SubscriptionPage', () => {
 
   it('플랜 선택 후 결제 버튼 활성화', () => {
     render(<SubscriptionPage />)
-    fireEvent.click(screen.getByText('베이직'))
+    fireEvent.click(screen.getByText('월간 구독'))
     expect(screen.getByRole('button', { name: '결제 카드 등록하기' })).not.toBeDisabled()
   })
 
@@ -71,7 +75,7 @@ describe('SubscriptionPage', () => {
     mockUseMySub.mockReturnValue({
       data: {
         id: 1,
-        plan: { id: 1, code: 'BASIC', name: '베이직', price: 9900 },
+        plan: { id: 1, code: 'MONTHLY', name: '월간 구독', price: 10000, billingCycle: 'MONTHLY' },
         status: 'ACTIVE',
         serviceActive: true,
         serviceEndsAt: null,
@@ -90,7 +94,7 @@ describe('SubscriptionPage', () => {
     mockUseMySub.mockReturnValue({
       data: {
         id: 1,
-        plan: { id: 1, code: 'BASIC', name: '베이직', price: 9900 },
+        plan: { id: 1, code: 'MONTHLY', name: '월간 구독', price: 10000, billingCycle: 'MONTHLY' },
         status: 'CANCELLED',
         serviceActive: false,
         serviceEndsAt: '2026-07-25T00:00:00',
@@ -109,7 +113,7 @@ describe('SubscriptionPage', () => {
     expect(screen.queryByText(/이용 종료일: 2026-07-25/)).not.toBeInTheDocument()
     expect(screen.getByText('플랜 선택')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '결제 카드 등록하기' })).toBeDisabled()
-    fireEvent.click(screen.getByRole('button', { name: /베이직/ }))
+    fireEvent.click(screen.getByRole('button', { name: /월간 구독/ }))
     expect(screen.getByRole('button', { name: '결제 카드 등록하기' })).not.toBeDisabled()
   })
 
@@ -117,7 +121,7 @@ describe('SubscriptionPage', () => {
     mockUseMySub.mockReturnValue({
       data: {
         id: 1,
-        plan: { id: 1, code: 'BASIC', name: '베이직', price: 9900 },
+        plan: { id: 1, code: 'MONTHLY', name: '월간 구독', price: 10000, billingCycle: 'MONTHLY' },
         status: 'CANCELLED',
         serviceActive: true,
         serviceEndsAt: '2026-08-25T00:00:00',

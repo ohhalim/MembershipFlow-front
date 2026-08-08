@@ -10,7 +10,7 @@ import { Skeleton } from '@/components/ui/Skeleton'
 import { cn } from '@/lib/cn'
 import { useSubscriptionPlans, useMySubscription } from '@/lib/hooks/useSubscription'
 import { subscriptionApi } from '@/lib/api/subscription'
-import { formatPrice } from '@/lib/utils'
+import { billingCycleUnit, formatPrice } from '@/lib/utils'
 import type { SubscriptionPlan } from '@/lib/types'
 import { resolveSubscriptionCallbackUrl } from '@/lib/subscriptionUrls'
 
@@ -134,7 +134,7 @@ function SubscriptionPageContent() {
             </p>
             <p className="text-sm font-bold text-gray-900">{mySubscription.plan.name}</p>
             <p className="text-xs text-gray-500 mt-0.5">
-              {formatPrice(mySubscription.plan.price)} / 월
+              {formatPrice(mySubscription.plan.price)} / {billingCycleUnit(mySubscription.plan.billingCycle)}
               {cancelled && mySubscription.serviceEndsAt
                 ? ` · 이용 종료일: ${mySubscription.serviceEndsAt.slice(0, 10)}`
                 : mySubscription.nextBillingAt
@@ -185,7 +185,7 @@ function SubscriptionPageContent() {
                     </div>
                     <div className="text-right ml-3">
                       <p className="text-sm font-bold text-gray-900">{formatPrice(plan.price)}</p>
-                      <p className="text-[10px] text-gray-400">/ 월</p>
+                      <p className="text-[10px] text-gray-400">/ {billingCycleUnit(plan.billingCycle)}</p>
                     </div>
                   </div>
                   {isSelected && !isCurrent && (
