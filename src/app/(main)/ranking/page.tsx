@@ -17,7 +17,6 @@ const TYPES: { label: string; value: RankingType; Icon: typeof TrendingUp }[] = 
 ]
 
 const PERIODS: { label: string; value: RankingPeriod }[] = [
-  { label: '1일', value: 1 },
   { label: '7일', value: 7 },
   { label: '30일', value: 30 },
   { label: '90일', value: 90 },
@@ -25,7 +24,7 @@ const PERIODS: { label: string; value: RankingPeriod }[] = [
 
 export default function RankingPage() {
   const [type, setType] = useState<RankingType>('rise')
-  const [period, setPeriod] = useState<RankingPeriod>(1)
+  const [period, setPeriod] = useState<RankingPeriod>(7)
 
   const { items: ranking, isLoading, isLoadingMore, hasMore, loadMore } = useRankingInfinite(type, period)
 

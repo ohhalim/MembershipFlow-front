@@ -40,8 +40,11 @@ describe('RankingPage', () => {
 
   it('기간 탭을 렌더링한다', () => {
     render(<RankingPage />)
-    expect(screen.getByRole('button', { name: '1일' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '1일' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '7일' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '30일' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '90일' })).toBeInTheDocument()
+    expect(mockUseRankingInfinite).toHaveBeenCalledWith('rise', 7)
   })
 
   it('하락 탭 클릭 시 활성화된다', () => {
