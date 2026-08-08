@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { Home, BarChart2, Heart, User } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { NotificationBell } from '@/components/notifications/NotificationBell'
+import { ProtectedNavLink } from './AccessGate'
 
 const TABS = [
   { href: '/home',      label: '홈',   Icon: Home },
@@ -23,16 +24,45 @@ export function BottomTabBar() {
           const active = pathname === href
           return (
             <li key={href} className="flex-1">
-              <Link
-                href={href}
-                className={cn(
-                  'flex flex-col items-center gap-0.5 py-2.5 text-xs font-medium transition-colors',
-                  active ? 'text-blue-500' : 'text-gray-400 hover:text-gray-600',
-                )}
-              >
-                <Icon size={22} />
-                {label}
-              </Link>
+              {href === '/watchlist' ? (
+                <ProtectedNavLink
+                  href={href}
+                  label={label}
+                  active={active}
+                  requiresSubscription
+                  className={cn(
+                    'flex flex-col items-center gap-0.5 py-2.5 text-xs font-medium transition-colors',
+                    active ? 'text-blue-500' : 'text-gray-400 hover:text-gray-600',
+                  )}
+                >
+                  <Icon size={22} />
+                  {label}
+                </ProtectedNavLink>
+              ) : href === '/my' ? (
+                <ProtectedNavLink
+                  href={href}
+                  label={label}
+                  active={active}
+                  className={cn(
+                    'flex flex-col items-center gap-0.5 py-2.5 text-xs font-medium transition-colors',
+                    active ? 'text-blue-500' : 'text-gray-400 hover:text-gray-600',
+                  )}
+                >
+                  <Icon size={22} />
+                  {label}
+                </ProtectedNavLink>
+              ) : (
+                <Link
+                  href={href}
+                  className={cn(
+                    'flex flex-col items-center gap-0.5 py-2.5 text-xs font-medium transition-colors',
+                    active ? 'text-blue-500' : 'text-gray-400 hover:text-gray-600',
+                  )}
+                >
+                  <Icon size={22} />
+                  {label}
+                </Link>
+              )}
             </li>
           )
         })}

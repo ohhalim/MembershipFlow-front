@@ -12,6 +12,21 @@ jest.mock('../AlertContext', () => ({
   useAlertContext: () => mockUseAlertContext(),
 }))
 
+const mockUseAuth = jest.fn()
+jest.mock('@/lib/auth', () => ({
+  useAuth: () => mockUseAuth(),
+}))
+
+const mockUseSubscription = jest.fn()
+jest.mock('@/lib/hooks/useSubscription', () => ({
+  useMySubscription: (...args: unknown[]) => mockUseSubscription(...args),
+}))
+
+const mockShowAccessNotice = jest.fn()
+jest.mock('@/components/layout/AccessGate', () => ({
+  useAccessGate: () => ({ showAccessNotice: mockShowAccessNotice }),
+}))
+
 const alerts = [
   {
     id: 1, courseId: 10, courseName: '서울 CC', triggeredPrice: 230_000_000,
@@ -26,6 +41,13 @@ describe('NotificationBell', () => {
     mockUseAlertContext.mockReturnValue({
       alerts, unreadCount: 1, isLoading: false, markRead: mockMarkRead,
     })
+    mockUseAuth.mockReturnValue({
+      authStatus: 'authenticated', isAuthenticated: true,
+    })
+    mockUseSubscription.mockReturnValue({
+      data: { serviceActive: true }, isLoading: false,
+    })
+    mockShowAccessNotice.mockReset()
   })
 
   it('안읽은 개수 뱃지를 표시한다', () => {
@@ -78,5 +100,25 @@ describe('NotificationBell', () => {
 
     await waitFor(() => expect(mockPush).toHaveBeenCalledWith('/courses/10'))
     expect(mockMarkRead).not.toHaveBeenCalled()
+  })
+
+  it('비로그인 상태에서 알림을 열면 로그인 안내를 표시한다', () => {
+    mockUseAuth.mockReturnValue({ authStatus: 'anonymous', isAuthenticated: false })
+
+    render(<NotificationBell />)
+    fireEvent.click(screen.getByLabelText('알림'))
+
+    expect(mockShowAccessNotice).toHaveBeenCalledWith('login')
+    expect(screen.queryByText('서울 CC')).not.toBeInTheDocument()
+  })
+
+  it('로그인했지만 구독하지 않은 상태에서 알림을 열면 구독 안내를 표시한다', () => {
+    mockUseSubscription.mockReturnValue({ data: null, isLoading: false })
+
+    render(<NotificationBell />)
+    fireEvent.click(screen.getByLabelText('알림'))
+
+    expect(mockShowAccessNotice).toHaveBeenCalledWith('subscription')
+    expect(screen.queryByText('서울 CC')).not.toBeInTheDocument()
   })
 })

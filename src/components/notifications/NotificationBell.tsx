@@ -8,6 +8,9 @@ import { formatPrice } from '@/lib/utils'
 import { courseDisplayTitle } from '@/lib/courseDisplay'
 import { useAlertContext } from './AlertContext'
 import type { Alert } from '@/lib/types'
+import { useAuth } from '@/lib/auth'
+import { useMySubscription } from '@/lib/hooks/useSubscription'
+import { useAccessGate } from '@/components/layout/AccessGate'
 
 interface NotificationBellProps {
   /** sidenav: 데스크톱 사이드바용 아이콘 버튼 / bottombar: 모바일 하단 탭바용 아이콘+라벨 버튼 */
@@ -16,6 +19,11 @@ interface NotificationBellProps {
 
 export function NotificationBell({ variant = 'sidenav' }: NotificationBellProps) {
   const { alerts, unreadCount, markRead } = useAlertContext()
+  const { authStatus, isAuthenticated } = useAuth()
+  const { data: subscription, isLoading: subscriptionLoading } = useMySubscription(
+    authStatus === 'authenticated',
+  )
+  const { showAccessNotice } = useAccessGate()
   const router = useRouter()
   const [open, setOpen] = useState(false)
 
@@ -27,11 +35,25 @@ export function NotificationBell({ variant = 'sidenav' }: NotificationBellProps)
     router.push(`/courses/${alert.courseId}`)
   }
 
+  function handleOpen() {
+    if (authStatus === 'checking') return
+    if (authStatus === 'unavailable' || !isAuthenticated) {
+      showAccessNotice('login')
+      return
+    }
+    if (subscriptionLoading) return
+    if (!subscription?.serviceActive) {
+      showAccessNotice('subscription')
+      return
+    }
+    setOpen((prev) => !prev)
+  }
+
   return (
     <div className={cn('relative', variant === 'sidenav' && 'w-full')}>
       <button
         type="button"
-        onClick={() => setOpen((prev) => !prev)}
+        onClick={handleOpen}
         aria-label="알림"
         className={cn(
           'transition-colors',

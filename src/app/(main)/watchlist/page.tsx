@@ -12,6 +12,8 @@ import { cn } from '@/lib/cn'
 import { useWatchlist } from '@/lib/hooks/useWatchlist'
 import { formatPrice, formatPriceCompact, priceGap, changeRateColor } from '@/lib/utils'
 import { courseDisplayTitle } from '@/lib/courseDisplay'
+import { AccessRequirementState } from '@/components/layout/AccessGate'
+import { useMySubscription } from '@/lib/hooks/useSubscription'
 
 export default function WatchlistPage() {
   const router = useRouter()
@@ -23,7 +25,13 @@ export default function WatchlistPage() {
   const authStatus = rawAuthStatus ?? (
     authLoading ? 'checking' : isAuthenticated ? 'authenticated' : 'anonymous'
   )
-  const { data: items, isLoading, update, remove } = useWatchlist(authStatus === 'authenticated')
+  const { data: subscription, isLoading: subscriptionLoading } = useMySubscription(
+    authStatus === 'authenticated',
+  )
+  const hasSubscription = subscription?.serviceActive === true
+  const { data: items, isLoading, update, remove } = useWatchlist(
+    authStatus === 'authenticated' && !subscriptionLoading && hasSubscription,
+  )
   const [deletingId, setDeletingId] = useState<number | null>(null)
 
   useEffect(() => {
@@ -35,6 +43,8 @@ export default function WatchlistPage() {
     return <p className="px-4 py-8 text-center text-sm text-gray-500">로그인 상태를 확인할 수 없어요. 잠시 후 다시 시도해주세요.</p>
   }
   if (!isAuthenticated) return null
+  if (subscriptionLoading) return <p className="px-4 py-12 text-center text-sm text-gray-500">구독 상태를 확인하고 있어요.</p>
+  if (!hasSubscription) return <AccessRequirementState requirement="subscription" />
 
   async function handleToggleAlert(id: number, current: boolean, targetPrice: number | null) {
     await update(id, { alertYn: !current, targetPrice })
