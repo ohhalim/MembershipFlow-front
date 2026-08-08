@@ -2,13 +2,9 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import WatchlistPage from '../page'
 
 jest.mock('next/navigation', () => ({ useRouter: () => ({ push: jest.fn(), replace: jest.fn() }) }))
+const mockUseAuth = jest.fn()
 jest.mock('@/lib/auth', () => ({
-  useAuth: () => ({
-    user: { id: 1, email: 'test@test.com', name: '테스터' },
-    isAuthenticated: true,
-    isLoading: false,
-    logout: jest.fn(),
-  }),
+  useAuth: () => mockUseAuth(),
 }))
 
 const mockUpdate = jest.fn()
@@ -17,6 +13,11 @@ const mockUseWatchlist = jest.fn()
 
 jest.mock('@/lib/hooks/useWatchlist', () => ({
   useWatchlist: () => mockUseWatchlist(),
+}))
+
+const mockUseSubscription = jest.fn()
+jest.mock('@/lib/hooks/useSubscription', () => ({
+  useMySubscription: () => mockUseSubscription(),
 }))
 
 const mockItems = [
@@ -32,6 +33,14 @@ const mockItems = [
 
 describe('WatchlistPage', () => {
   beforeEach(() => {
+    mockUseAuth.mockReturnValue({
+      user: { id: 1, email: 'test@test.com', name: '테스터' },
+      isAuthenticated: true,
+      isLoading: false,
+      authStatus: 'authenticated',
+      logout: jest.fn(),
+    })
+    mockUseSubscription.mockReturnValue({ data: { serviceActive: true }, isLoading: false })
     mockUpdate.mockResolvedValue({})
     mockRemove.mockResolvedValue(undefined)
     mockUseWatchlist.mockReturnValue({
@@ -92,5 +101,15 @@ describe('WatchlistPage', () => {
     })
     const { container } = render(<WatchlistPage />)
     expect(container.querySelectorAll('.animate-pulse').length).toBeGreaterThan(0)
+  })
+
+  it('로그인했지만 구독하지 않은 사용자는 관심 목록에 들어갈 수 없다', () => {
+    mockUseSubscription.mockReturnValue({ data: null, isLoading: false })
+
+    render(<WatchlistPage />)
+
+    expect(screen.getByText('구독이 필요해요')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: '구독하기' })).toHaveAttribute('href', '/my/subscription')
+    expect(screen.queryByText('서울 CC')).not.toBeInTheDocument()
   })
 })
