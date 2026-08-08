@@ -41,7 +41,7 @@ describe('MyPage', () => {
     mockUseMySubscription.mockReturnValue({
       data: {
         id: 1,
-        plan: { id: 1, code: 'BASIC', name: '베이직', price: 9900 },
+        plan: { id: 1, code: 'MONTHLY', name: '월간 구독', price: 10000, billingCycle: 'MONTHLY' },
         status: 'ACTIVE',
         serviceActive: true,
         serviceEndsAt: null,
@@ -53,7 +53,7 @@ describe('MyPage', () => {
       isLoading: false,
     })
     render(<MyPage />)
-    expect(screen.getByText('베이직')).toBeInTheDocument()
+    expect(screen.getByText('월간 구독')).toBeInTheDocument()
     expect(screen.getByText('구독 중')).toBeInTheDocument()
     expect(screen.getByText('신한 **** 1234')).toBeInTheDocument()
   })
@@ -62,7 +62,7 @@ describe('MyPage', () => {
     mockUseMySubscription.mockReturnValue({
       data: {
         id: 1,
-        plan: { id: 1, code: 'BASIC', name: '베이직', price: 9900 },
+        plan: { id: 1, code: 'MONTHLY', name: '월간 구독', price: 10000, billingCycle: 'MONTHLY' },
         status: 'CANCELLED',
         serviceActive: false,
         serviceEndsAt: '2026-07-25T00:00:00',
@@ -79,7 +79,7 @@ describe('MyPage', () => {
     expect(screen.getByText('구독 플랜 없음')).toBeInTheDocument()
     expect(screen.queryByText('해지 완료')).not.toBeInTheDocument()
     expect(screen.queryByText('이용 종료일: 2026-07-25')).not.toBeInTheDocument()
-    expect(screen.queryByText('베이직')).not.toBeInTheDocument()
+    expect(screen.queryByText('월간 구독')).not.toBeInTheDocument()
     expect(screen.queryByText(/다음 결제일/)).not.toBeInTheDocument()
   })
 
@@ -87,7 +87,7 @@ describe('MyPage', () => {
     mockUseMySubscription.mockReturnValue({
       data: {
         id: 1,
-        plan: { id: 1, code: 'BASIC', name: '베이직', price: 9900 },
+        plan: { id: 1, code: 'MONTHLY', name: '월간 구독', price: 10000, billingCycle: 'MONTHLY' },
         status: 'CANCELLED',
         serviceActive: true,
         serviceEndsAt: '2026-08-25T00:00:00',

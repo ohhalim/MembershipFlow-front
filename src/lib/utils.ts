@@ -1,3 +1,5 @@
+import type { BillingCycle } from '@/lib/types'
+
 const STALE_THRESHOLD_DAYS = 14
 
 /**
@@ -36,6 +38,10 @@ export function formatPrice(price: number): string {
   if (eok > 0 && manwon > 0) return `${eok}억 ${manwon.toLocaleString()}만원`
   if (eok > 0) return `${eok}억`
   return `${manwon.toLocaleString()}만원`
+}
+
+export function billingCycleUnit(billingCycle: BillingCycle): '월' | '년' {
+  return billingCycle === 'ANNUAL' ? '년' : '월'
 }
 
 /**

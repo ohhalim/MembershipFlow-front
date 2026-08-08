@@ -144,7 +144,13 @@ describe('API response contract', () => {
   it('종료된 취소 구독의 서비스 상태와 종료일을 파싱한다', async () => {
     const expiredSubscription = {
       id: 1,
-      plan: { id: 1, code: 'INDIVIDUAL', name: '개인 구독', price: 49_000 },
+      plan: {
+        id: 1,
+        code: 'INDIVIDUAL',
+        name: '개인 구독',
+        price: 49_000,
+        billingCycle: 'MONTHLY',
+      },
       status: 'CANCELLED',
       serviceActive: false,
       serviceEndsAt: '2026-07-25T00:00:00',

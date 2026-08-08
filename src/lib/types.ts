@@ -76,7 +76,7 @@ export interface PriceChartData {
 // ─── Ranking ─────────────────────────────────────────────────────────────────
 
 export type RankingType = 'rise' | 'fall'
-export type RankingPeriod = 1 | 7 | 30 | 90
+export type RankingPeriod = 7 | 30 | 90
 
 export interface RankingItem {
   rank: number
@@ -132,11 +132,14 @@ export interface WatchlistUpdateRequest {
 
 // ─── Subscription ─────────────────────────────────────────────────────────────
 
+export type BillingCycle = 'MONTHLY' | 'ANNUAL'
+
 export interface SubscriptionPlan {
   id: number
   code: string
   name: string
   price: number
+  billingCycle: BillingCycle
   description: string
 }
 
@@ -148,7 +151,7 @@ export interface BillingPrepareResponse {
 
 export interface MySubscription {
   id: number
-  plan: { id: number; code: string; name: string; price: number }
+  plan: { id: number; code: string; name: string; price: number; billingCycle: BillingCycle }
   status: 'ACTIVE' | 'CANCELLED' | 'SUSPENDED' | 'PAYMENT_FAILED'
   serviceActive: boolean
   serviceEndsAt: string | null
