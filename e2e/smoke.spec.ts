@@ -96,6 +96,13 @@ async function mockApi(page: Page, authenticated = true) {
       await route.fulfill({ json: [] })
       return
     }
+    if (path === '/api/v1/subscriptions/plans') {
+      await route.fulfill({ json: [
+        { id: 1, code: 'MONTHLY', name: '월간 구독', price: 10_000, billingCycle: 'MONTHLY', description: '월간 상품' },
+        { id: 2, code: 'ANNUAL', name: '연간 구독', price: 90_000, billingCycle: 'ANNUAL', description: '연간 상품' },
+      ] })
+      return
+    }
 
     await route.fulfill({ status: 404, json: { code: 'NOT_FOUND', message: 'mock 없음' } })
   })
@@ -125,4 +132,16 @@ test('로그인 페이지에서 Google 로그인 진입점을 표시한다', asy
 
   await expect(page.getByRole('heading', { name: 'MembershipFlow' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Google로 계속하기' })).toBeVisible()
+})
+
+test('미로그인 사용자에게 구독 상품과 결제 조건을 공개한다', async ({ page }) => {
+  await mockApi(page, false)
+  await page.goto('/pricing')
+
+  await expect(page.getByText('월간 구독')).toBeVisible()
+  await expect(page.getByText('연간 구독')).toBeVisible()
+  await expect(page.getByText('1만원')).toBeVisible()
+  await expect(page.getByText('9만원')).toBeVisible()
+  await expect(page.getByText(/다음 결제일 전까지 언제든 해지/)).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Google 로그인 후 구독하기' })).toBeVisible()
 })
