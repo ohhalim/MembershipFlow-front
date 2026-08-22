@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 import { useAuth } from '@/lib/auth'
 import { Check, ChevronLeft, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
@@ -14,10 +15,28 @@ import { billingCycleUnit, formatPrice } from '@/lib/utils'
 import type { SubscriptionPlan } from '@/lib/types'
 import { resolveSubscriptionCallbackUrl } from '@/lib/subscriptionUrls'
 
+const PAYMENT_ERROR_MESSAGES: Record<string, string> = {
+  PAY_PROCESS_CANCELED: '카드 등록을 취소했어요.',
+  PAY_PROCESS_ABORTED: '카드 인증을 완료하지 못했어요. 입력 정보를 확인해주세요.',
+  REJECT_CARD_COMPANY: '카드사에서 등록을 거절했어요. 카드사 또는 다른 카드를 확인해주세요.',
+  BILLING_KEY_ISSUE_FAILED: '카드 등록 정보를 저장하지 못했어요. 잠시 후 다시 시도해주세요.',
+  PAYMENT_FAILED: '최초 결제를 완료하지 못했어요. 카드 한도와 잔액을 확인해주세요.',
+  PAYMENT_IN_PROGRESS: '이미 처리 중인 결제가 있어요. 잠시 후 구독 상태를 확인해주세요.',
+  PAYMENT_STATUS_CHECK_FAILED: '결제 승인 상태를 확인하지 못했어요. 다시 결제하지 말고 잠시 후 확인해주세요.',
+  INTERNAL_ERROR: '결제 처리 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.',
+  '1': '카드 등록에 실패했어요. 다시 시도해주세요.',
+}
+
+export function paymentErrorMessage(code: string | null) {
+  if (!code) return null
+  return PAYMENT_ERROR_MESSAGES[code] ?? '결제를 완료하지 못했어요. 잠시 후 다시 시도해주세요.'
+}
+
 function SubscriptionPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const {
+    user,
     isAuthenticated,
     isLoading: authLoading,
     authStatus: rawAuthStatus,
@@ -33,10 +52,11 @@ function SubscriptionPageContent() {
     mutate,
   } = useMySubscription(authStatus === 'authenticated')
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null)
+  const [billingConsent, setBillingConsent] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(
-    () => searchParams.get('error') === '1' ? '카드 등록에 실패했어요. 다시 시도해주세요.' : null
-  )
+  const [error, setError] = useState<string | null>(() => paymentErrorMessage(
+    searchParams.get('error') ?? searchParams.get('code'),
+  ))
   const [success] = useState(() => searchParams.get('success') === '1')
 
   const serviceActive = mySubscription?.serviceActive ?? false
@@ -57,7 +77,7 @@ function SubscriptionPageContent() {
     if (searchParams.get('success') === '1') {
       mutate()
       router.replace('/my/subscription')
-    } else if (searchParams.get('error') === '1') {
+    } else if (searchParams.get('error') ?? searchParams.get('code')) {
       router.replace('/my/subscription')
     }
   }, [searchParams, mutate, router])
@@ -71,7 +91,7 @@ function SubscriptionPageContent() {
   const subscriptionDataUnavailable = Boolean(subError || plansError)
 
   async function handleSubscribe() {
-    if (!selectedPlan) return
+    if (!selectedPlan || !billingConsent) return
     setLoading(true)
     setError(null)
 
@@ -85,7 +105,9 @@ function SubscriptionPageContent() {
       await payment.requestBillingAuth({
         method: 'CARD',
         successUrl: resolveSubscriptionCallbackUrl(window.location.origin),
-        failUrl: `${window.location.origin}/my/subscription?error=1`,
+        failUrl: `${window.location.origin}/my/subscription`,
+        customerEmail: user?.email,
+        customerName: user?.name,
       })
     } catch (e) {
       setError(e instanceof Error ? e.message : '결제 중 오류가 발생했어요')
@@ -162,7 +184,12 @@ function SubscriptionPageContent() {
               return (
                 <button
                   key={plan.id}
-                  onClick={() => !isCurrent && setSelectedPlan(plan)}
+                  onClick={() => {
+                    if (!isCurrent) {
+                      setSelectedPlan(plan)
+                      setBillingConsent(false)
+                    }
+                  }}
                   disabled={isCurrent}
                   className={cn(
                     'w-full text-left rounded-2xl border p-4 transition-colors',
@@ -211,15 +238,46 @@ function SubscriptionPageContent() {
           <p className="mb-4 text-xs text-gray-500">구독 정보를 불러오지 못했어요. 결제 상태를 확인한 뒤 다시 시도해주세요.</p>
         )}
 
+        {!serviceActive && selectedPlan && (
+          <div className="mb-4 rounded-2xl border border-gray-200 bg-gray-50 p-4">
+            <div className="flex items-center justify-between text-sm">
+              <span className="font-medium text-gray-700">최초 결제 금액</span>
+              <strong className="text-gray-900">{formatPrice(selectedPlan.price)}</strong>
+            </div>
+            <p className="mt-2 text-xs leading-relaxed text-gray-500">
+              카드 인증이 완료되면 위 금액이 즉시 결제되고, 이후 {billingCycleUnit(selectedPlan.billingCycle)} 단위로 자동 갱신됩니다.
+              다음 결제일 전까지 언제든 해지할 수 있으며, 해지 후에는 결제된 이용 기간까지 사용할 수 있습니다.
+            </p>
+            <label className="mt-3 flex cursor-pointer items-start gap-2 text-xs text-gray-700">
+              <input
+                type="checkbox"
+                checked={billingConsent}
+                onChange={(event) => setBillingConsent(event.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-gray-300"
+              />
+              <span>
+                최초 결제와 정기 자동결제에 동의합니다.{' '}
+                <Link href="/terms" className="text-blue-600 underline underline-offset-2">이용약관</Link>
+                {' · '}
+                <Link href="/privacy" className="text-blue-600 underline underline-offset-2">개인정보처리방침</Link>
+              </span>
+            </label>
+          </div>
+        )}
+
         {/* CTA */}
         {!serviceActive ? (
           <Button
             fullWidth
             size="lg"
             onClick={handleSubscribe}
-            disabled={!selectedPlan || loading || subscriptionDataUnavailable}
+            disabled={!selectedPlan || !billingConsent || loading || subscriptionDataUnavailable}
           >
-            {loading ? '처리 중...' : expiredCancellation || !mySubscription ? '결제 카드 등록하기' : '다시 구독하기'}
+            {loading
+              ? '처리 중...'
+              : selectedPlan
+                ? `${formatPrice(selectedPlan.price)} 결제하고 ${selectedPlan.name} 시작하기`
+                : '플랜을 선택해주세요'}
           </Button>
         ) : canCancel ? (
           <button

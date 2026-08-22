@@ -25,14 +25,18 @@ const SECTIONS = [
   },
   {
     title: '제5조 (유료 구독)',
-    body: '유료 구독은 결제일 기준 1개월 단위로 자동 갱신됩니다. 구독 해지는 언제든 가능하며, 해지 시 이미 결제된 기간이 종료될 때까지 구독 혜택이 유지됩니다.',
+    body: '유료 구독은 월간 또는 연간 플랜으로 제공됩니다. 카드 인증을 완료하면 선택한 플랜 금액이 즉시 최초 결제되며, 이후 최초 결제일을 기준으로 선택한 월간 또는 연간 주기에 따라 자동 갱신됩니다. 결제 금액과 갱신 주기는 결제 요청 전에 화면에 표시합니다.',
   },
   {
-    title: '제6조 (서비스의 변경 및 중단)',
+    title: '제6조 (구독 해지 및 환불)',
+    body: '구독은 다음 결제일 전까지 언제든 해지할 수 있습니다. 해지 즉시 다음 자동결제가 중단되며, 이미 결제된 이용 기간이 끝날 때까지 구독 혜택이 유지됩니다. 청약철회와 환불은 서비스 제공 여부, 이용 내역 및 관련 법령을 기준으로 처리하며, 법령에서 보장하는 이용자의 권리를 제한하지 않습니다. 결제·환불 문의는 ohhalim777@gmail.com 으로 접수할 수 있습니다.',
+  },
+  {
+    title: '제7조 (서비스의 변경 및 중단)',
     body: '서비스는 운영상·기술상 필요에 따라 제공 내용을 변경하거나 중단할 수 있으며, 중대한 변경 시 사전에 공지합니다.',
   },
   {
-    title: '제7조 (약관의 변경)',
+    title: '제8조 (약관의 변경)',
     body: '본 약관은 관련 법령을 위반하지 않는 범위에서 개정될 수 있으며, 개정 시 서비스 내 공지합니다.',
   },
 ] as const
@@ -42,7 +46,7 @@ export default function TermsPage() {
     <div className="max-w-2xl mx-auto px-6 py-10">
       <Link href="/" className="text-sm text-blue-500 hover:underline">← 돌아가기</Link>
       <h1 className="text-2xl font-bold text-gray-900 mt-4 mb-2">이용약관</h1>
-      <p className="text-xs text-gray-400 mb-8">시행일: 2026년 7월 7일</p>
+      <p className="text-xs text-gray-400 mb-8">시행일: 2026년 8월 22일</p>
 
       <div className="space-y-6">
         {SECTIONS.map(({ title, body }) => (
