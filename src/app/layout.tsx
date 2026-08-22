@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { EXCHANGE_NAMES_TEXT } from '@/lib/exchanges';
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
+import { BusinessFooter } from '@/components/layout/BusinessFooter';
 import "./globals.css";
 
 const geistSans = Geist({
@@ -53,6 +54,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         {children}
+        <BusinessFooter />
         <GoogleAnalytics />
       </body>
     </html>

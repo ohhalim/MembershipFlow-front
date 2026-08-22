@@ -34,6 +34,12 @@ jobs:
           push: true
           build-args: |
             NEXT_PUBLIC_GA_MEASUREMENT_ID=${{ secrets.NEXT_PUBLIC_GA_MEASUREMENT_ID }}
+            NEXT_PUBLIC_BUSINESS_NAME=${{ vars.NEXT_PUBLIC_BUSINESS_NAME }}
+            NEXT_PUBLIC_BUSINESS_REGISTRATION_NUMBER=${{ vars.NEXT_PUBLIC_BUSINESS_REGISTRATION_NUMBER }}
+            NEXT_PUBLIC_BUSINESS_REPRESENTATIVE=${{ vars.NEXT_PUBLIC_BUSINESS_REPRESENTATIVE }}
+            NEXT_PUBLIC_BUSINESS_ADDRESS=${{ vars.NEXT_PUBLIC_BUSINESS_ADDRESS }}
+            NEXT_PUBLIC_BUSINESS_PHONE=${{ vars.NEXT_PUBLIC_BUSINESS_PHONE }}
+            NEXT_PUBLIC_BUSINESS_EMAIL=${{ vars.NEXT_PUBLIC_BUSINESS_EMAIL }}
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
