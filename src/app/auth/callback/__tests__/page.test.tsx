@@ -14,6 +14,7 @@ describe('AuthCallbackPage', () => {
     mockReplace.mockClear()
     mockParams = {}
     localStorage.clear()
+    sessionStorage.clear()
   })
 
   it('로딩 중 텍스트를 렌더링한다', () => {
@@ -25,6 +26,16 @@ describe('AuthCallbackPage', () => {
     mockParams = { success: 'true' }
     render(<AuthCallbackPage />)
     expect(mockReplace).toHaveBeenCalledWith('/home')
+  })
+
+  it('구독 상품에서 시작한 로그인은 구독 화면으로 복귀한다', () => {
+    sessionStorage.setItem('membershipflow_post_login_path', '/my/subscription')
+    mockParams = { success: 'true' }
+
+    render(<AuthCallbackPage />)
+
+    expect(mockReplace).toHaveBeenCalledWith('/my/subscription')
+    expect(sessionStorage.getItem('membershipflow_post_login_path')).toBeNull()
   })
 
   it('success가 없으면 로그인 페이지로 이동한다', () => {

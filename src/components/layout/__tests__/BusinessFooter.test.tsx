@@ -28,5 +28,6 @@ describe('BusinessFooter', () => {
     expect(screen.getByText(/인천광역시 테스트로 1/)).toBeInTheDocument()
     expect(screen.getByRole('link', { name: '010-0000-0000' })).toHaveAttribute('href', 'tel:010-0000-0000')
     expect(screen.getByRole('link', { name: 'support@example.com' })).toHaveAttribute('href', 'mailto:support@example.com')
+    expect(screen.getByRole('link', { name: '구독 상품' })).toHaveAttribute('href', '/pricing')
   })
 })

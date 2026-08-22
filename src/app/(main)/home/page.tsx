@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import Link from 'next/link'
 import { Search, BarChart2, Bell, TrendingUp, ArrowRight } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 import { CourseCard } from '@/components/course/CourseCard'
@@ -60,6 +61,9 @@ function LoginBanner() {
         </svg>
         Google로 계속하기
       </button>
+      <Link href="/pricing" className="mt-2 block text-center text-xs font-semibold text-blue-600 hover:underline">
+        구독 상품과 가격 먼저 보기
+      </Link>
     </div>
   )
 }

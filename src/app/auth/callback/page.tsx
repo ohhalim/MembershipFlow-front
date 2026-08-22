@@ -3,6 +3,7 @@
 import { Suspense, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Skeleton } from '@/components/ui/Skeleton'
+import { consumePostLoginPath } from '@/lib/postLoginRedirect'
 
 function CallbackHandler() {
   const router = useRouter()
@@ -12,7 +13,7 @@ function CallbackHandler() {
     // 토큰은 백엔드가 HttpOnly 쿠키로 발급한다 (fe#49) — 여기서는 성공 여부만 보고 이동.
     // URL에 병행 발급 중인 ?token=은 읽지도 저장하지도 않는다.
     if (searchParams.get('success') === 'true') {
-      router.replace('/home')
+      router.replace(consumePostLoginPath('/home'))
     } else {
       router.replace('/login')
     }
