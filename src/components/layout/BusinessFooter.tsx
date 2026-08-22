@@ -12,7 +12,7 @@ export function BusinessFooter() {
   if (Object.values(businessInfo).some((value) => !value)) return null
 
   return (
-    <footer className="border-t border-gray-200 bg-gray-50 px-6 py-6 text-xs leading-relaxed text-gray-500">
+    <footer className="border-t border-gray-200 bg-gray-50 px-6 py-6 text-xs leading-relaxed text-gray-500 lg:ml-52 lg:mr-72">
       <div className="mx-auto max-w-4xl space-y-1">
         <p>
           <strong className="font-semibold text-gray-700">{businessInfo.name}</strong>
