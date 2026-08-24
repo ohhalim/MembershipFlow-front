@@ -149,6 +149,10 @@ export interface BillingPrepareResponse {
   planId: number
 }
 
+export interface PaddleTransactionResponse {
+  transactionId: string
+}
+
 export interface MySubscription {
   id: number
   plan: { id: number; code: string; name: string; price: number; billingCycle: BillingCycle }

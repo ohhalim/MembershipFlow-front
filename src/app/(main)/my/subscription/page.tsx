@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
+import { CheckoutEventNames, initializePaddle } from '@paddle/paddle-js'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth'
@@ -13,7 +14,6 @@ import { useSubscriptionPlans, useMySubscription } from '@/lib/hooks/useSubscrip
 import { subscriptionApi } from '@/lib/api/subscription'
 import { billingCycleUnit, formatPrice } from '@/lib/utils'
 import type { SubscriptionPlan } from '@/lib/types'
-import { resolveSubscriptionCallbackUrl } from '@/lib/subscriptionUrls'
 
 const PAYMENT_ERROR_MESSAGES: Record<string, string> = {
   PAY_PROCESS_CANCELED: '카드 등록을 취소했어요.',
@@ -36,7 +36,6 @@ function SubscriptionPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const {
-    user,
     isAuthenticated,
     isLoading: authLoading,
     authStatus: rawAuthStatus,
@@ -54,10 +53,11 @@ function SubscriptionPageContent() {
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null)
   const [billingConsent, setBillingConsent] = useState(false)
   const [loading, setLoading] = useState(false)
+  const checkoutCompletedRef = useRef(false)
   const [error, setError] = useState<string | null>(() => paymentErrorMessage(
     searchParams.get('error') ?? searchParams.get('code'),
   ))
-  const [success] = useState(() => searchParams.get('success') === '1')
+  const [success, setSuccess] = useState(() => searchParams.get('success') === '1')
 
   const serviceActive = mySubscription?.serviceActive ?? false
   const canCancel = mySubscription?.status === 'ACTIVE'
@@ -96,23 +96,53 @@ function SubscriptionPageContent() {
     setError(null)
 
     try {
-      const { customerKey, clientKey } = await subscriptionApi.prepare(selectedPlan.id)
+      const token = process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN
+      if (!token) throw new Error('Paddle 결제 설정을 확인해주세요.')
+      const environment = process.env.NEXT_PUBLIC_PADDLE_ENV === 'production'
+        ? 'production'
+        : 'sandbox'
 
-      const { loadTossPayments } = await import('@tosspayments/tosspayments-sdk')
-      const tossPayments = await loadTossPayments(clientKey)
-      const payment = tossPayments.payment({ customerKey })
-
-      await payment.requestBillingAuth({
-        method: 'CARD',
-        successUrl: resolveSubscriptionCallbackUrl(window.location.origin),
-        failUrl: `${window.location.origin}/my/subscription`,
-        customerEmail: user?.email,
-        customerName: user?.name,
+      const { transactionId } = await subscriptionApi.createPaddleTransaction(selectedPlan.id)
+      checkoutCompletedRef.current = false
+      const paddle = await initializePaddle({
+        token,
+        environment,
+        eventCallback: (event) => {
+          if (event.name === CheckoutEventNames.CHECKOUT_COMPLETED) {
+            checkoutCompletedRef.current = true
+            void refreshCompletedSubscription()
+          } else if (event.name === CheckoutEventNames.CHECKOUT_CLOSED
+            && !checkoutCompletedRef.current) {
+            setLoading(false)
+          } else if (event.name === CheckoutEventNames.CHECKOUT_ERROR
+            || event.name === CheckoutEventNames.CHECKOUT_FAILED) {
+            setError('결제를 완료하지 못했어요. 입력 정보와 결제수단을 확인해주세요.')
+            setLoading(false)
+          }
+        },
       })
+      if (!paddle) throw new Error('결제창을 불러오지 못했어요.')
+      paddle.Checkout.open({ transactionId })
     } catch (e) {
       setError(e instanceof Error ? e.message : '결제 중 오류가 발생했어요')
       setLoading(false)
     }
+  }
+
+  async function refreshCompletedSubscription() {
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+      const subscription = await mutate()
+      if (subscription?.serviceActive) {
+        setSuccess(true)
+        setSelectedPlan(null)
+        setBillingConsent(false)
+        setLoading(false)
+        return
+      }
+      await new Promise((resolve) => window.setTimeout(resolve, 1000))
+    }
+    setError('결제는 완료됐지만 구독 반영을 확인 중이에요. 잠시 후 새로고침해주세요.')
+    setLoading(false)
   }
 
   async function handleCancel() {
