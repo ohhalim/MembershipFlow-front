@@ -28,6 +28,8 @@ describe('PricingPage', () => {
     expect(screen.getByText('9만원')).toBeInTheDocument()
     expect(screen.getByText(/카드 인증 완료 후 선택한 플랜 금액이 최초 결제/)).toBeInTheDocument()
     expect(screen.getByText(/다음 결제일 전까지 언제든 해지/)).toBeInTheDocument()
+    expect(screen.getByText(/Paddle이 판매·결제 주체/)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: '환불정책' })).toHaveAttribute('href', '/refund')
   })
 
   it('로그인 진입 전에 구독 화면 복귀 경로를 저장한다', () => {

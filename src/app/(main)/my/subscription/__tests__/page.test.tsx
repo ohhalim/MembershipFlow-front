@@ -92,7 +92,7 @@ describe('SubscriptionPage', () => {
   it('자동결제 동의 후 서버가 생성한 거래 ID로 Paddle Checkout을 연다', async () => {
     render(<SubscriptionPage />)
     fireEvent.click(screen.getByRole('button', { name: /월간 구독/ }))
-    fireEvent.click(screen.getByRole('checkbox', { name: /최초 결제와 정기 자동결제에 동의/ }))
+    fireEvent.click(screen.getByRole('checkbox', { name: /표시된 최초 결제 금액과 정기 자동결제/ }))
     fireEvent.click(screen.getByRole('button', { name: '1만원 결제하고 월간 구독 시작하기' }))
 
     await waitFor(() => {

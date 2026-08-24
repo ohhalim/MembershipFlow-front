@@ -286,8 +286,10 @@ function SubscriptionPageContent() {
                 className="mt-0.5 h-4 w-4 rounded border-gray-300"
               />
               <span>
-                최초 결제와 정기 자동결제에 동의합니다.{' '}
+                표시된 최초 결제 금액과 정기 자동결제, 이용약관 및 환불정책에 동의합니다.{' '}
                 <Link href="/terms" className="text-blue-600 underline underline-offset-2">이용약관</Link>
+                {' · '}
+                <Link href="/refund" className="text-blue-600 underline underline-offset-2">환불정책</Link>
                 {' · '}
                 <Link href="/privacy" className="text-blue-600 underline underline-offset-2">개인정보처리방침</Link>
               </span>
