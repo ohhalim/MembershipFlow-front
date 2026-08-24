@@ -45,7 +45,7 @@ const SECTIONS = [
   },
   {
     title: '제10조 (사업자 및 고객지원)',
-    body: '사업자명: 멤버십플로우 · 대표자: 오하림 · 고객지원 이메일: ohhalim777@gmail.com · 고객지원 전화: 010-7107-0766. 상품 이용 문의는 MembershipFlow 고객지원으로, 결제·영수증·환불 문의는 Paddle Buyer Support로 접수할 수 있습니다.',
+    body: '사업자명: 멤버쉽플로우 · 대표자: 오하림 · 고객지원 이메일: ohhalim777@gmail.com · 고객지원 전화: 010-7107-0766. 상품 이용 문의는 MembershipFlow 고객지원으로, 결제·영수증·환불 문의는 Paddle Buyer Support로 접수할 수 있습니다.',
   },
 ] as const
 
