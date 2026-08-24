@@ -33,6 +33,7 @@ const mockItems = [
 
 describe('WatchlistPage', () => {
   beforeEach(() => {
+    jest.clearAllMocks()
     mockUseAuth.mockReturnValue({
       user: { id: 1, email: 'test@test.com', name: '테스터' },
       isAuthenticated: true,
@@ -57,7 +58,7 @@ describe('WatchlistPage', () => {
 
   it('목표가를 표시한다', () => {
     render(<WatchlistPage />)
-    expect(screen.getByText('목표가')).toBeInTheDocument()
+    expect(screen.getAllByText('목표가')).toHaveLength(2)
     expect(screen.getByText('2억 3,000만원')).toBeInTheDocument()
   })
 
@@ -76,6 +77,45 @@ describe('WatchlistPage', () => {
     await waitFor(() => {
       expect(mockUpdate).toHaveBeenCalledWith(1, { alertYn: false, targetPrice: 230000000 })
     })
+  })
+
+  it('목표가를 입력하면 기존 알림 상태를 유지해 저장한다', async () => {
+    render(<WatchlistPage />)
+
+    fireEvent.change(screen.getByLabelText('목표가(원)', { selector: '#target-price-2' }), {
+      target: { value: '200000000' },
+    })
+    fireEvent.submit(screen.getByRole('form', { name: '제주 CC 목표가 설정' }))
+
+    await waitFor(() => {
+      expect(mockUpdate).toHaveBeenCalledWith(2, {
+        targetPrice: 200000000,
+        alertYn: false,
+      })
+    })
+  })
+
+  it('목표가에 숫자가 아닌 값을 입력하면 저장하지 않는다', async () => {
+    render(<WatchlistPage />)
+
+    fireEvent.change(screen.getByLabelText('목표가(원)', { selector: '#target-price-2' }), {
+      target: { value: '가격' },
+    })
+    fireEvent.submit(screen.getByRole('form', { name: '제주 CC 목표가 설정' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      '목표가는 1원 이상의 숫자로 입력해주세요.',
+    )
+    expect(mockUpdate).not.toHaveBeenCalled()
+  })
+
+  it('목표가가 없으면 알림을 활성화하지 않는다', async () => {
+    render(<WatchlistPage />)
+
+    fireEvent.click(screen.getAllByRole('switch')[1])
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('목표가를 먼저 입력해주세요.')
+    expect(mockUpdate).not.toHaveBeenCalled()
   })
 
   it('삭제 버튼 클릭 시 remove를 호출한다', async () => {
