@@ -143,6 +143,10 @@ export const billingPrepareSchema = z.object({
   planId: z.number(),
 })
 
+export const paddleTransactionSchema = z.object({
+  transactionId: z.string().startsWith('txn_'),
+})
+
 export const mySubscriptionSchema = z.object({
   id: z.number(),
   plan: z.object({

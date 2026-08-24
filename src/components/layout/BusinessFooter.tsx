@@ -29,6 +29,7 @@ export function BusinessFooter() {
         <div className="flex gap-3 pt-1">
           <Link href="/pricing" className="hover:text-gray-700">구독 상품</Link>
           <Link href="/terms" className="hover:text-gray-700">이용약관</Link>
+          <Link href="/refund" className="hover:text-gray-700">환불정책</Link>
           <Link href="/privacy" className="hover:text-gray-700">개인정보처리방침</Link>
         </div>
       </div>

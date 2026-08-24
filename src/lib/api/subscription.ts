@@ -1,10 +1,11 @@
 import { apiClient } from './client'
-import type { SubscriptionPlan, BillingPrepareResponse, MySubscription } from '@/lib/types'
+import type { SubscriptionPlan, BillingPrepareResponse, MySubscription, PaddleTransactionResponse } from '@/lib/types'
 import { z } from 'zod'
 import {
   billingPrepareSchema,
   cancelResponseSchema,
   mySubscriptionSchema,
+  paddleTransactionSchema,
   subscriptionPlanSchema,
 } from './schemas'
 
@@ -18,6 +19,14 @@ export const subscriptionApi = {
       `/api/v1/subscriptions/prepare?planId=${planId}`,
       {},
       billingPrepareSchema,
+    )
+  },
+
+  createPaddleTransaction(planId: number): Promise<PaddleTransactionResponse> {
+    return apiClient.post(
+      `/api/v1/subscriptions/paddle/transactions?planId=${planId}`,
+      {},
+      paddleTransactionSchema,
     )
   },
 

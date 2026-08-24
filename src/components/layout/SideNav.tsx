@@ -87,8 +87,9 @@ export function SideNav() {
         <NotificationBell variant="sidenav" />
       </nav>
 
-      <div className="mt-auto px-3 flex gap-3 text-[11px] text-gray-400">
+      <div className="mt-auto flex flex-wrap gap-x-3 gap-y-1 px-3 text-[11px] text-gray-400">
         <Link href="/terms" className="hover:text-gray-600">이용약관</Link>
+        <Link href="/refund" className="hover:text-gray-600">환불정책</Link>
         <Link href="/privacy" className="hover:text-gray-600">개인정보처리방침</Link>
       </div>
     </div>

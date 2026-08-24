@@ -90,10 +90,14 @@ export default function PricingPage() {
             <li>• 월간 또는 연간 주기로 자동 갱신됩니다.</li>
             <li>• 다음 결제일 전까지 언제든 해지할 수 있으며 추가 결제가 중단됩니다.</li>
             <li>• 해지 후에도 이미 결제한 이용 기간까지 서비스를 사용할 수 있습니다.</li>
+            <li>• 최종 결제 금액, 통화와 적용 세금은 Paddle Checkout에서 결제 전에 표시됩니다.</li>
+            <li>• Paddle이 판매·결제 주체(Merchant of Record)로서 결제와 환불을 처리합니다.</li>
           </ul>
           <p className="mt-3">
             자세한 내용은{' '}
             <Link href="/terms" className="text-blue-600 underline underline-offset-2">이용약관</Link>
+            {' · '}
+            <Link href="/refund" className="text-blue-600 underline underline-offset-2">환불정책</Link>
             {' · '}
             <Link href="/privacy" className="text-blue-600 underline underline-offset-2">개인정보처리방침</Link>
             에서 확인할 수 있습니다.

@@ -12,6 +12,7 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
+    "@paddle/paddle-js": "^1.6.4",
     "@stomp/stompjs": "^7.3.0",
     "@tosspayments/tosspayments-sdk": "^2.7.1",
     "lucide-react": "^1.21.0",
