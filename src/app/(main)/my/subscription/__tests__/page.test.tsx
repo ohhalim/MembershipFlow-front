@@ -13,16 +13,22 @@ jest.mock('@/lib/auth', () => ({
     logout: jest.fn(),
   }),
 }))
-const mockRequestBillingAuth = jest.fn()
-const mockLoadTossPayments = jest.fn()
-jest.mock('@tosspayments/tosspayments-sdk', () => ({
-  loadTossPayments: (...args: unknown[]) => mockLoadTossPayments(...args),
+const mockCheckoutOpen = jest.fn()
+const mockInitializePaddle = jest.fn()
+jest.mock('@paddle/paddle-js', () => ({
+  CheckoutEventNames: {
+    CHECKOUT_COMPLETED: 'checkout.completed',
+    CHECKOUT_CLOSED: 'checkout.closed',
+    CHECKOUT_ERROR: 'checkout.error',
+    CHECKOUT_FAILED: 'checkout.failed',
+  },
+  initializePaddle: (...args: unknown[]) => mockInitializePaddle(...args),
 }))
 
-const mockPrepare = jest.fn()
+const mockCreatePaddleTransaction = jest.fn()
 jest.mock('@/lib/api/subscription', () => ({
   subscriptionApi: {
-    prepare: (...args: unknown[]) => mockPrepare(...args),
+    createPaddleTransaction: (...args: unknown[]) => mockCreatePaddleTransaction(...args),
     cancel: jest.fn(),
   },
 }))
@@ -43,11 +49,9 @@ describe('SubscriptionPage', () => {
   beforeEach(() => {
     mockUsePlans.mockReturnValue({ data: mockPlans, isLoading: false })
     mockUseMySub.mockReturnValue({ data: null, isLoading: false, mutate: jest.fn() })
-    mockPrepare.mockResolvedValue({ customerKey: 'ck_test', clientKey: 'toss_test', planId: 1 })
-    mockRequestBillingAuth.mockResolvedValue(undefined)
-    mockLoadTossPayments.mockResolvedValue({
-      payment: () => ({ requestBillingAuth: mockRequestBillingAuth }),
-    })
+    process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN = 'test_token'
+    mockCreatePaddleTransaction.mockResolvedValue({ transactionId: 'txn_test' })
+    mockInitializePaddle.mockResolvedValue({ Checkout: { open: mockCheckoutOpen } })
   })
 
   it('플랜 목록을 렌더링한다', () => {
@@ -85,19 +89,19 @@ describe('SubscriptionPage', () => {
     expect(screen.getByRole('button', { name: '1만원 결제하고 월간 구독 시작하기' })).toBeDisabled()
   })
 
-  it('자동결제 동의 후 사용자 정보와 콜백 URL로 Toss 등록창을 요청한다', async () => {
+  it('자동결제 동의 후 서버가 생성한 거래 ID로 Paddle Checkout을 연다', async () => {
     render(<SubscriptionPage />)
     fireEvent.click(screen.getByRole('button', { name: /월간 구독/ }))
     fireEvent.click(screen.getByRole('checkbox', { name: /최초 결제와 정기 자동결제에 동의/ }))
     fireEvent.click(screen.getByRole('button', { name: '1만원 결제하고 월간 구독 시작하기' }))
 
     await waitFor(() => {
-      expect(mockRequestBillingAuth).toHaveBeenCalledWith(expect.objectContaining({
-        method: 'CARD',
-        customerEmail: 'test@test.com',
-        customerName: '테스터',
-        failUrl: 'http://localhost/my/subscription',
+      expect(mockCreatePaddleTransaction).toHaveBeenCalledWith(1)
+      expect(mockInitializePaddle).toHaveBeenCalledWith(expect.objectContaining({
+        token: 'test_token',
+        environment: 'sandbox',
       }))
+      expect(mockCheckoutOpen).toHaveBeenCalledWith({ transactionId: 'txn_test' })
     })
   })
 
