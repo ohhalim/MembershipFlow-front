@@ -18,6 +18,7 @@ describe('sitemap', () => {
 
     expect(result.some((r) => r.url === 'https://membershipflow.site')).toBe(true)
     expect(result.some((r) => r.url === 'https://membershipflow.site/ranking')).toBe(true)
+    expect(result.some((r) => r.url === 'https://membershipflow.site/refund')).toBe(true)
     expect(result.some((r) => r.url === 'https://membershipflow.site/login')).toBe(false)
   })
 
