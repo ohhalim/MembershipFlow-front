@@ -13,4 +13,13 @@ describe('RefundPage', () => {
     )
     expect(screen.getByRole('link', { name: 'Paddle Buyer Support' })).toHaveAttribute('href', 'https://paddle.net')
   })
+
+  it('조건 없는 30일 환불 보장을 국문·영문으로 명시한다', () => {
+    render(<RefundPage />)
+
+    expect(screen.getByRole('heading', { name: '30일 무조건 환불 보장' })).toBeInTheDocument()
+    expect(screen.getByText(/사유를 묻지 않고 전액 환불/)).toBeInTheDocument()
+    expect(screen.getByText(/No questions asked/)).toBeInTheDocument()
+    expect(screen.getByText(/조건은 없습니다/)).toBeInTheDocument()
+  })
 })
