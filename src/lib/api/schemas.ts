@@ -178,3 +178,22 @@ export const authUserSchema = z.object({
   email: z.string(),
   name: z.string(),
 })
+
+export const attendanceStatusSchema = z.object({
+  attendedToday: z.boolean(),
+  dayNo: z.number(),
+  couponCount: z.number(),
+  couponLimitReached: z.boolean(),
+  inPeriod: z.boolean(),
+})
+
+export const attendanceResultSchema = z.object({
+  attendDate: z.string(),
+  dayNo: z.number(),
+  streakBroken: z.boolean(),
+})
+
+export const participantCountSchema = z.object({
+  count: z.number(),
+  inPeriod: z.boolean(),
+})

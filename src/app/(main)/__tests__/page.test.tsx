@@ -8,6 +8,8 @@ jest.mock('@/lib/auth', () => ({
   useAuth: () => ({ user: null, isAuthenticated: false, isLoading: false, logout: jest.fn() }),
 }))
 
+jest.mock('@/components/attendance/AttendancePopup', () => ({ AttendancePopup: () => null }))
+
 const mockCourses = [
   { id: 1, name: '서울 CC', region: '서울', category: 'GOLF' as const, membershipType: '개인', latestPrice: 250000000, changeRate: 2.5, updatedAt: '2024-01-01' },
   { id: 2, name: '하이원 콘도', region: '강원', category: 'CONDO' as const, membershipType: '가족', latestPrice: 50000000, changeRate: -1.2, updatedAt: '2024-01-01' },

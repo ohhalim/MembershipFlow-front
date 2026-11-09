@@ -6,6 +6,7 @@ import { Search, BarChart2, Bell, TrendingUp, ArrowRight } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 import { CourseCard } from '@/components/course/CourseCard'
 import { MarketSummaryStrip } from '@/components/course/MarketSummaryStrip'
+import { AttendancePopup } from '@/components/attendance/AttendancePopup'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { cn } from '@/lib/cn'
 import { useCourseList } from '@/lib/hooks/useCourses'
@@ -120,6 +121,7 @@ export default function HomePage() {
         {EXCHANGE_COUNT}개 회원권 거래소 시세 한눈에 비교
       </p>
 
+      <AttendancePopup />
       <LoginBanner />
 
       {/* 검색 */}
